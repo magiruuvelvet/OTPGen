@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/">
+        <file>GuiAssets/app-icon.svgz</file>
+        <file>GuiAssets/add.svgz</file>
+        <file>GuiAssets/close.svgz</file>
+        <file>GuiAssets/import.svgz</file>
+        <file>GuiAssets/maximize.svgz</file>
+        <file>GuiAssets/minimize.svgz</file>
+        <file>GuiAssets/remove.svgz</file>
+        <file>GuiAssets/restore.svgz</file>
+        <file>GuiAssets/save.svgz</file>
+        <file>GuiAssets/tray-icon.png</file>
+        <file>GuiAssets/logos/andotp.svgz</file>
+        <file>GuiAssets/logos/authy.svgz</file>
+        <file>GuiAssets/logos/steam.svgz</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,274 @@
+#include "OTPWidget.hpp"
+
+#include <QIntValidator>
+
+OTPWidget::OTPWidget(Mode mode, QWidget *parent)
+    : QWidget(parent)
+{
+    vbox = GuiHelpers::make_vbox();
+
+    _tokens = std::make_shared<TokenTableWidget>(static_cast<TokenTableWidget::Mode>(mode));
+    labels = {
+        {"Show",        Visibility::View}, // checkbox for "Token"
+        {"Type",        Visibility::Both}, // dropdown -or- lineedit (depending on view mode)
+        {"Label",       Visibility::Both}, // lineedit
+        {"Secret",      Visibility::Edit}, // lineedit
+        {"Digits",      Visibility::Edit}, // lineedit (unsigned integer)
+        {"Period",      Visibility::Edit}, // lineedit (unsigned integer)
+        {"Counter",     Visibility::Edit}, // lineedit (unsigned integer)
+        {"Algorithm",   Visibility::Edit}, // dropdown
+        {"Token",       Visibility::View}, // lineedit (read only)
+        {"Delete",      Visibility::Edit}, // pushbutton (delete)
+    };
+
+    _tokens->setFrameShadow(QFrame::Plain);
+    _tokens->setFrameShape(QFrame::NoFrame);
+    _tokens->setFrameRect(QRect());
+
+    _tokens->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+
+    // disable selection highlighting / glow
+    _tokens->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    _tokens->setFocusPolicy(Qt::NoFocus);
+
+    if (mode == Mode::Edit)
+    {
+        this->setWindowTitle(GuiHelpers::make_windowTitle("Edit Tokens"));
+
+        _tokens->verticalHeader()->hide();
+        //_tokens->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        //_tokens->setSelectionBehavior(QAbstractItemView::SelectRows);
+        _tokens->setSelectionMode(QAbstractItemView::NoSelection);
+
+        _tokens->setColumnCount(8);
+        _tokens->setHorizontalHeaderLabels(([&]{
+            QStringList headers;
+            for (auto&& l : labels)
+                if (l.visibility == Visibility::Both ||
+                    l.visibility == Visibility::Edit)
+                    headers.append(l.label);
+            return headers;
+        })());
+
+        _tokens->setColumnWidth(0, 100); // Type
+
+        _tokens->setColumnWidth(1, 210); // Label
+        _tokens->setColumnWidth(2, 290); // Secret
+
+        _tokens->resizeColumnToContents(3); // Digits
+        _tokens->resizeColumnToContents(4); // Period
+        _tokens->resizeColumnToContents(5); // Counter
+
+        _tokens->setColumnWidth(6, 100); // Algorithm
+
+        _tokens->resizeColumnToContents(7); // Delete Button
+    }
+    else
+    {
+        this->setWindowTitle(GuiHelpers::make_windowTitle("Tokens"));
+
+        _tokens->verticalHeader()->hide();
+        _tokens->setSelectionMode(QAbstractItemView::NoSelection);
+
+        _tokens->setColumnCount(4);
+        _tokens->setHorizontalHeaderLabels(([&]{
+            QStringList headers;
+            for (auto&& l : labels)
+                if (l.visibility == Visibility::Both ||
+                    l.visibility == Visibility::View)
+                    headers.append(l.label);
+            return headers;
+        })());
+
+        _tokens->resizeColumnToContents(0); // Show
+
+        _tokens->setColumnWidth(1, 70); // Type
+        _tokens->setColumnWidth(2, 170); // Label
+        _tokens->setColumnWidth(3, 110); // Token
+    }
+
+    vbox->addWidget(_tokens.get());
+    this->setLayout(vbox.get());
+}
+
+OTPWidget::~OTPWidget()
+{
+}
+
+TokenTableWidget *OTPWidget::tokens()
+{
+    return _tokens.get();
+}
+
+QCheckBox *OTPWidget::make_showToggle(int row, const QObject *receiver, const std::function<void(bool)> &callback)
+{
+    auto cb = new QCheckBox();
+    cb->setUserData(0, new TableWidgetCellUserData(row));
+    QObject::connect(cb, &QCheckBox::toggled, receiver, callback);
+    return cb;
+}
+
+QComboBox *OTPWidget::make_typeCb(int row, const QObject *receiver, const std::function<void(int)> &callback)
+{
+    auto cb = new QComboBox();
+    cb->setFrame(false);
+    cb->setAutoFillBackground(true);
+    cb->setPalette(GuiHelpers::make_cb_theme(cb->palette()));
+    cb->setStyleSheet("color: black");
+    cb->setUserData(0, new TableWidgetCellUserData(row));
+    cb->insertItem(0, "  TOTP",  OTPToken::TOTP);
+    cb->insertItem(1, "  HOTP",  OTPToken::HOTP);
+    cb->insertItem(2, "  Steam", OTPToken::Steam);
+    cb->insertItem(3, "  Authy", OTPToken::Authy);
+
+    QObject::connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), receiver, callback);
+    cb->setCurrentIndex(0);
+    return cb;
+}
+
+QComboBox *OTPWidget::make_algoCb()
+{
+    auto cb = new QComboBox();
+    cb->setFrame(false);
+    cb->setAutoFillBackground(true);
+    cb->setPalette(GuiHelpers::make_cb_theme(cb->palette()));
+    cb->setStyleSheet("color: black");
+    cb->insertItem(0, "  SHA1",   OTPToken::SHA1);
+    cb->insertItem(1, "  SHA256", OTPToken::SHA256);
+    cb->insertItem(2, "  SHA512", OTPToken::SHA512);
+    cb->setCurrentIndex(0);
+    return cb;
+}
+
+QLabel *OTPWidget::make_algoForAuthy()
+{
+    auto algo = new QLabel("  SHA1");
+    algo->setUserData(0, new TokenAlgorithmUserData(OTPToken::SHA1));
+    return algo;
+}
+
+QLabel *OTPWidget::make_algoForSteam()
+{
+    return new QLabel("  SHA1");
+}
+
+QLineEdit *OTPWidget::make_intInput(int min, int max)
+{
+    auto input = new QLineEdit();
+    input->setValidator(new QIntValidator(min, max));
+    return input;
+}
+
+QPushButton *OTPWidget::make_delBtn(int row, const QObject *receiver, const std::function<void()> &callback)
+{
+    auto btn = new QPushButton();
+    btn->setUserData(0, new TableWidgetCellUserData(row));
+    btn->setFixedWidth(35);
+    btn->setFlat(true);
+    btn->setToolTip("Delete token");
+    btn->setIcon(GuiHelpers::i()->close_icon);
+    QObject::connect(btn, &QPushButton::clicked, receiver, callback);
+    return btn;
+}
+
+QLineEdit *OTPWidget::make_labelInput()
+{
+    auto le = new QLineEdit();
+    le->setFrame(false);
+    le->setAutoFillBackground(true);
+    le->setContentsMargins(3,0,3,0);
+    return le;
+}
+
+QLineEdit *OTPWidget::make_secretInput()
+{
+    auto le = new QLineEdit();
+    le->setFrame(false);
+    le->setAutoFillBackground(true);
+    le->setContentsMargins(3,0,3,0);
+    le->setUserData(0, new TokenSecretInputTypeUserData(TokenSecretInputTypeUserData::Default));
+    le->setEchoMode(QLineEdit::Password);
+    return le;
+}
+
+QWidget *OTPWidget::make_steamInput()
+{
+    auto w = new QWidget();
+    w->setUserData(0, new TokenSecretInputTypeUserData(TokenSecretInputTypeUserData::Steam));
+    auto hbox = new QHBoxLayout();
+    hbox->setSpacing(0);
+    hbox->setMargin(0);
+    hbox->setContentsMargins(0,0,0,0);
+
+    auto le = new QLineEdit();
+    le->setFrame(false);
+    le->setAutoFillBackground(true);
+    le->setContentsMargins(3,0,3,0);
+    le->setEchoMode(QLineEdit::Password);
+    hbox->addWidget(le);
+
+    auto en = new QComboBox();
+    en->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    en->setFrame(false);
+    en->setAutoFillBackground(true);
+    en->setPalette(GuiHelpers::make_cb_theme(en->palette()));
+    en->setStyleSheet("color: black");
+    en->addItem("  base-64", "base64");
+    en->addItem("  base-32", "base32");
+    en->setCurrentIndex(0);
+    hbox->addWidget(en);
+
+    w->setLayout(hbox);
+    return w;
+}
+
+QLabel *OTPWidget::make_labelDisplay(const QString &text)
+{
+    auto label = new QLabel();
+    label->setFrameShape(QFrame::NoFrame);
+    label->setText(text);
+    label->setContentsMargins(7,0,7,0);
+    return label;
+}
+
+QWidget *OTPWidget::make_tokenGenDisplay(const unsigned int &to, const OTPToken::TokenType &type)
+{
+    auto w = new QWidget();
+    auto vbox = new QVBoxLayout();
+    vbox->setSpacing(0);
+    vbox->setMargin(0);
+    vbox->setContentsMargins(0,0,0,0);
+
+    auto timeout = new QProgressBar();
+    timeout->setAutoFillBackground(true);
+    timeout->setOrientation(Qt::Horizontal);
+    timeout->setMinimum(0);
+    timeout->setMaximum(to == 0 ? 1 : static_cast<int>(to)); // prevent animation and negative inputs
+    timeout->setFixedHeight(3);
+    timeout->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    timeout->setTextVisible(false);
+    timeout->setStyleSheet("QProgressBar { background-color: white; border: 0; outline: 0; } QProgressBar::chunk { background-color: lightgray; border: 0; outline: 0; }");
+    timeout->setValue(0);
+    timeout->setFocusPolicy(Qt::NoFocus);
+    if (type == OTPToken::HOTP)
+    {
+        // HOTP doesn't have a period, set height of progress bar to zero
+        timeout->setFixedHeight(0);
+    }
+    vbox->addWidget(timeout);
+
+    auto le = new QLineEdit();
+    le->setReadOnly(true);
+    le->setFrame(false);
+    le->setAutoFillBackground(true);
+    le->setAlignment(Qt::AlignCenter);
+    le->setContentsMargins(8,0,8,0);
+    auto font = le->font();
+    font.setFamily("monospace");
+    le->setFont(font);
+    le->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    vbox->addWidget(le);
+
+    w->setLayout(vbox);
+    return w;
+}

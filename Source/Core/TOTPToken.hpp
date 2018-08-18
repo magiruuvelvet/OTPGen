@@ -1,0 +1,36 @@
+#ifndef TOTPTOKEN_HPP
+#define TOTPTOKEN_HPP
+
+#include "OTPToken.hpp"
+
+class TOTPToken : public OTPToken
+{
+public:
+    TOTPToken();
+    TOTPToken(const Label &label);
+
+    const TokenString generateToken(Error *error = nullptr) const override;
+
+private:
+    friend struct TokenData;
+    friend class TokenDatabase;
+    friend class TokenEditor;
+
+    TOTPToken(const Label &label,
+              const SecretType &secret,
+              const DigitType &digits,
+              const PeriodType &period,
+              const CounterType &counter,
+              const ShaAlgorithm &algorithm)
+        : TOTPToken()
+    {
+        _label = label;
+        _secret = secret;
+        _digits = digits;
+        _period = period;
+        _counter = counter;
+        _algorithm = algorithm;
+    }
+};
+
+#endif // TOTPTOKEN_HPP

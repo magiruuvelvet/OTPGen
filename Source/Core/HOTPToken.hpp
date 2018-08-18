@@ -1,0 +1,36 @@
+#ifndef HOTPTOKEN_HPP
+#define HOTPTOKEN_HPP
+
+#include "OTPToken.hpp"
+
+class HOTPToken final : public OTPToken
+{
+public:
+    HOTPToken();
+    HOTPToken(const Label &label);
+
+    const TokenString generateToken(Error *error = nullptr) const override;
+
+private:
+    friend struct TokenData;
+    friend class TokenDatabase;
+    friend class TokenEditor;
+
+    HOTPToken(const Label &label,
+              const SecretType &secret,
+              const DigitType &digits,
+              const PeriodType &period,
+              const CounterType &counter,
+              const ShaAlgorithm &algorithm)
+        : HOTPToken()
+    {
+        _label = label;
+        _secret = secret;
+        _digits = digits;
+        _period = period;
+        _counter = counter;
+        _algorithm = algorithm;
+    }
+};
+
+#endif // HOTPTOKEN_HPP
