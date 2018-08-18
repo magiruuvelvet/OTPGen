@@ -34,3 +34,12 @@ Multi-purpose OTP token generator written in C++ and Qt with encryption and Syst
  - libgcrypt (for the bundled OTP generation library written in C)
  - crypto++ (for the database encryption)
 
+
+
+<br>
+
+## Screenshots
+
+![Main Window](./.screenshots/MainWindow.png "Main Window")
+
+![Add Tokens](./.screenshots/AddTokens.png "Add Tokens")
