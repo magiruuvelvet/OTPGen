@@ -23,7 +23,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
  - Search your tokens with regular expressions in the search bar and never lose
    time because of a huge token database
 
-> Note that the import feature is not implemented yet. The UI will only report false errors.
 
 ## Planned
 
