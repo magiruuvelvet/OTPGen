@@ -1,6 +1,7 @@
 # OTPGen
 
-Multi-purpose OTP token generator written in C++ and Qt with encryption and System Tray Icon. Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
+Multi-purpose OTP token generator written in C++ and Qt with encryption and System Tray Icon.
+Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 <br>
 
@@ -19,12 +20,15 @@ Multi-purpose OTP token generator written in C++ and Qt with encryption and Syst
    - andOTP
    - Authy
    - SteamGuard
+ - Search your tokens with regular expressions in the search bar and never lose
+   time because of a huge token database
 
 > Note that the import feature is not implemented yet. The UI will only report false errors.
 
 ## Planned
 
  - Export
+ - Copy to clipboard without using the "Show" checkbox
 
 <br>
 
