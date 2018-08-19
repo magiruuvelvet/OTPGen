@@ -17,8 +17,8 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
  - System Tray Icon
  - Clean interface
  - Import token secrets from other applications
-   - andOTP
-   - Authy
+   - andOTP (supports both: plaintext and encrypted backups)
+   - Authy (supports both: xml and json input)
    - SteamGuard
  - Search your tokens with regular expressions in the search bar and never lose
    time because of a huge token database
@@ -29,6 +29,7 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
  - Export
  - Copy to clipboard without using the "Show" checkbox
+ - Custom icons to better recognize tokens
 
 <br>
 
