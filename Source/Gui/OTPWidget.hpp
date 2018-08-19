@@ -43,7 +43,8 @@ public:
     static QLineEdit *make_secretInput();
     static QWidget *make_steamInput();
 
-    static QLabel *make_labelDisplay(const QString &label);
+    static QWidget *make_typeDisplay(const OTPToken *token);
+    static QWidget *make_labelDisplay(const QString &icon, const QString &label);
     static QWidget *make_tokenGenDisplay(const unsigned int &timeout = 0, const OTPToken::TokenType &type = OTPToken::TOTP);
 
 private:

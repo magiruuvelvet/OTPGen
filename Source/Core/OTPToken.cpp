@@ -20,6 +20,7 @@ OTPToken::~OTPToken()
     _name.clear();
 
     _label.clear();
+    _icon.clear();
 
     _secret.clear();
     _digits = 0U;
@@ -41,6 +42,11 @@ const std::string &OTPToken::name() const
 OTPToken::Label &OTPToken::label()
 {
     return _label;
+}
+
+OTPToken::Icon &OTPToken::icon()
+{
+    return _icon;
 }
 
 OTPToken::SecretType &OTPToken::secret()

@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
 
     // initial window size
-    this->resize(413, 450);
+    this->resize(448, 490);
 
     GuiHelpers::centerWindow(this);
 
@@ -184,8 +184,10 @@ void MainWindow::updateTokenList()
         tokens->insertRow(row);
         tokens->setCellWidget(row, 0, OTPWidget::make_showToggle(row, this,
             [&](bool c){ toggleTokenVisibility(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row, c); }));
-        tokens->setCellWidget(row, 1, OTPWidget::make_labelDisplay(QString::fromUtf8(token->name().c_str())));
-        tokens->setCellWidget(row, 2, OTPWidget::make_labelDisplay(QString::fromUtf8(token->label().c_str())));
+        tokens->setCellWidget(row, 1, OTPWidget::make_typeDisplay(token.get()));
+        tokens->setCellWidget(row, 2, OTPWidget::make_labelDisplay(
+                                          QString::fromUtf8(token->icon().c_str()),
+                                          QString::fromUtf8(token->label().c_str())));
         tokens->setCellWidget(row, 3, OTPWidget::make_tokenGenDisplay(token->period(), token->type()));
         qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(false);
         // test
@@ -279,7 +281,7 @@ void MainWindow::removeSelectedTokens()
     {
         if (qobject_cast<QCheckBox*>(tokenWidget->tokens()->cellWidget(i, 0))->isChecked())
         {
-            TokenStore::i()->removeToken(qobject_cast<QLabel*>(tokenWidget->tokens()->cellWidget(i, 2))->text().toUtf8().constData());
+            TokenStore::i()->removeToken(tokenWidget->tokens()->cellWidget(i, 2)->findChild<QLabel*>("label")->text().toUtf8().constData());
         }
     }
 
@@ -351,8 +353,8 @@ void MainWindow::filterTokens(const QString &searchTerms)
     for (auto i = 0; i < tokenWidget->tokens()->rowCount(); i++)
     {
         bool match = false;
-        const auto type = qobject_cast<QLabel*>(tokenWidget->tokens()->cellWidget(i, 1))->text().simplified();
-        const auto label = qobject_cast<QLabel*>(tokenWidget->tokens()->cellWidget(i, 2))->text().simplified();
+        const auto type = tokenWidget->tokens()->cellWidget(i, 1)->findChild<QLabel*>("name")->text().simplified();
+        const auto label = tokenWidget->tokens()->cellWidget(i, 2)->findChild<QLabel*>("label")->text().simplified();
         if (terms.match(type).hasMatch() ||
             terms.match(label).hasMatch())
         {

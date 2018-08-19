@@ -17,6 +17,7 @@ public:
     using TokenString = std::string;
     using SecretType = std::string;
     using Label = std::string;
+    using Icon = std::string;
     using DigitType = std::uint8_t;
     using PeriodType = std::uint32_t;
     using CounterType = std::uint32_t;
@@ -56,6 +57,7 @@ public:
     const std::string &name() const; // token name (type)
 
     Label &label();                  // display name (label)
+    Icon &icon();                    // custom user icon (GUI only)
 
     SecretType &secret();            // base-32 encoded secret
     DigitType &digits();             // digit length
@@ -95,6 +97,7 @@ protected:
     std::string _name = "None";
 
     Label _label = Label();
+    Icon _icon = Icon();
 
     SecretType _secret = SecretType();
     DigitType _digits = 0U;

@@ -82,9 +82,9 @@ OTPWidget::OTPWidget(Mode mode, QWidget *parent)
 
         _tokens->resizeColumnToContents(0); // Show
 
-        _tokens->setColumnWidth(1, 70); // Type
+        _tokens->setColumnWidth(1, 95); // Type
         _tokens->setColumnWidth(2, 170); // Label
-        _tokens->setColumnWidth(3, 110); // Token
+        _tokens->setColumnWidth(3, 120); // Token
     }
 
     vbox->addWidget(_tokens.get());
@@ -222,13 +222,65 @@ QWidget *OTPWidget::make_steamInput()
     return w;
 }
 
-QLabel *OTPWidget::make_labelDisplay(const QString &text)
+QWidget *OTPWidget::make_typeDisplay(const OTPToken *token)
 {
+    auto w = new QWidget();
+    auto hbox = new QHBoxLayout();
+    hbox->setSpacing(2);
+    hbox->setMargin(0);
+    hbox->setContentsMargins(0,0,0,0);
+
+    auto icon = new QLabel();
+    icon->setObjectName("icon");
+    icon->setFrameShape(QFrame::NoFrame);
+    icon->setContentsMargins(7,0,3,0);
+    icon->setFixedSize(28, 16);
+    icon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    switch (token->type())
+    {
+        case OTPToken::TOTP:  icon->setPixmap(QPixmap(":/GuiAssets/clock.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
+        case OTPToken::Authy: icon->setPixmap(QPixmap(":/GuiAssets/logos/authy.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
+        case OTPToken::Steam: icon->setPixmap(QPixmap(":/GuiAssets/logos/steam.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
+    }
+    hbox->addWidget(icon);
+
     auto label = new QLabel();
+    label->setObjectName("name");
+    label->setFrameShape(QFrame::NoFrame);
+    label->setText(QString::fromUtf8(token->name().c_str()));
+    label->setContentsMargins(0,0,7,0);
+    hbox->addWidget(label);
+
+    w->setLayout(hbox);
+    return w;
+}
+
+QWidget *OTPWidget::make_labelDisplay(const QString &userIcon, const QString &text)
+{
+    auto w = new QWidget();
+    auto hbox = new QHBoxLayout();
+    hbox->setSpacing(2);
+    hbox->setMargin(0);
+    hbox->setContentsMargins(0,0,0,0);
+
+    auto icon = new QLabel();
+    icon->setObjectName("icon");
+    icon->setFrameShape(QFrame::NoFrame);
+    icon->setContentsMargins(7,0,3,0);
+    icon->setFixedSize(28, 16);
+    icon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    icon->setPixmap(QPixmap(userIcon).scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    hbox->addWidget(icon);
+
+    auto label = new QLabel();
+    label->setObjectName("label");
     label->setFrameShape(QFrame::NoFrame);
     label->setText(text);
-    label->setContentsMargins(7,0,7,0);
-    return label;
+    label->setContentsMargins(0,0,7,0);
+    hbox->addWidget(label);
+
+    w->setLayout(hbox);
+    return w;
 }
 
 QWidget *OTPWidget::make_tokenGenDisplay(const unsigned int &to, const OTPToken::TokenType &type)
