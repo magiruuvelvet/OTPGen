@@ -53,6 +53,7 @@
 //  </map>
 //
 // JSON:
+//  > array of:
 //  {
 //    "appid": {...},       // not interesting for importing
 //    "assetData": {...},   // ---
@@ -80,7 +81,41 @@ bool Authy::importTOTP(const std::string &file, std::vector<TOTPToken> &target, 
         return status;
     }
 
-    std::cout << json << std::endl;
+    // parse json
+    try {
+        rapidjson::StringStream s(json.c_str());
+        rapidjson::Document json;
+        json.ParseStream(s);
+
+        // root element must be an array
+        if (!json.IsArray())
+        {
+            return false;
+        }
+
+        auto array = json.GetArray();
+        for (auto&& elem : array)
+        {
+            // check if object has all required members
+            if (!(elem.HasMember("decryptedSecret") &&
+                elem.HasMember("digits") &&
+                elem.HasMember("name")))
+            {
+                continue;
+            }
+
+            TOTPToken token;
+            token._secret = elem["decryptedSecret"].GetString();
+            token._label = elem["name"].GetString();
+            token._period = 30U;
+            token._digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
+            token._algorithm = OTPToken::SHA1;
+            target.push_back(token);
+        }
+    } catch (...) {
+        // catch all rapidjson exceptions
+        return false;
+    }
 
     return true;
 }
@@ -94,7 +129,40 @@ bool Authy::importNative(const std::string &file, std::vector<AuthyToken> &targe
         return status;
     }
 
-    std::cout << json << std::endl;
+    // parse json
+    try {
+        rapidjson::StringStream s(json.c_str());
+        rapidjson::Document json;
+        json.ParseStream(s);
+
+        // root element must be an array
+        if (!json.IsArray())
+        {
+            return false;
+        }
+
+        auto array = json.GetArray();
+        for (auto&& elem : array)
+        {
+            // check if object has all required members
+            if (!(elem.HasMember("secretSeed") &&
+                elem.HasMember("digits") &&
+                elem.HasMember("name")))
+            {
+                continue;
+            }
+
+            AuthyToken token;
+            token._secret = hexToBase32Rfc4648(elem["secretSeed"].GetString());
+            std::cout << token._secret << std::endl;
+            token._label = elem["name"].GetString();
+            token._digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
+            target.push_back(token);
+        }
+    } catch (...) {
+        // catch all rapidjson exceptions
+        return false;
+    }
 
     return true;
 }
@@ -144,7 +212,7 @@ const std::string Authy::hexToBase32Rfc4648(const std::string &hex)
                                                         static_cast<const CryptoPP::byte*>(ALPHABET));
     encoder->IsolatedInitialize(params);
 
-    // raw pointers are automatically deleted by crypto+
+    // raw pointers are automatically deleted by crypto++
     std::string base32;
     encoder->Attach(new CryptoPP::StringSink(base32));
     CryptoPP::StringSource src(hex, true,
