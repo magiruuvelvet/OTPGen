@@ -15,6 +15,8 @@ class andOTP
     static const uint8_t ANDOTP_IV_SIZE;
     static const uint8_t ANDOTP_TAG_SIZE;
 
+    static void gcrypt_init();
+
 public:
     enum Type {
         PlainText,

@@ -32,6 +32,18 @@ namespace Import {
 const uint8_t andOTP::ANDOTP_IV_SIZE = 12U;
 const uint8_t andOTP::ANDOTP_TAG_SIZE = 16U;
 
+void andOTP::gcrypt_init()
+{
+    static bool initialized = false;
+    if (!initialized)
+    {
+        gcry_check_version(GCRYPT_VERSION);
+        gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+        gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
+        initialized = true;
+    }
+}
+
 bool andOTP::importTOTP(const std::string &file, std::vector<TOTPToken> &target, const Type &type, const std::string &password)
 {
     // read file contents into memory
@@ -148,6 +160,8 @@ bool andOTP::decrypt(const std::string &password, const std::string &buffer, std
         const auto enc_buf = buffer.substr(ANDOTP_IV_SIZE, enc_buf_size);
 
         // does crypto++ support GCM?
+
+        gcrypt_init();
 
         gcry_cipher_hd_t hd;
         gcry_cipher_open(&hd, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, GCRY_CIPHER_SECURE);
