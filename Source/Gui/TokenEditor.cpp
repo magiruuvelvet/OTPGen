@@ -333,7 +333,7 @@ void TokenEditor::saveTokens()
     for (auto i = 0; i < tokens->rowCount(); i++)
     {
         const auto type = static_cast<OTPToken::TokenType>(qobject_cast<QComboBox*>(tokens->cellWidget(i, 0))->currentData().toUInt());
-        const auto label = qobject_cast<QLineEdit*>(tokens->cellWidget(i, 1))->text().toUtf8().constData();
+        const auto label = std::string(qobject_cast<QLineEdit*>(tokens->cellWidget(i, 1))->text().toUtf8().constData());
 
         if (TokenStore::i()->contains(label))
         {
