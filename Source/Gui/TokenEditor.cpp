@@ -188,6 +188,13 @@ TokenEditor::TokenEditor(QWidget *parent)
                 QMessageBox::critical(this, "Import Error", "An error occurred during importing your Steam token!");
             }
         }),
+        GuiHelpers::make_menuSeparator(),
+        GuiHelpers::make_importAction("otpauth URI", QIcon(), this, [&]{
+
+        }),
+        GuiHelpers::make_importAction("QR Code", GuiHelpers::i()->qr_code_icon, this, [&]{
+
+        }),
     };
 
     for (auto&& action : importActions)

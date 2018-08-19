@@ -54,6 +54,7 @@ public:
                                                                   bool add, const QString &tooltip1, const std::function<void()> &addCallback,
                                                                   bool remove, const QString &tooltip2, const std::function<void()> &removeCallback);
 
+    static std::shared_ptr<QAction> make_menuSeparator();
     static std::shared_ptr<QAction> make_importAction(const QString &name, const QIcon &icon,
                                                       const QObject *receiver, const std::function<void()> &callback);
 
@@ -76,6 +77,7 @@ public:
     const QIcon remove_icon;
     const QIcon save_icon;
     const QIcon import_icon;
+    const QIcon qr_code_icon;
 
 private:
     GuiHelpers();

@@ -14,7 +14,8 @@ GuiHelpers::GuiHelpers() :
     add_icon(QIcon(":/GuiAssets/add.svgz")),
     remove_icon(QIcon(":/GuiAssets/remove.svgz")),
     save_icon(QIcon(":/GuiAssets/save.svgz")),
-    import_icon(QIcon(":/GuiAssets/import.svgz"))
+    import_icon(QIcon(":/GuiAssets/import.svgz")),
+    qr_code_icon(QIcon(":/GuiAssets/qr-code.svgz"))
 {
 }
 
@@ -135,6 +136,13 @@ QList<std::shared_ptr<QPushButton>> GuiHelpers::make_tokenControls(const WidgetB
         tokenControls.append(GuiHelpers::make_toolbtn(i()->remove_icon, tooltip2, receiver, removeCallback));
     }
     return tokenControls;
+}
+
+std::shared_ptr<QAction> GuiHelpers::make_menuSeparator()
+{
+    auto sep = std::make_shared<QAction>();
+    sep->setSeparator(true);
+    return sep;
 }
 
 std::shared_ptr<QAction> GuiHelpers::make_importAction(const QString &name, const QIcon &icon,
