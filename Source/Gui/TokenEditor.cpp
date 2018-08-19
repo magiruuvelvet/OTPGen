@@ -88,16 +88,18 @@ TokenEditor::TokenEditor(QWidget *parent)
         GuiHelpers::make_importAction("Authy", QIcon(":/GuiAssets/logos/authy.svgz"), this, [&]{
             auto file = QFileDialog::getOpenFileName(this, "Open Authy token file", QString(),
                 "com.authy.storage.tokens.authenticator.xml (TOTP Tokens) (com.authy.storage.tokens.authenticator.xml);;"
-                "com.authy.storage.tokens.authy.xml (Authy Tokens) (com.authy.storage.tokens.authy.xml)");
+                "com.authy.storage.tokens.authy.xml (Authy Tokens) (com.authy.storage.tokens.authy.xml);;"
+                "com.authy.storage.tokens.authenticator.json (TOTP Tokens) (com.authy.storage.tokens.authenticator.json);;"
+                "com.authy.storage.tokens.authy.json (Authy Tokens) (com.authy.storage.tokens.authy.json)");
             if (file.isEmpty() || file.isNull())
             {
                 return;
             }
 
-            if (file.compare("com.authy.storage.tokens.authenticator.xml", Qt::CaseInsensitive) == 0)
+            if (file.endsWith("com.authy.storage.tokens.authenticator.xml", Qt::CaseInsensitive))
             {
                 std::vector<TOTPToken> target;
-                auto status = Import::Authy::importTOTP(file.toUtf8().constData(), target);
+                auto status = Import::Authy::importTOTP(file.toUtf8().constData(), target, Import::Authy::XML);
                 if (status)
                 {
                     for(auto&& t : target)
@@ -107,13 +109,14 @@ TokenEditor::TokenEditor(QWidget *parent)
                 }
                 else
                 {
-                    QMessageBox::critical(this, "Import Error", "An error occurred during importing your Authy TOTP tokens!");
+                    QMessageBox::critical(this, "Import Error", "An error occurred during importing your Authy TOTP tokens!"
+                                                                "\n\nFormat: XML");
                 }
             }
-            else if (file.compare("com.authy.storage.tokens.authy.xml", Qt::CaseInsensitive) == 0)
+            else if (file.endsWith("com.authy.storage.tokens.authenticator.json", Qt::CaseInsensitive))
             {
-                std::vector<AuthyToken> target;
-                auto status = Import::Authy::importNative(file.toUtf8().constData(), target);
+                std::vector<TOTPToken> target;
+                auto status = Import::Authy::importTOTP(file.toUtf8().constData(), target, Import::Authy::JSON);
                 if (status)
                 {
                     for(auto&& t : target)
@@ -123,7 +126,42 @@ TokenEditor::TokenEditor(QWidget *parent)
                 }
                 else
                 {
-                    QMessageBox::critical(this, "Import Error", "An error occurred during importing your Authy native tokens!");
+                    QMessageBox::critical(this, "Import Error", "An error occurred during importing your Authy TOTP tokens!"
+                                                                "\n\nFormat: JSON");
+                }
+            }
+            else if (file.endsWith("com.authy.storage.tokens.authy.xml", Qt::CaseInsensitive))
+            {
+                std::vector<AuthyToken> target;
+                auto status = Import::Authy::importNative(file.toUtf8().constData(), target, Import::Authy::XML);
+                if (status)
+                {
+                    for(auto&& t : target)
+                    {
+                        addNewToken(&t);
+                    }
+                }
+                else
+                {
+                    QMessageBox::critical(this, "Import Error", "An error occurred during importing your Authy native tokens!"
+                                                                "\n\nFormat: XML");
+                }
+            }
+            else if (file.endsWith("com.authy.storage.tokens.authy.json", Qt::CaseInsensitive))
+            {
+                std::vector<AuthyToken> target;
+                auto status = Import::Authy::importNative(file.toUtf8().constData(), target, Import::Authy::JSON);
+                if (status)
+                {
+                    for(auto&& t : target)
+                    {
+                        addNewToken(&t);
+                    }
+                }
+                else
+                {
+                    QMessageBox::critical(this, "Import Error", "An error occurred during importing your Authy native tokens!"
+                                                                "\n\nFormat: JSON");
                 }
             }
             else

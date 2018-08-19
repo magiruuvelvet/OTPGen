@@ -13,8 +13,24 @@ class Authy
     Authy() = delete;
 
 public:
-    static bool importTOTP(const std::string &file, std::vector<TOTPToken> &target);
-    static bool importNative(const std::string &file, std::vector<AuthyToken> &target);
+    enum Format {
+        XML,
+        JSON,
+    };
+
+    static bool importTOTP(const std::string &file, std::vector<TOTPToken> &target, const Format &format);
+    static bool importNative(const std::string &file, std::vector<AuthyToken> &target, const Format &format);
+
+private:
+    enum AuthyXMLType {
+        TOTP,
+        Native,
+    };
+
+    static const std::string hexToBase32Rfc4648(const std::string &hex);
+
+    static bool prepare(const std::string &file, const Format &format, const AuthyXMLType &type, std::string &json);
+    static bool extractJSON(const std::string &xml, const AuthyXMLType &type, std::string &json);
 };
 
 }
