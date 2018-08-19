@@ -27,7 +27,15 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 ## Planned
 
+ - Import
+   - `otpauth:` uri
+   - QR Code (file only)
+
  - Export
+   - `otpauth:` uri
+   - QR Code
+   - andOTP
+
  - Copy to clipboard without using the "Show" checkbox
  - Custom icons to better recognize tokens
 
