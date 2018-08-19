@@ -65,6 +65,8 @@ PasswordInputDialog::PasswordInputDialog(QWidget *parent)
     vbox->addLayout(innerVBox.get());
     vbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     this->setLayout(vbox.get());
+
+    passwordInput->setFocus();
 }
 
 PasswordInputDialog::~PasswordInputDialog()
