@@ -75,28 +75,17 @@ MainWindow::MainWindow(QWidget *parent)
         trayShowText = "Show";
         trayHideText = "Hide";
         trayShowHide->setText(trayHideText);
-        QObject::connect(trayShowHide.get(), &QAction::triggered, this, [&]{
-            if (this->isVisible())
-            {
-                this->hide();
-                trayShowHide->setText(trayShowText);
-            }
-            else
-            {
-                this->show();
-                trayShowHide->setText(trayHideText);
-            }
-        });
+        QObject::connect(trayShowHide.get(), &QAction::triggered, this, &MainWindow::trayShowHideCallback);
         trayMenu->addAction(trayShowHide.get());
 
-        trayDbLock = std::make_shared<QAction>();
-        trayLock = "Lock Database";
-        trayUnlock = "Unlock Database";
-        trayDbLock->setText(trayUnlock);
-        QObject::connect(trayDbLock.get(), &QAction::triggered, this, [&]{
+//        trayDbLock = std::make_shared<QAction>();
+//        trayLock = "Lock Database";
+//        trayUnlock = "Unlock Database";
+//        trayDbLock->setText(trayUnlock);
+//        QObject::connect(trayDbLock.get(), &QAction::triggered, this, [&]{
 
-        });
-        trayMenu->addAction(trayDbLock.get());
+//        });
+//        trayMenu->addAction(trayDbLock.get());
 
         trayMenu->addSeparator();
 
@@ -107,16 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
         QObject::connect(trayIcon.get(), &QSystemTrayIcon::activated, this, [&](QSystemTrayIcon::ActivationReason reason) {
             if (reason == QSystemTrayIcon::Trigger)
             {
-                if (this->isVisible())
-                {
-                    this->hide();
-                    trayShowHide->setText(trayShowText);
-                }
-                else
-                {
-                    this->show();
-                    trayShowHide->setText(trayHideText);
-                }
+                trayShowHideCallback();
             }
         });
 
@@ -317,6 +297,20 @@ void MainWindow::toggleTokenVisibility(int row, bool visible)
     tokenWidget->tokens()->cellWidget(row, 3)->setVisible(visible);
     qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(row, 3))->findChild<QLineEdit*>()->setVisible(visible);
     qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(visible);
+}
+
+void MainWindow::trayShowHideCallback()
+{
+    if (this->isVisible())
+    {
+        this->hide();
+        trayShowHide->setText(trayShowText);
+    }
+    else
+    {
+        this->show();
+        trayShowHide->setText(trayHideText);
+    }
 }
 
 void MainWindow::showEvent(QShowEvent *event)

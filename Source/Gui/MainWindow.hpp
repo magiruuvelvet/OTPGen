@@ -35,6 +35,8 @@ private:
 
     void toggleTokenVisibility(int row, bool visible);
 
+    void trayShowHideCallback();
+
 protected:
     void showEvent(QShowEvent *event);
     void closeEvent(QCloseEvent *event);
