@@ -266,7 +266,8 @@ void TokenEditor::addNewToken(OTPToken *token)
         case OTPToken::Steam:
             qobject_cast<QComboBox*>(tokens->cellWidget(row, 0))->setCurrentIndex(2);
             qobject_cast<QLineEdit*>(tokens->cellWidget(row, 1))->setText(QString::fromUtf8(token->label().c_str()));
-            tokens->cellWidget(row, 2)->findChild<QLineEdit*>()->setText(QString::fromUtf8(token->label().c_str()));
+            tokens->cellWidget(row, 2)->findChild<QLineEdit*>()->setText(QString::fromUtf8(token->secret().c_str()));
+            tokens->cellWidget(row, 2)->findChild<QComboBox*>()->setCurrentIndex(1);
             qobject_cast<QLineEdit*>(tokens->cellWidget(row, 4))->setText(QString::number(token->period()));
             break;
         case OTPToken::Authy:
