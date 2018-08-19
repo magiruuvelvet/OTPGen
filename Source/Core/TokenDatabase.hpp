@@ -6,9 +6,21 @@
 
 #include "OTPToken.hpp"
 
+// forward declarations for friends
+namespace Import {
+    class andOTP;
+    class Authy;
+    class Steam;
+}
+
 class TokenDatabase
 {
     TokenDatabase() = delete;
+
+    // for readFile()
+    friend class Import::andOTP;
+    friend class Import::Authy;
+    friend class Import::Steam;
 
     static std::string password;
     static std::string tokenFile;

@@ -397,11 +397,26 @@ void TokenEditor::updateRow(int row)
     const auto typeCb = qobject_cast<QComboBox*>(tokens->cellWidget(row, 0));
     const auto type = static_cast<OTPToken::TokenType>(typeCb->itemData(typeCb->currentIndex()).toUInt());
 
+    // transfer secret to new input widget, convenience feature when importing from
+    // external files and adjusting the token type (user preference)
+    QString secret;
+    const auto child = tokens->cellWidget(row, 2)->findChild<QLineEdit*>();
+    if (child)
+    {
+        secret = child->text();
+    }
+    else
+    {
+        secret = qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->text();
+    }
+
     // set token options
     switch (type)
     {
-        case OTPToken::TOTP:
+        case OTPToken::TOTP: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
+            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(secret);
+
             tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
             qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText("6");
             tokens->cellWidget(row, 4)->setEnabled(true);  // Period
@@ -410,10 +425,13 @@ void TokenEditor::updateRow(int row)
             tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
             tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
             qobject_cast<QComboBox*>(tokens->cellWidget(row, 6))->setCurrentIndex(0);
+            }
             break;
 
-        case OTPToken::HOTP:
+        case OTPToken::HOTP: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
+            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(secret);
+
             tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
             qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText("6");
             tokens->cellWidget(row, 4)->setEnabled(false); // Period
@@ -422,10 +440,13 @@ void TokenEditor::updateRow(int row)
             tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
             tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
             qobject_cast<QComboBox*>(tokens->cellWidget(row, 6))->setCurrentIndex(0);
+            }
             break;
 
-        case OTPToken::Steam:
+        case OTPToken::Steam: {
             tokens->setCellWidget(row, 2, OTPWidget::make_steamInput());
+            tokens->cellWidget(row, 2)->findChild<QLineEdit*>()->setText(secret);
+
             tokens->cellWidget(row, 3)->setEnabled(false); // Digits
             qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText("");
             tokens->cellWidget(row, 4)->setEnabled(true);  // Period
@@ -433,10 +454,13 @@ void TokenEditor::updateRow(int row)
             tokens->cellWidget(row, 5)->setEnabled(false); // Counter
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForSteam());
             tokens->cellWidget(row, 6)->setEnabled(false); // Algorithm
+            }
             break;
 
-        case OTPToken::Authy:
+        case OTPToken::Authy: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
+            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(secret);
+
             tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
             qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText("7");
             tokens->cellWidget(row, 4)->setEnabled(true);  // Period
@@ -444,11 +468,14 @@ void TokenEditor::updateRow(int row)
             tokens->cellWidget(row, 5)->setEnabled(false); // Counter
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForAuthy());
             tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
+            }
             break;
 
         case OTPToken::None:
             break;
     }
+
+    secret.clear();
 }
 
 void TokenEditor::deleteRow(int row)

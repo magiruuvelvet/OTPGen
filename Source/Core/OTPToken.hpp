@@ -4,6 +4,13 @@
 #include <string>
 #include <cstdint>
 
+// forward declarations for friends
+namespace Import {
+    class andOTP;
+    class Authy;
+    class Steam;
+}
+
 class OTPToken
 {
 public:
@@ -59,8 +66,13 @@ public:
     inline const Label &getLabel() const
     { return _label; }
 
+    inline const DigitType &getDigits() const
+    { return _digits; }
+
     inline const PeriodType &getPeriod() const
     { return _period; }
+
+    void setAlgorithmFromString(const std::string &algo);
 
 #ifdef OTPGEN_DEBUG
     const std::string debug() const;
@@ -94,6 +106,10 @@ private:
     friend struct TokenData;
     friend class TokenDatabase;
     friend class TokenEditor;
+
+    friend class Import::andOTP;
+    friend class Import::Authy;
+    friend class Import::Steam;
 
     OTPToken(const Label &label,
              const SecretType &secret,

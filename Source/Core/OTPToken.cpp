@@ -68,6 +68,31 @@ OTPToken::ShaAlgorithm &OTPToken::algorithm()
     return _algorithm;
 }
 
+void OTPToken::setAlgorithmFromString(const std::string &_algo)
+{
+    std::string algo = _algo;
+    std::transform(algo.begin(), algo.end(), algo.begin(), [](unsigned char c) {
+        return std::toupper(c);
+    });
+
+    if (algo == "SHA1")
+    {
+        _algorithm = SHA1;
+    }
+    else if (algo == "SHA256")
+    {
+        _algorithm = SHA256;
+    }
+    else if (algo == "SHA512")
+    {
+        _algorithm = SHA512;
+    }
+    else
+    {
+        _algorithm = Invalid;
+    }
+}
+
 #ifdef OTPGEN_DEBUG
 #include <sstream>
 const std::string OTPToken::debug() const

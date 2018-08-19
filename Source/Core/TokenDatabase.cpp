@@ -121,7 +121,6 @@ TokenDatabase::Error TokenDatabase::saveTokens()
         TokenData tokenData;
         tokenData.type = token->type();
         tokenData.label = token->label();
-        // TODO: should mlock() be used here to avoid leaking sensitive data?
         tokenData.secret = mangleTokenSecret(token->secret());
         tokenData.digits = token->digits();
         tokenData.period = token->period();

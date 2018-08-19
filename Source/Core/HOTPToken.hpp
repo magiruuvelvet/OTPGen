@@ -16,6 +16,10 @@ private:
     friend class TokenDatabase;
     friend class TokenEditor;
 
+    friend class Import::andOTP;
+    friend class Import::Authy;
+    friend class Import::Steam;
+
     HOTPToken(const Label &label,
               const SecretType &secret,
               const DigitType &digits,
