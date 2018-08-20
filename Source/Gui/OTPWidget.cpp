@@ -2,8 +2,6 @@
 
 #include <QIntValidator>
 
-#include <QFileInfo>
-
 OTPWidget::OTPWidget(Mode mode, QWidget *parent)
     : QWidget(parent)
 {
@@ -301,7 +299,7 @@ QWidget *OTPWidget::make_typeDisplay(const OTPToken *token)
     return w;
 }
 
-QWidget *OTPWidget::make_labelDisplay(const QString &userIcon, const QString &text)
+QWidget *OTPWidget::make_labelDisplay(const std::string &userIcon, const QString &text)
 {
     auto w = new QWidget();
     auto hbox = new QHBoxLayout();
@@ -315,11 +313,14 @@ QWidget *OTPWidget::make_labelDisplay(const QString &userIcon, const QString &te
     icon->setContentsMargins(7,0,3,0);
     icon->setFixedSize(28, 16);
     icon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    if (!userIcon.isEmpty()/* && QFileInfo(userIcon).exists()*/)
+    if (!userIcon.empty())
     {
-        // icon->setPixmap(QPixmap(userIcon).scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        // TODO
-        icon->setPixmap(QPixmap::fromImage(QImage(reinterpret_cast<const unsigned char*>(userIcon.data()), 0, 0, QImage::Format_Invalid)));
+        QPixmap pixmap;
+        const auto status = pixmap.loadFromData(reinterpret_cast<const unsigned char*>(userIcon.data()), static_cast<uint>(userIcon.size()));
+        if (status)
+        {
+            icon->setPixmap(pixmap);
+        }
     }
     hbox->addWidget(icon);
 

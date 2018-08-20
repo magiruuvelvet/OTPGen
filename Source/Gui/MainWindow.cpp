@@ -169,7 +169,7 @@ void MainWindow::updateTokenList()
             [&]        { copyTokenToClipboard(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row); }));
         tokens->setCellWidget(row, 1, OTPWidget::make_typeDisplay(token.get()));
         tokens->setCellWidget(row, 2, OTPWidget::make_labelDisplay(
-                                          QString::fromUtf8(token->icon().c_str()),
+                                          token->icon(),
                                           QString::fromUtf8(token->label().c_str())));
         tokens->setCellWidget(row, 3, OTPWidget::make_tokenGenDisplay(token->period(), token->type()));
         qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(false);

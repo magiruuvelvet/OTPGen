@@ -46,7 +46,7 @@ public:
     static QWidget *make_steamInput();
 
     static QWidget *make_typeDisplay(const OTPToken *token);
-    static QWidget *make_labelDisplay(const QString &icon, const QString &label);
+    static QWidget *make_labelDisplay(const std::string &icon, const QString &label);
     static QWidget *make_tokenGenDisplay(const unsigned int &timeout = 0, const OTPToken::TokenType &type = OTPToken::TOTP);
 
 private:
