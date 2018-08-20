@@ -262,7 +262,7 @@ void MainWindow::removeSelectedTokens()
 
     for (auto i = 0; i < tokenWidget->tokens()->rowCount(); i++)
     {
-        if (qobject_cast<QCheckBox*>(tokenWidget->tokens()->cellWidget(i, 0))->isChecked())
+        if (tokenWidget->tokens()->cellWidget(i, 0)->findChild<QCheckBox*>()->isChecked())
         {
             TokenStore::i()->removeToken(tokenWidget->tokens()->cellWidget(i, 2)->findChild<QLabel*>("label")->text().toUtf8().constData());
         }
