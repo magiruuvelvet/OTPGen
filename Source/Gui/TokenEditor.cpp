@@ -381,7 +381,7 @@ void TokenEditor::saveTokens()
         }
         else if (type == OTPToken::Authy)
         {
-            algorithm = static_cast<OTPToken::ShaAlgorithm>(static_cast<TokenAlgorithmUserData*>(tokens->tokenAlgorithm(i)->userData(0))->algorithm);
+            algorithm = static_cast<OTPToken::ShaAlgorithm>(static_cast<TokenAlgorithmUserData*>(tokens->cellWidget(i, 6)->userData(0))->algorithm);
         }
 
         // TODO: don't add invalid tokens; test generation and indicate error to user
@@ -460,13 +460,13 @@ void TokenEditor::updateRow(int row)
         case OTPToken::TOTP: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
 
-            tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
+            tokens->tokenDigits(row)->setEnabled(true);
             tokens->tokenDigits(row)->setText("6");
-            tokens->cellWidget(row, 4)->setEnabled(true);  // Period
+            tokens->tokenPeriod(row)->setEnabled(true);
             tokens->tokenPeriod(row)->setText("30");
-            tokens->cellWidget(row, 5)->setEnabled(false); // Counter
+            tokens->tokenCounter(row)->setEnabled(false);
             tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
-            tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
+            tokens->tokenAlgorithm(row)->setEnabled(true);
             tokens->tokenAlgorithm(row)->setCurrentIndex(0);
             }
             break;
@@ -474,13 +474,13 @@ void TokenEditor::updateRow(int row)
         case OTPToken::HOTP: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
 
-            tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
+            tokens->tokenDigits(row)->setEnabled(true);
             tokens->tokenDigits(row)->setText("6");
-            tokens->cellWidget(row, 4)->setEnabled(false); // Period
+            tokens->tokenPeriod(row)->setEnabled(false);
             tokens->tokenPeriod(row)->setText("");
-            tokens->cellWidget(row, 5)->setEnabled(true);  // Counter
+            tokens->tokenCounter(row)->setEnabled(true);
             tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
-            tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
+            tokens->tokenAlgorithm(row)->setEnabled(true);
             tokens->tokenAlgorithm(row)->setCurrentIndex(0);
             }
             break;
@@ -488,26 +488,26 @@ void TokenEditor::updateRow(int row)
         case OTPToken::Steam: {
             tokens->setCellWidget(row, 2, OTPWidget::make_steamInput());
 
-            tokens->cellWidget(row, 3)->setEnabled(false); // Digits
+            tokens->tokenDigits(row)->setEnabled(false);
             tokens->tokenDigits(row)->setText("");
-            tokens->cellWidget(row, 4)->setEnabled(true);  // Period
+            tokens->tokenPeriod(row)->setEnabled(true);
             tokens->tokenPeriod(row)->setText("30");
-            tokens->cellWidget(row, 5)->setEnabled(false); // Counter
+            tokens->tokenCounter(row)->setEnabled(false);
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForSteam());
-            tokens->cellWidget(row, 6)->setEnabled(false); // Algorithm
+            tokens->cellWidget(row, 6)->setEnabled(false);
             }
             break;
 
         case OTPToken::Authy: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
 
-            tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
+            tokens->tokenDigits(row)->setEnabled(true);
             tokens->tokenDigits(row)->setText("7");
-            tokens->cellWidget(row, 4)->setEnabled(true);  // Period
+            tokens->tokenPeriod(row)->setEnabled(true);
             tokens->tokenPeriod(row)->setText("10");
-            tokens->cellWidget(row, 5)->setEnabled(false); // Counter
+            tokens->tokenCounter(row)->setEnabled(false);
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForAuthy());
-            tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
+            tokens->cellWidget(row, 6)->setEnabled(true);
             }
             break;
 
