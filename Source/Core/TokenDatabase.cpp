@@ -126,6 +126,9 @@ TokenDatabase::Error TokenDatabase::saveTokens()
         tokenData.period = token->period();
         tokenData.counter = token->counter();
         tokenData.algorithm = token->algorithm();
+#ifdef OTPGEN_DEBUG
+        std::cout << "Saving " << tokenData.label << std::endl;
+#endif
         data.data.push_back(tokenData);
     }
 
@@ -175,6 +178,12 @@ TokenDatabase::Error TokenDatabase::loadTokens()
     // create a string stream for cereal
     std::istringstream buffer(decrypted);
 
+#ifdef OTPGEN_DEBUG
+    std::cout << "=== BINARY ARCHIVE BEGIN ===" << std::endl;
+    std::cout << decrypted << std::endl;
+    std::cout << "=== BINARY ARCHIVE END ===" << std::endl;
+#endif
+
     TokenDataAdapter data;
     cereal::PortableBinaryInputArchive archive(buffer);
     try {
@@ -192,6 +201,10 @@ TokenDatabase::Error TokenDatabase::loadTokens()
 
     for (auto&& t : data.data)
     {
+#ifdef OTPGEN_DEBUG
+        std::cout << "Loading " << t.label << std::endl;
+#endif
+
         auto unmangledSecret = unmangleTokenSecret(t.secret);
         t.secret.clear();
 

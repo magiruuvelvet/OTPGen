@@ -6,6 +6,10 @@
 
 #include "OTPToken.hpp"
 
+#ifdef OTPGEN_DEBUG
+#include <iostream>
+#endif
+
 // forward declarations for friends
 namespace Import {
     class andOTP;
