@@ -82,6 +82,19 @@ OTPWidget::OTPWidget(Mode mode, QWidget *parent)
             return headers;
         })());
 
+        _tokens->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
+        QObject::connect(_tokens->horizontalHeader(), &QHeaderView::customContextMenuRequested, this, &OTPWidget::showContextMenu);
+
+        menu = std::make_shared<QMenu>();
+        actionTokenVisibility = std::make_shared<QAction>();
+        actionTokenVisibility->setCheckable(true);
+        actionTokenVisibility->setChecked(true);
+        actionTokenVisibility->setText("Show Token Column");
+        QObject::connect(actionTokenVisibility.get(), &QAction::triggered, this, [&]{
+            _tokens->setColumnHidden(3, !actionTokenVisibility->isChecked());
+        });
+        menu->addAction(actionTokenVisibility.get());
+
         _tokens->setColumnWidth(0, 68); // Show
 
         _tokens->setColumnWidth(1, 95); // Type
@@ -95,6 +108,11 @@ OTPWidget::OTPWidget(Mode mode, QWidget *parent)
 
 OTPWidget::~OTPWidget()
 {
+}
+
+void OTPWidget::showContextMenu(const QPoint &)
+{
+    menu->popup(QCursor::pos());
 }
 
 TokenTableWidget *OTPWidget::tokens()

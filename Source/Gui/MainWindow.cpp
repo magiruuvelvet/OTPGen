@@ -294,9 +294,12 @@ void MainWindow::updateTokenValidities()
 
 void MainWindow::toggleTokenVisibility(int row, bool visible)
 {
-    tokenWidget->tokens()->tokenSecretWidget(row)->setVisible(visible);
-    tokenWidget->tokens()->tokenSecret(row)->setVisible(visible);
-    tokenWidget->tokens()->tokenSecretTimeout(row)->setVisible(visible);
+    if (!tokenWidget->tokens()->isColumnHidden(3))
+    {
+        tokenWidget->tokens()->tokenSecretWidget(row)->setVisible(visible);
+        tokenWidget->tokens()->tokenSecret(row)->setVisible(visible);
+        tokenWidget->tokens()->tokenSecretTimeout(row)->setVisible(visible);
+    }
 }
 
 void MainWindow::copyTokenToClipboard(int row)

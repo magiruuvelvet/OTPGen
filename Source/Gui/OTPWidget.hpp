@@ -50,7 +50,13 @@ public:
     static QWidget *make_tokenGenDisplay(const unsigned int &timeout = 0, const OTPToken::TokenType &type = OTPToken::TOTP);
 
 private:
+    void showContextMenu(const QPoint &pos);
+
+private:
     std::shared_ptr<QVBoxLayout> vbox;
+
+    std::shared_ptr<QMenu> menu;
+    std::shared_ptr<QAction> actionTokenVisibility;
 
     std::shared_ptr<TokenTableWidget> _tokens;
 

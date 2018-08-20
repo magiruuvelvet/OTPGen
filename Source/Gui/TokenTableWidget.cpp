@@ -33,12 +33,15 @@ void TokenTableWidget::paintEvent(QPaintEvent *event)
                 if (visualItemRect(itemAt(i, 0)).isEmpty())
                     continue;
 
-                if (qobject_cast<QCheckBox*>(cellWidget(i, 0)))
+                if (!isColumnHidden(3))
                 {
-                    const auto checked = tokenShow(i)->isChecked();
-                    tokenSecretWidget(i)->setVisible(checked);
-                    tokenSecret(i)->setVisible(checked);
-                    tokenSecretTimeout(i)->setVisible(checked);
+                    if (qobject_cast<QCheckBox*>(cellWidget(i, 0)))
+                    {
+                        const auto checked = tokenShow(i)->isChecked();
+                        tokenSecretWidget(i)->setVisible(checked);
+                        tokenSecret(i)->setVisible(checked);
+                        tokenSecretTimeout(i)->setVisible(checked);
+                    }
                 }
             }
 
