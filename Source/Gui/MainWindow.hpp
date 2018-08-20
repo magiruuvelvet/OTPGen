@@ -7,6 +7,9 @@
 #include <QEvent>
 #include <QTimer>
 
+#include <QShortcut>
+#include <QClipboard>
+
 #include "FramelessContainer.hpp"
 
 #include "GuiHelpers.hpp"
@@ -34,6 +37,7 @@ private:
     void updateTokenValidities();
 
     void toggleTokenVisibility(int row, bool visible);
+    void copyTokenToClipboard(int row);
 
     void trayShowHideCallback();
 
@@ -70,6 +74,8 @@ private:
     std::shared_ptr<QAction> trayDbLock;
     QString trayLock;
     QString trayUnlock;
+
+    QClipboard *clipboard = nullptr;
 };
 
 class TokenUserData : public QObjectUserData

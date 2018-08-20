@@ -32,7 +32,9 @@ public:
 
     TokenTableWidget *tokens();
 
-    static QCheckBox *make_showToggle(int row, const QObject *receiver, const std::function<void(bool)> &callback);
+    static QWidget *make_showToggle(int row, const QObject *receiver,
+                                    const std::function<void(bool)> &cbCallback,
+                                    const std::function<void()> &btnCallback);
     static QComboBox *make_typeCb(int row, const QObject *receiver, const std::function<void(int)> &callback);
     static QComboBox *make_algoCb();
     static QLabel *make_algoForAuthy();

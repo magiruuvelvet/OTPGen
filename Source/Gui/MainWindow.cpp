@@ -4,8 +4,6 @@
 
 #include <QMessageBox>
 
-#include <QShortcut>
-
 #include <chrono>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -17,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
 
     // initial window size
-    this->resize(448, 490);
+    this->resize(461, 490);
 
     GuiHelpers::centerWindow(this);
 
@@ -108,12 +106,16 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ctrl_q, &QShortcut::activated, this, [&]{
         qApp->quit();
     });
+
+    // Initialize Clipboard
+    clipboard = QGuiApplication::clipboard();
 }
 
 MainWindow::~MainWindow()
 {
     buttons.clear();
     windowControls.clear();
+    clipboard = nullptr;
 }
 
 void MainWindow::minimizeToTray()
@@ -163,7 +165,8 @@ void MainWindow::updateTokenList()
 
         tokens->insertRow(row);
         tokens->setCellWidget(row, 0, OTPWidget::make_showToggle(row, this,
-            [&](bool c){ toggleTokenVisibility(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row, c); }));
+            [&](bool c){ toggleTokenVisibility(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row, c); },
+            [&]        { copyTokenToClipboard(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row); }));
         tokens->setCellWidget(row, 1, OTPWidget::make_typeDisplay(token.get()));
         tokens->setCellWidget(row, 2, OTPWidget::make_labelDisplay(
                                           QString::fromUtf8(token->icon().c_str()),
@@ -297,6 +300,12 @@ void MainWindow::toggleTokenVisibility(int row, bool visible)
     tokenWidget->tokens()->cellWidget(row, 3)->setVisible(visible);
     qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(row, 3))->findChild<QLineEdit*>()->setVisible(visible);
     qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(visible);
+}
+
+void MainWindow::copyTokenToClipboard(int row)
+{
+    const auto token = qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(row, 3))->findChild<QLineEdit*>()->text();
+    clipboard->setText(token);
 }
 
 void MainWindow::trayShowHideCallback()

@@ -2,6 +2,8 @@
 
 #include <QIntValidator>
 
+#include <QFileInfo>
+
 OTPWidget::OTPWidget(Mode mode, QWidget *parent)
     : QWidget(parent)
 {
@@ -80,7 +82,7 @@ OTPWidget::OTPWidget(Mode mode, QWidget *parent)
             return headers;
         })());
 
-        _tokens->resizeColumnToContents(0); // Show
+        _tokens->setColumnWidth(0, 68); // Show
 
         _tokens->setColumnWidth(1, 95); // Type
         _tokens->setColumnWidth(2, 170); // Label
@@ -100,12 +102,38 @@ TokenTableWidget *OTPWidget::tokens()
     return _tokens.get();
 }
 
-QCheckBox *OTPWidget::make_showToggle(int row, const QObject *receiver, const std::function<void(bool)> &callback)
+QWidget *OTPWidget::make_showToggle(int row, const QObject *receiver,
+                                    const std::function<void(bool)> &cbCallback,
+                                    const std::function<void()> &btnCallback)
 {
+    auto w = new QWidget();
+    auto hbox = new QHBoxLayout();
+    hbox->setSpacing(0);
+    hbox->setMargin(0);
+    hbox->setContentsMargins(6,0,3,0);
+
     auto cb = new QCheckBox();
     cb->setUserData(0, new TableWidgetCellUserData(row));
-    QObject::connect(cb, &QCheckBox::toggled, receiver, callback);
-    return cb;
+    cb->setContentsMargins(0,0,0,0);
+    QObject::connect(cb, &QCheckBox::toggled, receiver, cbCallback);
+    hbox->addWidget(cb);
+
+    auto btn = new QPushButton();
+    btn->setUserData(0, new TableWidgetCellUserData(row));
+    btn->setFlat(true);
+    btn->setFixedSize(23, 23);
+    btn->setIcon(GuiHelpers::i()->copy_content_icon);
+    btn->setIconSize(QSize(20, 20));
+    btn->setToolTip("Copy token to clipboard");
+    btn->setFocusPolicy(Qt::NoFocus);
+    btn->setContentsMargins(0,0,0,0);
+    QObject::connect(btn, &QPushButton::clicked, receiver, btnCallback);
+    hbox->addWidget(btn);
+
+    hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    w->setLayout(hbox);
+    return w;
 }
 
 QComboBox *OTPWidget::make_typeCb(int row, const QObject *receiver, const std::function<void(int)> &callback)
@@ -269,7 +297,12 @@ QWidget *OTPWidget::make_labelDisplay(const QString &userIcon, const QString &te
     icon->setContentsMargins(7,0,3,0);
     icon->setFixedSize(28, 16);
     icon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    icon->setPixmap(QPixmap(userIcon).scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    if (!userIcon.isEmpty()/* && QFileInfo(userIcon).exists()*/)
+    {
+        // icon->setPixmap(QPixmap(userIcon).scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        // TODO
+        icon->setPixmap(QPixmap::fromImage(QImage(reinterpret_cast<const unsigned char*>(userIcon.data()), 0, 0, QImage::Format_Invalid)));
+    }
     hbox->addWidget(icon);
 
     auto label = new QLabel();

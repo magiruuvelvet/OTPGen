@@ -15,7 +15,8 @@ GuiHelpers::GuiHelpers() :
     remove_icon(QIcon(":/GuiAssets/remove.svgz")),
     save_icon(QIcon(":/GuiAssets/save.svgz")),
     import_icon(QIcon(":/GuiAssets/import.svgz")),
-    qr_code_icon(QIcon(":/GuiAssets/qr-code.svgz"))
+    qr_code_icon(QIcon(":/GuiAssets/qr-code.svgz")),
+    copy_content_icon(QIcon(":/GuiAssets/copy-content.svgz"))
 {
 }
 
