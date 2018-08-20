@@ -1,9 +1,5 @@
 #include "TokenTableWidget.hpp"
 
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QProgressBar>
-
 TokenTableWidget::TokenTableWidget(Mode mode, QWidget *parent)
     : QTableWidget(parent), mode(mode), updating(false)
 {
@@ -39,20 +35,20 @@ void TokenTableWidget::paintEvent(QPaintEvent *event)
 
                 if (qobject_cast<QCheckBox*>(cellWidget(i, 0)))
                 {
-                    const auto checked = cellWidget(i, 0)->findChild<QCheckBox*>()->isChecked();
-                    cellWidget(i, 3)->setVisible(checked);
-                    cellWidget(i, 3)->findChild<QLineEdit*>()->setVisible(checked);
-                    cellWidget(i, 3)->findChild<QProgressBar*>()->setVisible(checked);
+                    const auto checked = tokenShow(i)->isChecked();
+                    tokenSecretWidget(i)->setVisible(checked);
+                    tokenSecret(i)->setVisible(checked);
+                    tokenSecretTimeout(i)->setVisible(checked);
                 }
             }
 
             for (auto&& row : invalidRows)
             {
-                cellWidget(row, 0)->findChild<QCheckBox*>()->setChecked(true);
-                cellWidget(row, 3)->findChild<QLineEdit*>()->setText("INVALID");
-                cellWidget(row, 3)->findChild<QProgressBar*>()->setVisible(false);
-                cellWidget(row, 0)->setDisabled(true);
-                cellWidget(row, 3)->setDisabled(true);
+                tokenShow(row)->setChecked(true);
+                tokenSecret(row)->setText("INVALID");
+                tokenSecretTimeout(row)->setVisible(false);
+                tokenControlWidget(row)->setDisabled(true);
+                tokenSecretWidget(row)->setDisabled(true);
             }
         }
     }

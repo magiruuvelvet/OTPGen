@@ -83,10 +83,10 @@ class TokenUserData : public QObjectUserData
 public:
     TokenUserData(const OTPToken *token)
     { this->token = token; }
-    TokenUserData(const OTPToken *token, QWidget *validty, const int &row)
-    { this->token = token; this->validty = validty; this->row = row; }
+    TokenUserData(const OTPToken *token, QWidget *validity, const int &row)
+    { this->token = token; this->validity = validity; this->row = row; }
     const OTPToken *token = nullptr;
-    QWidget *validty = nullptr;
+    QWidget *validity = nullptr;
     int row = -1;
 };
 

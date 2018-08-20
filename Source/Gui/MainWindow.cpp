@@ -173,20 +173,17 @@ void MainWindow::updateTokenList()
                                           QString::fromUtf8(token->label().c_str())));
         tokens->setCellWidget(row, 3, OTPWidget::make_tokenGenDisplay(token->period(), token->type()));
         qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(false);
-        // test
-        qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setValue(10);
-        //
         tokens->cellWidget(row, 3)->setUserData(0, new TokenUserData(token.get()));
         qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QLineEdit*>()->setVisible(false);
         qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(false);
 
         if (!valid)
         {
-            tokens->cellWidget(row, 0)->findChild<QCheckBox*>()->setChecked(true);
-            qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QLineEdit*>()->setText("INVALID");
-            qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(false);
-            tokens->cellWidget(row, 0)->setDisabled(true);
-            tokens->cellWidget(row, 3)->setDisabled(true);
+            tokens->tokenShow(row)->setChecked(true);
+            tokens->tokenSecret(row)->setText("INVALID");
+            tokens->tokenSecretTimeout(row)->setVisible(false);
+            tokens->tokenControlWidget(row)->setDisabled(true);
+            tokens->tokenSecretWidget(row)->setDisabled(true);
             invalidRows << row;
         }
         else
@@ -196,7 +193,7 @@ void MainWindow::updateTokenList()
             {
                 timers.append(std::make_shared<QTimer>());
                 timers.last()->setInterval(static_cast<int>(1000 * token->period()));
-                timers.last()->setUserData(0, new TokenUserData(token.get(), qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>(), row));
+                timers.last()->setUserData(0, new TokenUserData(token.get(), tokens->tokenSecretTimeout(row), row));
                 QObject::connect(timers.last().get(), &QTimer::timeout, this, &MainWindow::updateCurrentToken);
 
                 // get remaining seconds since last minute
@@ -217,11 +214,11 @@ void MainWindow::updateTokenList()
                 // set initial interval of timer to remaining token validity
                 // interval is updated to the real period after the first timeout
                 timers.last()->setInterval(1000 * token_validity);
-                qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QLineEdit*>()->setText(
+                tokens->tokenSecret(row)->setText(
                     token->generateToken().c_str()
                 );
                 timers.last()->start();
-                qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setValue(
+                tokens->tokenSecretTimeout(row)->setValue(
                     timers.last()->remainingTime() / 1000
                 );
             }
@@ -262,9 +259,9 @@ void MainWindow::removeSelectedTokens()
 
     for (auto i = 0; i < tokenWidget->tokens()->rowCount(); i++)
     {
-        if (tokenWidget->tokens()->cellWidget(i, 0)->findChild<QCheckBox*>()->isChecked())
+        if (tokenWidget->tokens()->tokenShow(i)->isChecked())
         {
-            TokenStore::i()->removeToken(tokenWidget->tokens()->cellWidget(i, 2)->findChild<QLabel*>("label")->text().toUtf8().constData());
+            TokenStore::i()->removeToken(tokenWidget->tokens()->tokenLabel(i)->text().toUtf8().constData());
         }
     }
 
@@ -281,7 +278,7 @@ void MainWindow::updateCurrentToken()
     // fix period after initial timer creation
     timer->setInterval(static_cast<int>(1000 * data->token->getPeriod()));
     // update generated token
-    qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(data->row, 3))->findChild<QLineEdit*>()->setText(
+    tokenWidget->tokens()->tokenSecret(data->row)->setText(
         data->token->generateToken().c_str()
     );
 }
@@ -291,20 +288,20 @@ void MainWindow::updateTokenValidities()
     for (auto&& timer : timers)
     {
         auto data = static_cast<TokenUserData*>(timer->userData(0));
-        qobject_cast<QProgressBar*>(data->validty)->setValue(timer->remainingTime() / 1000);
+        qobject_cast<QProgressBar*>(data->validity)->setValue(timer->remainingTime() / 1000);
     }
 }
 
 void MainWindow::toggleTokenVisibility(int row, bool visible)
 {
-    tokenWidget->tokens()->cellWidget(row, 3)->setVisible(visible);
-    qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(row, 3))->findChild<QLineEdit*>()->setVisible(visible);
-    qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(visible);
+    tokenWidget->tokens()->tokenSecretWidget(row)->setVisible(visible);
+    tokenWidget->tokens()->tokenSecret(row)->setVisible(visible);
+    tokenWidget->tokens()->tokenSecretTimeout(row)->setVisible(visible);
 }
 
 void MainWindow::copyTokenToClipboard(int row)
 {
-    const auto token = qobject_cast<QWidget*>(tokenWidget->tokens()->cellWidget(row, 3))->findChild<QLineEdit*>()->text();
+    const auto token = tokenWidget->tokens()->tokenSecret(row)->text();
     clipboard->setText(token);
 }
 
@@ -356,8 +353,8 @@ void MainWindow::filterTokens(const QString &searchTerms)
     for (auto i = 0; i < tokenWidget->tokens()->rowCount(); i++)
     {
         bool match = false;
-        const auto type = tokenWidget->tokens()->cellWidget(i, 1)->findChild<QLabel*>("name")->text().simplified();
-        const auto label = tokenWidget->tokens()->cellWidget(i, 2)->findChild<QLabel*>("label")->text().simplified();
+        const auto type = tokenWidget->tokens()->tokenType(i)->text().simplified();
+        const auto label = tokenWidget->tokens()->tokenLabel(i)->text().simplified();
         if (terms.match(type).hasMatch() ||
             terms.match(label).hasMatch())
         {

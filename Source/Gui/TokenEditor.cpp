@@ -293,37 +293,33 @@ void TokenEditor::addNewToken(OTPToken *token)
     switch (token->type())
     {
         case OTPToken::TOTP:
-            qobject_cast<QComboBox*>(tokens->cellWidget(row, 0))->setCurrentIndex(0);
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 1))->setText(QString::fromUtf8(token->label().c_str()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(QString::fromUtf8(token->secret().c_str()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText(QString::number(token->digits()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 4))->setText(QString::number(token->period()));
-            setAlgorithmCbIndex(qobject_cast<QComboBox*>(tokens->cellWidget(row, 6)), token->algorithm());
+            tokens->tokenEditType(row)->setCurrentIndex(0);
+
+            tokens->tokenDigits(row)->setText(QString::number(token->digits()));
+            tokens->tokenPeriod(row)->setText(QString::number(token->period()));
+            setAlgorithmCbIndex(tokens->tokenEditType(row), token->algorithm());
             break;
         case OTPToken::HOTP:
-            qobject_cast<QComboBox*>(tokens->cellWidget(row, 0))->setCurrentIndex(1);
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 1))->setText(QString::fromUtf8(token->label().c_str()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(QString::fromUtf8(token->secret().c_str()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText(QString::number(token->digits()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 5))->setText(QString::number(token->period()));
-            setAlgorithmCbIndex(qobject_cast<QComboBox*>(tokens->cellWidget(row, 6)), token->algorithm());
+            tokens->tokenEditType(row)->setCurrentIndex(1);
+            tokens->tokenDigits(row)->setText(QString::number(token->digits()));
+            tokens->tokenPeriod(row)->setText(QString::number(token->period()));
+            setAlgorithmCbIndex(tokens->tokenEditType(row), token->algorithm());
             break;
         case OTPToken::Steam:
-            qobject_cast<QComboBox*>(tokens->cellWidget(row, 0))->setCurrentIndex(2);
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 1))->setText(QString::fromUtf8(token->label().c_str()));
-            tokens->cellWidget(row, 2)->findChild<QLineEdit*>()->setText(QString::fromUtf8(token->secret().c_str()));
-            tokens->cellWidget(row, 2)->findChild<QComboBox*>()->setCurrentIndex(1);
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 4))->setText(QString::number(token->period()));
+            tokens->tokenEditType(row)->setCurrentIndex(2);
+            tokens->tokenEditSecretComboBoxExtra(row)->setCurrentIndex(1);
+            tokens->tokenPeriod(row)->setText(QString::number(token->period()));
             break;
         case OTPToken::Authy:
-            qobject_cast<QComboBox*>(tokens->cellWidget(row, 0))->setCurrentIndex(3);
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 1))->setText(QString::fromUtf8(token->label().c_str()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(QString::fromUtf8(token->secret().c_str()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText(QString::number(token->digits()));
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 4))->setText(QString::number(token->period()));
+            tokens->tokenEditType(row)->setCurrentIndex(3);
+            tokens->tokenDigits(row)->setText(QString::number(token->digits()));
+            tokens->tokenPeriod(row)->setText(QString::number(token->period()));
             break;
         case OTPToken::None: break;
     }
+
+    tokens->tokenEditLabel(row)->setText(QString::fromUtf8(token->label().c_str()));
+    tokens->tokenEditSecret(row)->setText(QString::fromUtf8(token->secret().c_str()));
 }
 
 void TokenEditor::saveTokens()
@@ -332,8 +328,8 @@ void TokenEditor::saveTokens()
 
     for (auto i = 0; i < tokens->rowCount(); i++)
     {
-        const auto type = static_cast<OTPToken::TokenType>(qobject_cast<QComboBox*>(tokens->cellWidget(i, 0))->currentData().toUInt());
-        const auto label = std::string(qobject_cast<QLineEdit*>(tokens->cellWidget(i, 1))->text().toUtf8().constData());
+        const auto type = static_cast<OTPToken::TokenType>(tokens->tokenEditType(i)->currentData().toUInt());
+        const auto label = std::string(tokens->tokenEditLabel(i)->text().toUtf8().constData());
 
         if (TokenStore::i()->contains(label))
         {
@@ -345,9 +341,8 @@ void TokenEditor::saveTokens()
 
         if (type == OTPToken::Steam)
         {
-            const auto steamInput = tokens->cellWidget(i, 2);
-            auto steamSecret = std::string(steamInput->findChild<QLineEdit*>()->text().toUtf8().constData());
-            auto steamSecretBase = steamInput->findChild<QComboBox*>()->currentData().toString();
+            auto steamSecret = std::string(tokens->tokenEditSecret(i)->text().toUtf8().constData());
+            auto steamSecretBase = tokens->tokenEditSecretComboBoxExtra(i)->currentData().toString();
 
             if (steamSecretBase == "base64")
             {
@@ -368,17 +363,17 @@ void TokenEditor::saveTokens()
         }
         else
         {
-            secret = std::string(qobject_cast<QLineEdit*>(tokens->cellWidget(i, 2))->text().toUtf8().constData());
+            secret = std::string(tokens->tokenEditSecret(i)->text().toUtf8().constData());
         }
 
-        const auto digits = static_cast<OTPToken::DigitType>(qobject_cast<QLineEdit*>(tokens->cellWidget(i, 3))->text().toUShort());
-        const auto period = qobject_cast<QLineEdit*>(tokens->cellWidget(i, 4))->text().toUInt();
-        const auto counter = qobject_cast<QLineEdit*>(tokens->cellWidget(i, 5))->text().toUInt();
+        const auto digits = static_cast<OTPToken::DigitType>(tokens->tokenDigits(i)->text().toUShort());
+        const auto period = tokens->tokenPeriod(i)->text().toUInt();
+        const auto counter = tokens->tokenCounter(i)->text().toUInt();
 
         OTPToken::ShaAlgorithm algorithm = OTPToken::Invalid;
         if (type == OTPToken::TOTP || type == OTPToken::HOTP)
         {
-            algorithm = static_cast<OTPToken::ShaAlgorithm>(qobject_cast<QComboBox*>(tokens->cellWidget(i, 6))->currentData().toUInt());
+            algorithm = static_cast<OTPToken::ShaAlgorithm>(tokens->tokenAlgorithm(i)->currentData().toUInt());
         }
         else if (type == OTPToken::Steam)
         {
@@ -386,7 +381,7 @@ void TokenEditor::saveTokens()
         }
         else if (type == OTPToken::Authy)
         {
-            algorithm = static_cast<OTPToken::ShaAlgorithm>(static_cast<TokenAlgorithmUserData*>(qobject_cast<QLabel*>(tokens->cellWidget(i, 6))->userData(0))->algorithm);
+            algorithm = static_cast<OTPToken::ShaAlgorithm>(static_cast<TokenAlgorithmUserData*>(tokens->tokenAlgorithm(i)->userData(0))->algorithm);
         }
 
         // TODO: don't add invalid tokens; test generation and indicate error to user
@@ -452,63 +447,51 @@ void TokenEditor::updateRow(int row)
     auto tokens = tokenEditWidget->tokens();
 
     // receive token type enum from current row
-    const auto typeCb = qobject_cast<QComboBox*>(tokens->cellWidget(row, 0));
+    const auto typeCb = tokens->tokenEditType(row);
     const auto type = static_cast<OTPToken::TokenType>(typeCb->itemData(typeCb->currentIndex()).toUInt());
 
     // transfer secret to new input widget, convenience feature when importing from
     // external files and adjusting the token type (user preference)
-    QString secret;
-    const auto child = tokens->cellWidget(row, 2)->findChild<QLineEdit*>();
-    if (child)
-    {
-        secret = child->text();
-    }
-    else
-    {
-        secret = qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->text();
-    }
+    auto secret = tokens->tokenEditSecret(row)->text();
 
     // set token options
     switch (type)
     {
         case OTPToken::TOTP: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(secret);
 
             tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText("6");
+            tokens->tokenDigits(row)->setText("6");
             tokens->cellWidget(row, 4)->setEnabled(true);  // Period
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 4))->setText("30");
+            tokens->tokenPeriod(row)->setText("30");
             tokens->cellWidget(row, 5)->setEnabled(false); // Counter
             tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
             tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
-            qobject_cast<QComboBox*>(tokens->cellWidget(row, 6))->setCurrentIndex(0);
+            tokens->tokenAlgorithm(row)->setCurrentIndex(0);
             }
             break;
 
         case OTPToken::HOTP: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(secret);
 
             tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText("6");
+            tokens->tokenDigits(row)->setText("6");
             tokens->cellWidget(row, 4)->setEnabled(false); // Period
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 4))->setText("");
+            tokens->tokenPeriod(row)->setText("");
             tokens->cellWidget(row, 5)->setEnabled(true);  // Counter
             tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
             tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
-            qobject_cast<QComboBox*>(tokens->cellWidget(row, 6))->setCurrentIndex(0);
+            tokens->tokenAlgorithm(row)->setCurrentIndex(0);
             }
             break;
 
         case OTPToken::Steam: {
             tokens->setCellWidget(row, 2, OTPWidget::make_steamInput());
-            tokens->cellWidget(row, 2)->findChild<QLineEdit*>()->setText(secret);
 
             tokens->cellWidget(row, 3)->setEnabled(false); // Digits
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText("");
+            tokens->tokenDigits(row)->setText("");
             tokens->cellWidget(row, 4)->setEnabled(true);  // Period
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 4))->setText("30");
+            tokens->tokenPeriod(row)->setText("30");
             tokens->cellWidget(row, 5)->setEnabled(false); // Counter
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForSteam());
             tokens->cellWidget(row, 6)->setEnabled(false); // Algorithm
@@ -517,12 +500,11 @@ void TokenEditor::updateRow(int row)
 
         case OTPToken::Authy: {
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 2))->setText(secret);
 
             tokens->cellWidget(row, 3)->setEnabled(true);  // Digits
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 3))->setText("7");
+            tokens->tokenDigits(row)->setText("7");
             tokens->cellWidget(row, 4)->setEnabled(true);  // Period
-            qobject_cast<QLineEdit*>(tokens->cellWidget(row, 4))->setText("10");
+            tokens->tokenPeriod(row)->setText("10");
             tokens->cellWidget(row, 5)->setEnabled(false); // Counter
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForAuthy());
             tokens->cellWidget(row, 6)->setEnabled(true);  // Algorithm
@@ -532,6 +514,8 @@ void TokenEditor::updateRow(int row)
         case OTPToken::None:
             break;
     }
+
+    tokens->tokenEditSecret(row)->setText(secret);
 
     secret.clear();
 }
@@ -552,8 +536,8 @@ void TokenEditor::deleteRow(int row)
     // update row data
     for (auto i = 0; i < tokens->rowCount(); i++)
     {
-        static_cast<TableWidgetCellUserData*>(tokens->cellWidget(i, 0)->userData(0))->row = i;
-        static_cast<TableWidgetCellUserData*>(tokens->cellWidget(i, 7)->userData(0))->row = i;
+        static_cast<TableWidgetCellUserData*>(tokens->tokenEditType(i)->userData(0))->row = i;
+        static_cast<TableWidgetCellUserData*>(tokens->tokenDeleteButton(i)->userData(0))->row = i;
     }
 }
 
