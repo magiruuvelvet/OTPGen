@@ -39,18 +39,18 @@ void TokenTableWidget::paintEvent(QPaintEvent *event)
 
                 if (qobject_cast<QCheckBox*>(cellWidget(i, 0)))
                 {
-                    const auto checked = qobject_cast<QCheckBox*>(cellWidget(i, 0))->isChecked();
+                    const auto checked = cellWidget(i, 0)->findChild<QCheckBox*>()->isChecked();
                     cellWidget(i, 3)->setVisible(checked);
-                    qobject_cast<QWidget*>(cellWidget(i, 3))->findChild<QLineEdit*>()->setVisible(checked);
-                    qobject_cast<QWidget*>(cellWidget(i, 3))->findChild<QProgressBar*>()->setVisible(checked);
+                    cellWidget(i, 3)->findChild<QLineEdit*>()->setVisible(checked);
+                    cellWidget(i, 3)->findChild<QProgressBar*>()->setVisible(checked);
                 }
             }
 
             for (auto&& row : invalidRows)
             {
-                qobject_cast<QCheckBox*>(cellWidget(row, 0))->setChecked(true);
-                qobject_cast<QWidget*>(cellWidget(row, 3))->findChild<QLineEdit*>()->setText("INVALID");
-                qobject_cast<QWidget*>(cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(false);
+                cellWidget(row, 0)->findChild<QCheckBox*>()->setChecked(true);
+                cellWidget(row, 3)->findChild<QLineEdit*>()->setText("INVALID");
+                cellWidget(row, 3)->findChild<QProgressBar*>()->setVisible(false);
                 cellWidget(row, 0)->setDisabled(true);
                 cellWidget(row, 3)->setDisabled(true);
             }
