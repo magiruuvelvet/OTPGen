@@ -182,7 +182,7 @@ void MainWindow::updateTokenList()
 
         if (!valid)
         {
-            qobject_cast<QCheckBox*>(tokens->cellWidget(row, 0))->setChecked(true);
+            tokens->cellWidget(row, 0)->findChild<QCheckBox*>()->setChecked(true);
             qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QLineEdit*>()->setText("INVALID");
             qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(false);
             tokens->cellWidget(row, 0)->setDisabled(true);
