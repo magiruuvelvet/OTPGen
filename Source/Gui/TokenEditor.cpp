@@ -352,6 +352,11 @@ void TokenEditor::saveTokens()
             if (steamSecretBase == "base64")
             {
                 secret = SteamToken::convertBase64Secret(steamSecret);
+                if (secret.empty())
+                {
+                    // avoid empty secret for better error handling
+                    secret = steamSecret;
+                }
             }
             else
             {
@@ -418,6 +423,13 @@ void TokenEditor::saveTokens()
                 tokenStatus = TokenStore::Nullptr;
                 break;
         }
+
+#ifdef OTPGEN_DEBUG
+        std::cout << "TokenEditor: label -> " << label << std::endl;
+        std::cout << "TokenEditor: secret -> " << secret << std::endl;
+        std::cout << "TokenEditor: tokenStatus -> " << tokenStatus << std::endl;
+        std::cout << "---" << std::endl;
+#endif
 
         secret.clear();
     }
