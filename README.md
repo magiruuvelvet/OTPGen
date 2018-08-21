@@ -38,7 +38,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
    - andOTP
 
  - User Settings
- - Remember UI state (geometry, table widget column sizes, etc.)
 
 <br>
 
