@@ -80,6 +80,7 @@ public:
     const QIcon qr_code_icon;
     const QIcon copy_content_icon;
     const QIcon edit_icon;
+    const QIcon info_icon;
 
 private:
     GuiHelpers();

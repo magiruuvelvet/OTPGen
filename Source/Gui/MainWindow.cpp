@@ -32,7 +32,11 @@ MainWindow::MainWindow(QWidget *parent)
         editSelectedTokens();
     }));
 
-    windowControls = GuiHelpers::make_windowControls(this,
+    windowControls += GuiHelpers::make_toolbtn(GuiHelpers::i()->info_icon, "Info", this, [&]{
+        // TODO: implement about dialog
+        QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
+    });
+    windowControls += GuiHelpers::make_windowControls(this,
         true, [&]{ minimizeToTray(); },
         true, [&]{ GuiHelpers::default_maximizeRestoreCallback(this); },
         true, [&]{ GuiHelpers::default_closeCallback(this); }

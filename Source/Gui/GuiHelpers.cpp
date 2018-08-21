@@ -17,7 +17,8 @@ GuiHelpers::GuiHelpers() :
     import_icon(QIcon(":/GuiAssets/import.svgz")),
     qr_code_icon(QIcon(":/GuiAssets/qr-code.svgz")),
     copy_content_icon(QIcon(":/GuiAssets/copy-content.svgz")),
-    edit_icon(QIcon(":/GuiAssets/pencil-edit-button.svgz"))
+    edit_icon(QIcon(":/GuiAssets/pencil-edit-button.svgz")),
+    info_icon(QIcon(":/GuiAssets/info.svgz"))
 {
 }
 
