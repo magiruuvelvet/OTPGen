@@ -60,9 +60,6 @@ MainWindow::MainWindow(QWidget *parent)
     vbox->addLayout(innerVBox.get());
     this->setLayout(vbox.get());
 
-    // load stored tokens
-    this->updateTokenList();
-
     // create master timer
     masterTimer = std::make_shared<QTimer>();
     masterTimer->setInterval(1000); // 1 second
@@ -87,6 +84,11 @@ MainWindow::MainWindow(QWidget *parent)
 
         trayMenu->addSeparator();
 
+        traySeparatorBeforeTokens = std::make_shared<QAction>();
+        traySeparatorBeforeTokens->setSeparator(true);
+        trayMenu->addAction(traySeparatorBeforeTokens.get());
+        traySeparatorBeforeTokens->setVisible(false);
+
         trayMenu->addAction(QString("Quit %1").arg(qApp->applicationDisplayName()), this, [&]{
             qApp->quit();
         }, QKeySequence("Ctrl+Q"));
@@ -100,6 +102,9 @@ MainWindow::MainWindow(QWidget *parent)
 
         trayIcon->show();
     }
+
+    // load stored tokens
+    this->updateTokenList();
 
     // Quit Application
     auto ctrl_q = new QShortcut(QKeySequence("Ctrl+Q"), this);
@@ -174,6 +179,12 @@ void MainWindow::updateTokenList()
     tokens->setRowCount(0);
     tokens->setInvalidRows({});
 
+    if (trayMenu)
+    {
+        trayTokens.clear();
+        traySeparatorBeforeTokens->setVisible(false);
+    }
+
     // reload tokens from store
 
     QList<int> invalidRows;
@@ -200,6 +211,25 @@ void MainWindow::updateTokenList()
         qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QLineEdit*>()->setVisible(false);
         qobject_cast<QWidget*>(tokens->cellWidget(row, 3))->findChild<QProgressBar*>()->setVisible(false);
 
+        if (trayMenu)
+        {
+            std::shared_ptr<QAction> tokenTray = std::make_shared<QAction>();
+            tokenTray->setText(QString::fromUtf8(token->label().c_str()));
+            if (!token->icon().empty())
+            {
+                QPixmap pixmap;
+                const auto status = pixmap.loadFromData(reinterpret_cast<const unsigned char*>(token->icon().data()), static_cast<uint>(token->icon().size()));
+                if (status)
+                {
+                    tokenTray->setIcon(pixmap.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                }
+            }
+            QObject::connect(tokenTray.get(), &QAction::triggered, this, [&]{
+                copyTokenToClipboard(qobject_cast<QAction*>(this->sender())->text());
+            });
+            trayTokens.append(tokenTray);
+        }
+
         if (!valid)
         {
             tokens->tokenShow(row)->setChecked(true);
@@ -208,6 +238,10 @@ void MainWindow::updateTokenList()
             tokens->tokenControlWidget(row)->setDisabled(true);
             tokens->tokenSecretWidget(row)->setDisabled(true);
             invalidRows << row;
+            if (trayMenu)
+            {
+                trayTokens.last()->setDisabled(true);
+            }
         }
         else
         {
@@ -249,6 +283,17 @@ void MainWindow::updateTokenList()
     }
     tokens->setInvalidRows(invalidRows);
     tokens->setUpdating(false);
+
+    if (trayMenu && !trayTokens.isEmpty())
+    {
+        QList<QAction*> _tokenTrayPtrs;
+        for (auto&& tray : trayTokens)
+        {
+            _tokenTrayPtrs.append(tray.get());
+        }
+        traySeparatorBeforeTokens->setVisible(true);
+        trayMenu->insertActions(traySeparatorBeforeTokens.get(), _tokenTrayPtrs);
+    }
 }
 
 void MainWindow::addNewTokens()
@@ -363,6 +408,12 @@ void MainWindow::copyTokenToClipboard(int row)
 {
     const auto token = tokenWidget->tokens()->tokenSecret(row)->text();
     clipboard->setText(token);
+}
+
+void MainWindow::copyTokenToClipboard(const QString &label)
+{
+    const auto token = TokenStore::i()->tokenAt(label.toUtf8().constData());
+    clipboard->setText(QString::fromUtf8(token->generateToken().c_str()));
 }
 
 void MainWindow::trayShowHideCallback()

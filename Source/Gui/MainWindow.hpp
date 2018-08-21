@@ -39,6 +39,7 @@ private:
 
     void toggleTokenVisibility(int row, bool visible);
     void copyTokenToClipboard(int row);
+    void copyTokenToClipboard(const QString &label);
 
     void trayShowHideCallback();
 
@@ -72,6 +73,7 @@ private:
     std::shared_ptr<QAction> trayShowHide;
     QString trayShowText;
     QString trayHideText;
+    std::shared_ptr<QAction> traySeparatorBeforeTokens;
     QList<std::shared_ptr<QAction>> trayTokens;
 
     QClipboard *clipboard = nullptr;
