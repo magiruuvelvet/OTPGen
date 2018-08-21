@@ -23,6 +23,7 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
  - Search your tokens with regular expressions in the search bar and never lose
    time because of a huge token database
  - Copy tokens to clipboard without revealing them in the UI
+ - Custom icons to better recognize your tokens
 
 
 ## Planned
@@ -36,7 +37,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
    - QR Code
    - andOTP
 
- - Custom icons to better recognize tokens (preperation work in the GUI already done)
  - User Settings
  - Remember UI state (geometry, table widget column sizes, etc.)
 
