@@ -238,7 +238,14 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
         true, [&]{ GuiHelpers::default_closeCallback(this); }
     ));
 
-    titleBar = GuiHelpers::make_titlebar("Add Tokens", buttons, windowControls);
+    if (mode == OTPWidget::Mode::Edit)
+    {
+        titleBar = GuiHelpers::make_titlebar("Add Tokens", buttons, windowControls);
+    }
+    else
+    {
+        titleBar = GuiHelpers::make_titlebar("Edit Tokens", buttons, windowControls);
+    }
     vbox->addWidget(titleBar.get());
 
     tokenEditWidget = std::make_shared<OTPWidget>(OTPWidget::Mode::Edit);
