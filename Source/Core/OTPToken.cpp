@@ -9,6 +9,21 @@ OTPToken::OTPToken()
     _name.clear();
 }
 
+OTPToken::OTPToken(const OTPToken *other)
+{
+    _type = other->_type;
+    _name = other->_name;
+
+    _label = other->_label;
+    _icon = other->_icon;
+
+    _secret = other->_secret;
+    _digits = other->_digits;
+    _period = other->_period;
+    _counter = other->_counter;
+    _algorithm = other->_algorithm;
+}
+
 OTPToken::OTPToken(const Label &label)
 {
     _label = label;

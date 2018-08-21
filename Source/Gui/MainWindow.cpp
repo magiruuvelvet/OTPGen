@@ -28,6 +28,9 @@ MainWindow::MainWindow(QWidget *parent)
         true, "Add tokens", [&]{ addNewTokens(); },
         true, "Remove selected tokens", [&]{ removeSelectedTokens(); }
     );
+    buttons.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->edit_icon, "Edit selected tokens", this, [&]{
+        editSelectedTokens();
+    }));
 
     windowControls = GuiHelpers::make_windowControls(this,
         true, [&]{ minimizeToTray(); },
@@ -296,6 +299,37 @@ void MainWindow::removeSelectedTokens()
     }
 
     this->updateTokenList();
+}
+
+void MainWindow::editSelectedTokens()
+{
+    if (tokenEditor)
+    {
+        tokenEditor->show();
+        tokenEditor->activateWindow();
+    }
+    else
+    {
+        tokenEditor = std::make_shared<TokenEditor>(OTPWidget::Mode::Override);
+        tokenEditorHelper = std::make_shared<FramelessContainer>(tokenEditor.get());
+        QObject::connect(tokenEditor.get(), &WidgetBase::closed, this, [&]{
+            tokenEditor.reset();
+            tokenEditorHelper.reset();
+        });
+        QObject::connect(tokenEditor.get(), &TokenEditor::tokensSaved, this, &MainWindow::updateTokenList);
+
+        std::vector<OTPToken*> tokens;
+        for (auto i = 0; i < tokenWidget->tokens()->rowCount(); i++)
+        {
+            if (tokenWidget->tokens()->tokenShow(i)->isChecked())
+            {
+                tokens.emplace_back(TokenStore::i()->tokenAt(tokenWidget->tokens()->tokenLabel(i)->text().toUtf8().constData()));
+            }
+        }
+        tokenEditor->linkTokens(tokens);
+
+        tokenEditor->show();
+    }
 }
 
 void MainWindow::updateCurrentToken()

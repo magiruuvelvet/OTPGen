@@ -13,6 +13,7 @@ public:
 
 private:
     friend struct TokenData;
+    friend class TokenStore;
     friend class TokenDatabase;
     friend class TokenEditor;
 

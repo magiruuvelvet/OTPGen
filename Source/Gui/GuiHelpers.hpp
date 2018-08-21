@@ -79,6 +79,7 @@ public:
     const QIcon import_icon;
     const QIcon qr_code_icon;
     const QIcon copy_content_icon;
+    const QIcon edit_icon;
 
 private:
     GuiHelpers();

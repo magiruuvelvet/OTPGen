@@ -17,7 +17,7 @@ TokenStore::~TokenStore()
     _tokens.clear();
 }
 
-TokenStore::Status TokenStore::addToken(const Token &token)
+TokenStore::Status TokenStore::addToken(const Token &token, bool override)
 {
     // do nothing on nullptr
     if (!token)
@@ -31,14 +31,51 @@ TokenStore::Status TokenStore::addToken(const Token &token)
     if (token->secret().empty())
         return SecretEmpty;
 
-    // add token if not already in the list
-    if (!this->contains(token->label()))
+    if (override)
     {
-        _tokens.emplace_back(token);
-        return Success;
-    }
+        for (auto&& _token : _tokens)
+        {
+            if (_token->label() == token->label())
+            {
+                switch (token->type())
+                {
+                    case OTPToken::TOTP: _token = std::make_shared<TOTPToken>(TOTPToken(
+                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm));
+                        break;
 
-    return AlreadyInStore;
+                    case OTPToken::HOTP: _token = std::make_shared<HOTPToken>(HOTPToken(
+                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm));
+                        break;
+
+                    case OTPToken::Steam: _token = std::make_shared<SteamToken>(SteamToken(
+                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm));
+                        break;
+
+                    case OTPToken::Authy: _token = std::make_shared<AuthyToken>(AuthyToken(
+                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm));
+                        break;
+
+                   case OTPToken::None:
+                        return NotOverridden;
+                        break;
+                }
+
+                return Success;
+            }
+        }
+        return NotOverridden;
+    }
+    else
+    {
+        // add token if not already in the list
+        if (!this->contains(token->label()))
+        {
+            _tokens.emplace_back(token);
+            return Success;
+        }
+
+        return AlreadyInStore;
+    }
 }
 
 void TokenStore::addTokenUnsafe(const Token &token)
@@ -70,6 +107,11 @@ void TokenStore::removeToken(const OTPToken::Label &label)
 
 bool TokenStore::renameToken(const OTPToken::Label &oldLabel, const OTPToken::Label &newLabel)
 {
+    if (this->contains(newLabel))
+    {
+        return false;
+    }
+
     for (auto&& token : _tokens)
     {
         if (token->label() == oldLabel)
@@ -102,6 +144,18 @@ bool TokenStore::empty() const
 void TokenStore::clear()
 {
     _tokens.clear();
+}
+
+OTPToken *TokenStore::tokenAt(const OTPToken::Label &label)
+{
+    for (auto&& token : _tokens)
+    {
+        if (token->label() == label)
+        {
+            return token.get();
+        }
+    }
+    return nullptr;
 }
 
 const OTPToken *TokenStore::tokenAt(const OTPToken::Label &label) const

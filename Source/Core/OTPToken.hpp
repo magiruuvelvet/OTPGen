@@ -23,6 +23,7 @@ public:
     using CounterType = std::uint32_t;
 
     OTPToken();
+    OTPToken(const OTPToken *other);
     OTPToken(const Label &label);
     virtual ~OTPToken();
 
@@ -107,6 +108,7 @@ protected:
 
 private:
     friend struct TokenData;
+    friend class TokenStore;
     friend class TokenDatabase;
     friend class TokenEditor;
 

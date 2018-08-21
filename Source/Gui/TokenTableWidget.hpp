@@ -21,6 +21,7 @@ public:
     enum class Mode {
         View,
         Edit,
+        Override,
     };
 
     explicit TokenTableWidget(Mode mode, QWidget *parent = nullptr);

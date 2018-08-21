@@ -16,12 +16,20 @@
 #include <Core/Import/Authy.hpp>
 #include <Core/Import/Steam.hpp>
 
-TokenEditor::TokenEditor(QWidget *parent)
-    : WidgetBase(parent)
+TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
+    : WidgetBase(parent),
+      _mode(mode)
 {
     this->setWindowFlag(Qt::FramelessWindowHint, true);
     this->setPalette(GuiHelpers::make_theme(this->palette()));
-    this->setWindowTitle(GuiHelpers::make_windowTitle("Add Tokens"));
+    if (mode == OTPWidget::Mode::Edit)
+    {
+        this->setWindowTitle(GuiHelpers::make_windowTitle("Add Tokens"));
+    }
+    else
+    {
+        this->setWindowTitle(GuiHelpers::make_windowTitle("Edit Tokens"));
+    }
     this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
 
     // initial window size
@@ -30,6 +38,8 @@ TokenEditor::TokenEditor(QWidget *parent)
     GuiHelpers::centerWindow(this);
 
     vbox = GuiHelpers::make_vbox();
+
+    if (mode == OTPWidget::Mode::Edit) {
 
     importMenu = std::make_shared<QMenu>();
     importActions = {
@@ -195,10 +205,12 @@ TokenEditor::TokenEditor(QWidget *parent)
         }),
         GuiHelpers::make_menuSeparator(),
         GuiHelpers::make_importAction("QR Code", GuiHelpers::i()->qr_code_icon, this, [&]{
-
+            // TODO: implement qr code
+            QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
         }),
         GuiHelpers::make_importAction("otpauth URI", QIcon(), this, [&]{
-
+            // TODO: implement otpauth uri
+            QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
         }),
     };
 
@@ -215,6 +227,8 @@ TokenEditor::TokenEditor(QWidget *parent)
         showImportTokensMenu();
     }));
 
+    } // Edit Mode
+
     windowControls.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->save_icon, "Save tokens", this, [&]{
         saveTokens();
     }));
@@ -230,6 +244,11 @@ TokenEditor::TokenEditor(QWidget *parent)
     tokenEditWidget = std::make_shared<OTPWidget>(OTPWidget::Mode::Edit);
     tokenEditWidget->setContentsMargins(3,3,3,3);
     vbox->addWidget(tokenEditWidget.get());
+
+    if (_mode == OTPWidget::Mode::Override)
+    {
+        // tokenEditWidget->tokens()->setColumnHidden(7, true);
+    }
 
     btnMenu = std::make_shared<QMenu>();
     btnDeleteIcon = std::make_shared<QAction>();
@@ -264,6 +283,15 @@ TokenEditor::~TokenEditor()
     buttons.clear();
     windowControls.clear();
     importActions.clear();
+}
+
+void TokenEditor::linkTokens(std::vector<OTPToken*> tokens)
+{
+    _linkedTokens = tokens;
+    for (auto&& token : tokens)
+    {
+        addNewToken(token);
+    }
 }
 
 void TokenEditor::closeEvent(QCloseEvent *event)
@@ -333,6 +361,10 @@ void TokenEditor::addNewToken(OTPToken *token)
         btnDeleteIcon->setUserData(0, this->sender()->userData(0));
         btnMenu->popup(QCursor::pos());
     }));
+    if (_mode == OTPWidget::Mode::Override)
+    {
+        tokens->cellWidget(row, 1)->setUserData(2, new TokenOldNameUserData(token->label()));
+    }
     tokens->setCellWidget(row, 2, OTPWidget::make_secretInput()); // Secret
     tokens->setCellWidget(row, 3, OTPWidget::make_intInput(3, 15)); // Digits
     tokens->setCellWidget(row, 4, OTPWidget::make_intInput(1, 120)); // Period
@@ -374,6 +406,7 @@ void TokenEditor::addNewToken(OTPToken *token)
     }
 
     tokens->tokenEditLabel(row)->setText(QString::fromUtf8(token->label().c_str()));
+    setTokenIcon(row, token->icon());
     tokens->tokenEditSecret(row)->setText(QString::fromUtf8(token->secret().c_str()));
 }
 
@@ -383,29 +416,62 @@ void TokenEditor::saveTokens()
 
     QStringList skipped;
 
+    auto override = _mode == OTPWidget::Mode::Override;
+
     for (auto i = 0; i < tokens->rowCount(); i++)
     {
         const auto type = static_cast<OTPToken::TokenType>(tokens->tokenEditType(i)->currentData().toUInt());
         const auto label = std::string(tokens->tokenEditLabel(i)->text().toUtf8().constData());
 
-        if (TokenStore::i()->contains(label))
+        if (_mode == OTPWidget::Mode::Edit)
         {
-            skipped << tokens->tokenEditLabel(i)->text();
-            continue;
+            if (TokenStore::i()->contains(label))
+            {
+                skipped << tokens->tokenEditLabel(i)->text();
+                continue;
+            }
         }
 
-        const auto iconUserData = tokens->tokenEditIcon(i)->userData(1);
         std::string iconData;
-        if (iconUserData)
+        if (_mode == OTPWidget::Mode::Edit)
         {
-            const auto iconFile = static_cast<TokenIconUserData*>(iconUserData)->file;
-            QFile file(iconFile);
-            if (file.open(QIODevice::ReadOnly))
+            const auto iconUserData = tokens->tokenEditIcon(i)->userData(1);
+            if (iconUserData)
             {
-                auto buf = file.readAll();
-                iconData = std::string(buf.constData(), buf.constData() + buf.size());
-                buf.clear();
-                file.close();
+                const auto iconFile = static_cast<TokenIconUserData*>(iconUserData)->file;
+                QFile file(iconFile);
+                if (file.open(QIODevice::ReadOnly))
+                {
+                    auto buf = file.readAll();
+                    iconData = std::string(buf.constData(), buf.constData() + buf.size());
+                    buf.clear();
+                    file.close();
+                }
+            }
+        }
+        // Mode Override
+        else
+        {
+            const auto iconUserData = static_cast<TokenIconUserData*>(tokens->tokenEditIcon(i)->userData(1));
+            if (iconUserData && !iconUserData->file.isEmpty())
+            {
+                const auto iconFile = iconUserData->file;
+                QFile file(iconFile);
+                if (file.open(QIODevice::ReadOnly))
+                {
+                    auto buf = file.readAll();
+                    iconData = std::string(buf.constData(), buf.constData() + buf.size());
+                    buf.clear();
+                    file.close();
+                }
+            }
+            else if (tokens->tokenEditIcon(i)->icon().isNull())
+            {
+                iconData.clear();
+            }
+            else
+            {
+                iconData = iconUserData->data;
             }
         }
 
@@ -458,35 +524,54 @@ void TokenEditor::saveTokens()
 
         TokenStore::Status tokenStatus;
 
+        if (_mode == OTPWidget::Mode::Override)
+        {
+            const auto oldname = static_cast<TokenOldNameUserData*>(tokens->cellWidget(i, 1)->userData(2))->oldname;
+            if (oldname != label)
+            {
+                auto res = TokenStore::i()->renameToken(oldname, label);
+                if (!res)
+                {
+                    skipped << tokens->tokenEditLabel(i)->text();
+                    continue;
+                }
+            }
+        }
+
         switch (type)
         {
             case OTPToken::TOTP:
                 tokenStatus = TokenStore::i()->addToken(std::make_shared<TOTPToken>(TOTPToken(
                     label, iconData, secret, digits, period, counter, algorithm
-                )));
+                )), override);
                 break;
 
             case OTPToken::HOTP:
                 tokenStatus = TokenStore::i()->addToken(std::make_shared<HOTPToken>(HOTPToken(
                     label, iconData, secret, digits, period, counter, algorithm
-                )));
+                )), override);
                 break;
 
             case OTPToken::Steam:
                 tokenStatus = TokenStore::i()->addToken(std::make_shared<SteamToken>(SteamToken(
                     label, iconData, secret, digits, period, counter, algorithm
-                )));
+                )), override);
                 break;
 
             case OTPToken::Authy:
                 tokenStatus = TokenStore::i()->addToken(std::make_shared<AuthyToken>(AuthyToken(
                     label, iconData, secret, digits, period, counter, algorithm
-                )));
+                )), override);
                 break;
 
             case OTPToken::None:
                 tokenStatus = TokenStore::Nullptr;
                 break;
+        }
+
+        if (tokenStatus != TokenStore::Success)
+        {
+            skipped << tokens->tokenEditLabel(i)->text();
         }
 
 #ifdef OTPGEN_DEBUG
@@ -502,10 +587,10 @@ void TokenEditor::saveTokens()
     if (!skipped.isEmpty())
     {
         QMessageBox::information(this, "Notice",
-            QString("The following tokens couldn't be saved due to name conflicts:\n\n") +
+            QString("The following tokens couldn't be saved due to name conflicts or empty secret:\n\n") +
             QString(" - ") +
             skipped.join("\n - ") +
-            QString("\n\nLabels must be unique and not empty!")
+            QString("\n\nLabels must be unique and not empty! Secrets are mandatory and can not be empty!")
         );
     }
 
@@ -673,6 +758,17 @@ void TokenEditor::setTokenIcon(int row)
 
     tokenEditWidget->tokens()->tokenEditIcon(row)->setIcon(QIcon(file));
     tokenEditWidget->tokens()->tokenEditIcon(row)->setUserData(1, new TokenIconUserData(file));
+}
+
+void TokenEditor::setTokenIcon(int row, const std::string &data)
+{
+    QPixmap pixmap;
+    const auto status = pixmap.loadFromData(reinterpret_cast<const unsigned char*>(data.data()), static_cast<uint>(data.size()));
+    if (status)
+    {
+        tokenEditWidget->tokens()->tokenEditIcon(row)->setIcon(pixmap.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    tokenEditWidget->tokens()->tokenEditIcon(row)->setUserData(1, new TokenIconUserData(data));
 }
 
 void TokenEditor::removeTokenIcon(int row)

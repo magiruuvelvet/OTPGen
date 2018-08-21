@@ -31,7 +31,7 @@ OTPWidget::OTPWidget(Mode mode, QWidget *parent)
     _tokens->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _tokens->setFocusPolicy(Qt::NoFocus);
 
-    if (mode == Mode::Edit)
+    if (mode == Mode::Edit || mode == Mode::Override)
     {
         this->setWindowTitle(GuiHelpers::make_windowTitle("Edit Tokens"));
 

@@ -9,8 +9,10 @@ class TokenEditor : public WidgetBase
     Q_OBJECT
 
 public:
-    explicit TokenEditor(QWidget *parent = nullptr);
+    explicit TokenEditor(OTPWidget::Mode mode = OTPWidget::Mode::Edit, QWidget *parent = nullptr);
     ~TokenEditor();
+
+    void linkTokens(std::vector<OTPToken*> tokens);
 
 signals:
     void tokensSaved();
@@ -31,9 +33,13 @@ private:
     void setAlgorithmCbIndex(QComboBox *cb, const OTPToken::ShaAlgorithm &algo);
 
     void setTokenIcon(int row);
+    void setTokenIcon(int row, const std::string &data);
     void removeTokenIcon(int row);
 
 private:
+    OTPWidget::Mode _mode;
+    std::vector<OTPToken*> _linkedTokens;
+
     std::shared_ptr<TitleBar> titleBar;
 
     std::shared_ptr<QVBoxLayout> vbox;

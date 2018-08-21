@@ -20,6 +20,7 @@ public:
     enum class Mode {
         View,
         Edit,
+        Override,
     };
     enum class Visibility {
         View,
@@ -83,6 +84,14 @@ public:
     int row = 0;
 };
 
+class TokenOldNameUserData : public QObjectUserData
+{
+public:
+    TokenOldNameUserData(const std::string &oldname)
+    { this->oldname = oldname; }
+    std::string oldname;
+};
+
 class TokenSecretInputTypeUserData : public QObjectUserData
 {
 public:
@@ -108,7 +117,10 @@ class TokenIconUserData : public QObjectUserData
 public:
     TokenIconUserData(const QString &file)
     { this->file = file; }
+    TokenIconUserData(const std::string &data)
+    { this->data = data; }
     QString file;
+    std::string data;
 };
 
 #endif // OTPWIDGET_HPP

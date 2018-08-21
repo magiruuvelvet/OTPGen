@@ -30,6 +30,7 @@ public:
 private:
     void addNewTokens();
     void removeSelectedTokens();
+    void editSelectedTokens();
 
     // generated token, this->sender() QTimer
     void updateCurrentToken();

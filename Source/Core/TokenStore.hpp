@@ -23,9 +23,10 @@ public:
         LabelEmpty,
         SecretEmpty,
         AlreadyInStore,
+        NotOverridden,
     };
 
-    Status addToken(const Token &token);
+    Status addToken(const Token &token, bool override = false);
     void removeToken(const OTPToken::Label &label);
     bool renameToken(const OTPToken::Label &oldLabel, const OTPToken::Label &newLabel);
 
@@ -33,6 +34,7 @@ public:
     bool empty() const;
     void clear();
 
+    OTPToken *tokenAt(const OTPToken::Label &label);
     const OTPToken *tokenAt(const OTPToken::Label &label) const;
 
     TokenList &tokens();

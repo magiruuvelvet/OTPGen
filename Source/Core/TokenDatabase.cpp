@@ -207,9 +207,9 @@ TokenDatabase::Error TokenDatabase::loadTokens()
     std::istringstream buffer(decrypted);
 
 #ifdef OTPGEN_DEBUG
-    std::cout << "=== BINARY ARCHIVE BEGIN ===" << std::endl;
-    std::cout << decrypted << std::endl;
-    std::cout << "=== BINARY ARCHIVE END ===" << std::endl;
+//    std::cout << "=== BINARY ARCHIVE BEGIN ===" << std::endl;
+//    std::cout << decrypted << std::endl;
+//    std::cout << "=== BINARY ARCHIVE END ===" << std::endl;
 #endif
 
     TokenDataAdapter<> data;
