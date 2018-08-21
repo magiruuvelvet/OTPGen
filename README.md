@@ -61,6 +61,13 @@ to avoid entering a password all the time during development. Never use real tok
 during development.
 
 
+## Tips
+
+Looking for high quality SVG icons? Check out this amazing repository with over 1000 icons:
+
+ - [gilbarbara/logos](https://github.com/gilbarbara/logos)
+
+
 <br>
 
 ## Screenshots
