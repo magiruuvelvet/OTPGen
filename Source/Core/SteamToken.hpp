@@ -32,6 +32,7 @@ private:
     friend class Import::Steam;
 
     SteamToken(const Label &label,
+               const Icon &icon,
                const SecretType &secret,
                const DigitType &digits,
                const PeriodType &period,
@@ -40,6 +41,7 @@ private:
         : SteamToken()
     {
         _label = label;
+        _icon = icon;
         _secret = secret;
         _digits = digits;
         _period = period;

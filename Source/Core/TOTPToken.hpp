@@ -21,6 +21,7 @@ private:
     friend class Import::Steam;
 
     TOTPToken(const Label &label,
+              const Icon &icon,
               const SecretType &secret,
               const DigitType &digits,
               const PeriodType &period,
@@ -29,6 +30,7 @@ private:
         : TOTPToken()
     {
         _label = label;
+        _icon = icon;
         _secret = secret;
         _digits = digits;
         _period = period;

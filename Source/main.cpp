@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     // hardcoded test data
     TokenDatabase::setPassword("pwd123");
     TokenDatabase::setTokenFile("out.cereal.enc");
-    std::printf("%i\n", TokenDatabase::loadTokens());
+    std::printf("main: loadTokens -> %i\n", TokenDatabase::loadTokens());
 
     //std::printf("%i\n", TokenDatabase::changePassword("pwd123"));
 

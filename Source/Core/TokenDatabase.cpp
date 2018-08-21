@@ -18,9 +18,11 @@
 #include <cereal/types/memory.hpp>
 #include <cereal/archives/portable_binary.hpp>
 
+#include "Migration/TokenArchiveVersions.hpp"
+
 namespace {
     static const std::string TOKEN_ARCHIVE_MAGIC = "OTPTokenArchive";
-    static const uint32_t TOKEN_ARCHIVE_VERSION = 0x01;
+    static const uint32_t TOKEN_ARCHIVE_VERSION = 0x02;
 }
 
 std::string TokenDatabase::password;
@@ -76,6 +78,7 @@ struct TokenData
 {
     OTPToken::TokenType type;
     OTPToken::Label label;
+    OTPToken::Icon icon;
     OTPToken::SecretType secret;
     OTPToken::DigitType digits;
     OTPToken::PeriodType period;
@@ -85,14 +88,15 @@ struct TokenData
     template<class Archive>
     void serialize(Archive &ar)
     {
-        ar(type, label, secret, digits, period, counter, algorithm);
+        ar(type, label, icon, secret, digits, period, counter, algorithm);
     }
 };
 
 // Container to store the entire token store in a single file.
+template<class TokenDataVersion = TokenData>
 struct TokenDataAdapter
 {
-    using Type = std::vector<TokenData>;
+    using Type = std::vector<TokenDataVersion>;
 
     std::string archiveMagic;
     uint32_t archiveVersion;
@@ -113,7 +117,7 @@ struct TokenDataAdapter
 
 TokenDatabase::Error TokenDatabase::saveTokens()
 {
-    TokenDataAdapter data;
+    TokenDataAdapter<> data;
     data.archiveMagic = TOKEN_ARCHIVE_MAGIC;
     data.archiveVersion = TOKEN_ARCHIVE_VERSION;
     for (auto&& token : TokenStore::i()->tokens())
@@ -121,6 +125,7 @@ TokenDatabase::Error TokenDatabase::saveTokens()
         TokenData tokenData;
         tokenData.type = token->type();
         tokenData.label = token->label();
+        tokenData.icon = token->icon();
         tokenData.secret = mangleTokenSecret(token->secret());
         tokenData.digits = token->digits();
         tokenData.period = token->period();
@@ -184,7 +189,8 @@ TokenDatabase::Error TokenDatabase::loadTokens()
     std::cout << "=== BINARY ARCHIVE END ===" << std::endl;
 #endif
 
-    TokenDataAdapter data;
+    TokenDataAdapter<> data;
+//    TokenDataAdapter<TokenDataV1> data_v1;
     cereal::PortableBinaryInputArchive archive(buffer);
     try {
         archive(data);
@@ -196,6 +202,16 @@ TokenDatabase::Error TokenDatabase::loadTokens()
     {
         return InvalidTokenFile;
     }
+
+//    if (data.archiveVersion == 0x01)
+//    {
+//        try {
+//            buffer.seekg(0);
+//            archive(data_v1);
+//        } catch (cereal::Exception e) {
+//            return InvalidTokenFile;
+//        }
+//    }
 
     TokenStore::i()->clear();
 
@@ -211,16 +227,16 @@ TokenDatabase::Error TokenDatabase::loadTokens()
         switch (t.type)
         {
             case OTPToken::TOTP:
-                TokenStore::i()->addTokenUnsafe(std::make_shared<TOTPToken>(TOTPToken(t.label, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
+                TokenStore::i()->addTokenUnsafe(std::make_shared<TOTPToken>(TOTPToken(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
                 break;
             case OTPToken::HOTP:
-                TokenStore::i()->addTokenUnsafe(std::make_shared<HOTPToken>(HOTPToken(t.label, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
+                TokenStore::i()->addTokenUnsafe(std::make_shared<HOTPToken>(HOTPToken(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
                 break;
             case OTPToken::Steam:
-                TokenStore::i()->addTokenUnsafe(std::make_shared<SteamToken>(SteamToken(t.label, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
+                TokenStore::i()->addTokenUnsafe(std::make_shared<SteamToken>(SteamToken(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
                 break;
             case OTPToken::Authy:
-                TokenStore::i()->addTokenUnsafe(std::make_shared<AuthyToken>(AuthyToken(t.label, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
+                TokenStore::i()->addTokenUnsafe(std::make_shared<AuthyToken>(AuthyToken(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
                 break;
 
             case OTPToken::None:

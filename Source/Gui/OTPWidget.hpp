@@ -41,7 +41,8 @@ public:
     static QLabel *make_algoForSteam();
     static QLineEdit *make_intInput(int min, int max);
     static QPushButton *make_delBtn(int row, const QObject *receiver, const std::function<void()> &callback);
-    static QLineEdit *make_labelInput();
+    static QWidget *make_labelInput(int row, const QObject *receiver, const std::function<void()> &callback,
+                                                                      const std::function<void(const QPoint&)> &contextMenu);
     static QLineEdit *make_secretInput();
     static QWidget *make_steamInput();
 
@@ -96,6 +97,14 @@ public:
     TokenAlgorithmUserData(const OTPToken::ShaAlgorithm &algorithm)
     { this->algorithm = algorithm; }
     OTPToken::ShaAlgorithm algorithm;
+};
+
+class TokenIconUserData : public QObjectUserData
+{
+public:
+    TokenIconUserData(const QString &file)
+    { this->file = file; }
+    QString file;
 };
 
 #endif // OTPWIDGET_HPP

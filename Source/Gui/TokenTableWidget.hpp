@@ -78,7 +78,10 @@ public:
     { return qobject_cast<QPushButton*>(cellWidget(row, 7)); }
 
     inline QLineEdit *tokenEditLabel(const int row)
-    { return qobject_cast<QLineEdit*>(cellWidget(row, 1)); }
+    { return cellWidget(row, 1)->findChild<QLineEdit*>(); }
+
+    inline QPushButton *tokenEditIcon(const int row)
+    { return cellWidget(row, 1)->findChild<QPushButton*>(); }
 
     inline QLineEdit *tokenEditSecret(const int row)
     {

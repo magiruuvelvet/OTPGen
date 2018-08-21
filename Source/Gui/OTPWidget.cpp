@@ -215,13 +215,35 @@ QPushButton *OTPWidget::make_delBtn(int row, const QObject *receiver, const std:
     return btn;
 }
 
-QLineEdit *OTPWidget::make_labelInput()
+QWidget *OTPWidget::make_labelInput(int row, const QObject *receiver, const std::function<void()> &callback,
+                                                                      const std::function<void(const QPoint&)> &contextMenu)
 {
+    auto w = new QWidget();
+    auto hbox = new QHBoxLayout();
+    hbox->setSpacing(0);
+    hbox->setMargin(0);
+    hbox->setContentsMargins(0,0,0,0);
+
+    auto btn = new QPushButton();
+    btn->setUserData(0, new TableWidgetCellUserData(row));
+    btn->setFixedWidth(35);
+    btn->setIconSize(QSize(35, 35));
+    btn->setFlat(true);
+    btn->setToolTip("Add Icon");
+    btn->setContentsMargins(3,0,3,0);
+    btn->setContextMenuPolicy(Qt::CustomContextMenu);
+    QObject::connect(btn, &QPushButton::clicked, receiver, callback);
+    QObject::connect(btn, &QPushButton::customContextMenuRequested, receiver, contextMenu);
+    hbox->addWidget(btn);
+
     auto le = new QLineEdit();
     le->setFrame(false);
     le->setAutoFillBackground(true);
     le->setContentsMargins(3,0,3,0);
-    return le;
+    hbox->addWidget(le);
+
+    w->setLayout(hbox);
+    return w;
 }
 
 QLineEdit *OTPWidget::make_secretInput()
@@ -310,8 +332,8 @@ QWidget *OTPWidget::make_labelDisplay(const std::string &userIcon, const QString
     auto icon = new QLabel();
     icon->setObjectName("icon");
     icon->setFrameShape(QFrame::NoFrame);
-    icon->setContentsMargins(7,0,3,0);
-    icon->setFixedSize(28, 16);
+    icon->setContentsMargins(7,0,5,0);
+    icon->setFixedSize(35, 25);
     icon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     if (!userIcon.empty())
     {
@@ -319,7 +341,7 @@ QWidget *OTPWidget::make_labelDisplay(const std::string &userIcon, const QString
         const auto status = pixmap.loadFromData(reinterpret_cast<const unsigned char*>(userIcon.data()), static_cast<uint>(userIcon.size()));
         if (status)
         {
-            icon->setPixmap(pixmap);
+            icon->setPixmap(pixmap.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }
     }
     hbox->addWidget(icon);

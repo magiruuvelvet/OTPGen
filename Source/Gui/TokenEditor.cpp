@@ -2,6 +2,9 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QImageReader>
+
+#include <QFile>
 
 #include "PasswordInputDialog.hpp"
 
@@ -189,10 +192,10 @@ TokenEditor::TokenEditor(QWidget *parent)
             }
         }),
         GuiHelpers::make_menuSeparator(),
-        GuiHelpers::make_importAction("otpauth URI", QIcon(), this, [&]{
+        GuiHelpers::make_importAction("QR Code", GuiHelpers::i()->qr_code_icon, this, [&]{
 
         }),
-        GuiHelpers::make_importAction("QR Code", GuiHelpers::i()->qr_code_icon, this, [&]{
+        GuiHelpers::make_importAction("otpauth URI", QIcon(), this, [&]{
 
         }),
     };
@@ -226,6 +229,16 @@ TokenEditor::TokenEditor(QWidget *parent)
     tokenEditWidget->setContentsMargins(3,3,3,3);
     vbox->addWidget(tokenEditWidget.get());
 
+    btnMenu = std::make_shared<QMenu>();
+    btnDeleteIcon = std::make_shared<QAction>();
+    btnDeleteIcon->setText("Delete Icon");
+    QObject::connect(btnDeleteIcon.get(), &QAction::triggered, this, [&]{
+        const auto row = static_cast<TableWidgetCellUserData*>(btnDeleteIcon->userData(0))->row;
+        btnDeleteIcon->setUserData(0, nullptr);
+        removeTokenIcon(row);
+    });
+    btnMenu->addAction(btnDeleteIcon.get());
+
     this->setLayout(vbox.get());
 }
 
@@ -250,7 +263,12 @@ void TokenEditor::addNewToken()
     // setup row data
     tokens->setCellWidget(row, 0, OTPWidget::make_typeCb(row, this,
         [&](int){ updateRow(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row); }));
-    tokens->setCellWidget(row, 1, OTPWidget::make_labelInput()); // Label
+    tokens->setCellWidget(row, 1, OTPWidget::make_labelInput(row, this, [&]{ // Label
+        setTokenIcon(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row);
+    }, [&](const QPoint&){
+        btnDeleteIcon->setUserData(0, this->sender()->userData(0));
+        btnMenu->popup(QCursor::pos());
+    }));
     tokens->setCellWidget(row, 2, OTPWidget::make_secretInput()); // Secret
     tokens->setCellWidget(row, 3, OTPWidget::make_intInput(3, 15)); // Digits
     tokens->setCellWidget(row, 4, OTPWidget::make_intInput(1, 120)); // Period
@@ -277,7 +295,12 @@ void TokenEditor::addNewToken(OTPToken *token)
     // setup row data
     tokens->setCellWidget(row, 0, OTPWidget::make_typeCb(row, this,
         [&](int){ updateRow(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row); }));
-    tokens->setCellWidget(row, 1, OTPWidget::make_labelInput()); // Label
+    tokens->setCellWidget(row, 1, OTPWidget::make_labelInput(row, this, [&]{ // Label
+        setTokenIcon(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row);
+    }, [&](const QPoint&){
+        btnDeleteIcon->setUserData(0, this->sender()->userData(0));
+        btnMenu->popup(QCursor::pos());
+    }));
     tokens->setCellWidget(row, 2, OTPWidget::make_secretInput()); // Secret
     tokens->setCellWidget(row, 3, OTPWidget::make_intInput(3, 15)); // Digits
     tokens->setCellWidget(row, 4, OTPWidget::make_intInput(1, 120)); // Period
@@ -337,6 +360,21 @@ void TokenEditor::saveTokens()
             continue;
         }
 
+        const auto iconUserData = tokens->tokenEditIcon(i)->userData(1);
+        std::string iconData;
+        if (iconUserData)
+        {
+            const auto iconFile = static_cast<TokenIconUserData*>(iconUserData)->file;
+            QFile file(iconFile);
+            if (file.open(QIODevice::ReadOnly))
+            {
+                auto buf = file.readAll();
+                iconData = std::string(buf.constData(), buf.constData() + buf.size());
+                buf.clear();
+                file.close();
+            }
+        }
+
         std::string secret;
 
         if (type == OTPToken::Steam)
@@ -392,25 +430,25 @@ void TokenEditor::saveTokens()
         {
             case OTPToken::TOTP:
                 tokenStatus = TokenStore::i()->addToken(std::make_shared<TOTPToken>(TOTPToken(
-                    label, secret, digits, period, counter, algorithm
+                    label, iconData, secret, digits, period, counter, algorithm
                 )));
                 break;
 
             case OTPToken::HOTP:
                 tokenStatus = TokenStore::i()->addToken(std::make_shared<HOTPToken>(HOTPToken(
-                    label, secret, digits, period, counter, algorithm
+                    label, iconData, secret, digits, period, counter, algorithm
                 )));
                 break;
 
             case OTPToken::Steam:
                 tokenStatus = TokenStore::i()->addToken(std::make_shared<SteamToken>(SteamToken(
-                    label, secret, digits, period, counter, algorithm
+                    label, iconData, secret, digits, period, counter, algorithm
                 )));
                 break;
 
             case OTPToken::Authy:
                 tokenStatus = TokenStore::i()->addToken(std::make_shared<AuthyToken>(AuthyToken(
-                    label, secret, digits, period, counter, algorithm
+                    label, iconData, secret, digits, period, counter, algorithm
                 )));
                 break;
 
@@ -557,4 +595,43 @@ void TokenEditor::setAlgorithmCbIndex(QComboBox *cb, const OTPToken::ShaAlgorith
         case OTPToken::Invalid:
             break;
     }
+}
+
+void TokenEditor::setTokenIcon(int row)
+{
+    // construct a name filter of all supported image formats
+    // different platforms and Qt builds may support different formats
+    static const auto &supportedFormats = QImageReader::supportedImageFormats();
+    static const auto &nameFilters = ([&]{
+        QString filters;
+        for (auto&& format : supportedFormats)
+        {
+            if (format == "gif" || format == "xcf" || format == "kra")
+                continue;
+
+            filters.append("*." + format + ' ');
+        }
+        return filters;
+    })();
+
+    auto file = QFileDialog::getOpenFileName(this, "Open Icon", QString(),
+        "Images (" + nameFilters + ")");
+    if (file.isEmpty() || file.isNull())
+    {
+        return;
+    }
+
+    if (file.endsWith("gif", Qt::CaseInsensitive))
+    {
+        return;
+    }
+
+    tokenEditWidget->tokens()->tokenEditIcon(row)->setIcon(QIcon(file));
+    tokenEditWidget->tokens()->tokenEditIcon(row)->setUserData(1, new TokenIconUserData(file));
+}
+
+void TokenEditor::removeTokenIcon(int row)
+{
+    tokenEditWidget->tokens()->tokenEditIcon(row)->setIcon(QIcon());
+    tokenEditWidget->tokens()->tokenEditIcon(row)->setUserData(1, nullptr);
 }

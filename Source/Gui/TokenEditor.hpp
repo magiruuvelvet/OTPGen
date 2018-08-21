@@ -27,10 +27,16 @@ private:
 
     void setAlgorithmCbIndex(QComboBox *cb, const OTPToken::ShaAlgorithm &algo);
 
+    void setTokenIcon(int row);
+    void removeTokenIcon(int row);
+
 private:
     std::shared_ptr<TitleBar> titleBar;
 
     std::shared_ptr<QVBoxLayout> vbox;
+
+    std::shared_ptr<QMenu> btnMenu;
+    std::shared_ptr<QAction> btnDeleteIcon;
 
     QList<std::shared_ptr<QPushButton>> buttons;
     QList<std::shared_ptr<QPushButton>> windowControls;
