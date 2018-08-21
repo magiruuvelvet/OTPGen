@@ -58,6 +58,7 @@ private:
 
     std::shared_ptr<QMenu> menu;
     std::shared_ptr<QAction> actionTokenVisibility;
+    std::shared_ptr<QAction> actionIconVisibility;
 
     std::shared_ptr<TokenTableWidget> _tokens;
 

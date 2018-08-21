@@ -93,6 +93,18 @@ OTPWidget::OTPWidget(Mode mode, QWidget *parent)
         });
         menu->addAction(actionTokenVisibility.get());
 
+        actionIconVisibility = std::make_shared<QAction>();
+        actionIconVisibility->setCheckable(true);
+        actionIconVisibility->setChecked(true);
+        actionIconVisibility->setText("Show Label Icons");
+        QObject::connect(actionIconVisibility.get(), &QAction::triggered, this, [&]{
+            for (auto i = 0; i < _tokens->rowCount(); i++)
+            {
+                _tokens->tokenIcon(i)->setVisible(actionIconVisibility->isChecked());
+            }
+        });
+        menu->addAction(actionIconVisibility.get());
+
         _tokens->setColumnWidth(0, 68); // Show
 
         _tokens->setColumnWidth(1, 95); // Type
@@ -332,8 +344,8 @@ QWidget *OTPWidget::make_labelDisplay(const std::string &userIcon, const QString
     auto icon = new QLabel();
     icon->setObjectName("icon");
     icon->setFrameShape(QFrame::NoFrame);
-    icon->setContentsMargins(2,0,5,0);
-    icon->setFixedSize(35, 32);
+    icon->setContentsMargins(2,0,0,0);
+    icon->setFixedSize(34, 32);
     icon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     icon->setAlignment(Qt::AlignCenter);
     if (!userIcon.empty())
@@ -351,7 +363,7 @@ QWidget *OTPWidget::make_labelDisplay(const std::string &userIcon, const QString
     label->setObjectName("label");
     label->setFrameShape(QFrame::NoFrame);
     label->setText(text);
-    label->setContentsMargins(0,0,7,0);
+    label->setContentsMargins(7,0,7,0);
     hbox->addWidget(label);
 
     w->setLayout(hbox);
