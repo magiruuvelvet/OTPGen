@@ -385,6 +385,9 @@ void MainWindow::trayShowHideCallback()
 
 void MainWindow::showEvent(QShowEvent *event)
 {
+    // Set focus to search bar
+    search->setFocus();
+
     event->accept();
 }
 
