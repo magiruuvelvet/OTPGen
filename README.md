@@ -48,10 +48,24 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
  - crypto++ (for the database encryption)
 
 
+## Building the application
+
+```sh
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+```
+
+Make sure to build a **Release** build!! The Debug build uses a hardcoded test password
+to avoid entering a password all the time during development. Never use real token secrets
+during development.
+
 
 <br>
 
 ## Screenshots
+
+> Screenshots may be out of date.
 
 ![Main Window](./.screenshots/MainWindow.png "Main Window")
 
