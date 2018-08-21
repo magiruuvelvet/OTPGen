@@ -45,7 +45,11 @@ QSettings *AppConfig::settings()
     })(); (void) init;
 
     static std::shared_ptr<QSettings> instance(new QSettings(
+#ifdef OTPGEN_DEBUG
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/settings-debug.ini",
+#else
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/settings.ini",
+#endif
         QSettings::IniFormat));
     return instance.get();
 }
