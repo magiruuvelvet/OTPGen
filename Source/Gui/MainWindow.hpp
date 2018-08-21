@@ -72,9 +72,7 @@ private:
     std::shared_ptr<QAction> trayShowHide;
     QString trayShowText;
     QString trayHideText;
-    std::shared_ptr<QAction> trayDbLock;
-    QString trayLock;
-    QString trayUnlock;
+    QList<std::shared_ptr<QAction>> trayTokens;
 
     QClipboard *clipboard = nullptr;
 };

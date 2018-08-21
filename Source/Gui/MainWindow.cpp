@@ -85,15 +85,6 @@ MainWindow::MainWindow(QWidget *parent)
         QObject::connect(trayShowHide.get(), &QAction::triggered, this, &MainWindow::trayShowHideCallback);
         trayMenu->addAction(trayShowHide.get());
 
-//        trayDbLock = std::make_shared<QAction>();
-//        trayLock = "Lock Database";
-//        trayUnlock = "Unlock Database";
-//        trayDbLock->setText(trayUnlock);
-//        QObject::connect(trayDbLock.get(), &QAction::triggered, this, [&]{
-
-//        });
-//        trayMenu->addAction(trayDbLock.get());
-
         trayMenu->addSeparator();
 
         trayMenu->addAction(QString("Quit %1").arg(qApp->applicationDisplayName()), this, [&]{
@@ -154,6 +145,7 @@ void MainWindow::minimizeToTray()
     // minimize to tray when available, otherwise minimize normally
     if (trayIcon)
     {
+        trayShowHide->setText(trayShowText);
         this->hide();
     }
     else
@@ -391,6 +383,12 @@ void MainWindow::showEvent(QShowEvent *event)
 {
     // Set focus to search bar
     search->setFocus();
+
+    // Set system tray icon visible text
+    if (trayShowHide)
+    {
+        trayShowHide->setText(trayHideText);
+    }
 
     event->accept();
 }
