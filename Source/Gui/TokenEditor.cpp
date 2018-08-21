@@ -381,6 +381,8 @@ void TokenEditor::saveTokens()
 {
     auto tokens = tokenEditWidget->tokens();
 
+    QStringList skipped;
+
     for (auto i = 0; i < tokens->rowCount(); i++)
     {
         const auto type = static_cast<OTPToken::TokenType>(tokens->tokenEditType(i)->currentData().toUInt());
@@ -388,7 +390,7 @@ void TokenEditor::saveTokens()
 
         if (TokenStore::i()->contains(label))
         {
-            // TODO: indicate name conflict to user
+            skipped << tokens->tokenEditLabel(i)->text();
             continue;
         }
 
@@ -454,8 +456,6 @@ void TokenEditor::saveTokens()
             algorithm = static_cast<OTPToken::ShaAlgorithm>(static_cast<TokenAlgorithmUserData*>(tokens->cellWidget(i, 6)->userData(0))->algorithm);
         }
 
-        // TODO: don't add invalid tokens; test generation and indicate error to user
-
         TokenStore::Status tokenStatus;
 
         switch (type)
@@ -499,8 +499,21 @@ void TokenEditor::saveTokens()
         secret.clear();
     }
 
+    if (!skipped.isEmpty())
+    {
+        QMessageBox::information(this, "Notice",
+            QString("The following tokens couldn't be saved due to name conflicts:\n\n") +
+            QString(" - ") +
+            skipped.join("\n - ") +
+            QString("\n\nLabels must be unique and not empty!")
+        );
+    }
+
     auto status = TokenDatabase::saveTokens();
-    // TODO: report errors to user
+    if (status != TokenDatabase::Success)
+    {
+        QMessageBox::critical(this, "Error", QString(TokenDatabase::getErrorMessage(status).c_str()));
+    }
 
     emit tokensSaved();
 

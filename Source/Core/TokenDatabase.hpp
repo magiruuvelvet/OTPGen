@@ -47,6 +47,8 @@ public:
         UnknownFailure,    // unknown or unhandled error
     };
 
+    static const std::string getErrorMessage(const Error &error);
+
     static Error saveTokens();
     static Error loadTokens();
 

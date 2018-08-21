@@ -290,7 +290,10 @@ void MainWindow::removeSelectedTokens()
     }
 
     auto status = TokenDatabase::saveTokens();
-    // TODO: handle errors
+    if (status != TokenDatabase::Success)
+    {
+        QMessageBox::critical(this, "Error", QString(TokenDatabase::getErrorMessage(status).c_str()));
+    }
 
     this->updateTokenList();
 }

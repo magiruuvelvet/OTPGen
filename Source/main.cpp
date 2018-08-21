@@ -69,7 +69,11 @@ int main(int argc, char **argv)
         password.clear();
 
         const auto status = TokenDatabase::loadTokens();
-        // TODO: handle errors
+        if (status != TokenDatabase::Success)
+        {
+            QMessageBox::critical(nullptr, "Error", QString(TokenDatabase::getErrorMessage(status).c_str()));
+            return static_cast<int>(status) + 5;
+        }
 
 #else
         // Development Build

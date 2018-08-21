@@ -28,6 +28,29 @@ namespace {
 std::string TokenDatabase::password;
 std::string TokenDatabase::tokenFile;
 
+const std::string TokenDatabase::getErrorMessage(const Error &error)
+{
+    switch(error)
+    {
+        case Success: return "";
+
+        case FileReadFailure:     return "Unable to read file.";
+        case FileWriteFailure:    return "Unable to write file.";
+        case FileEmpty:           return "File is empty.";
+        case InvalidTokenFile:    return "Not a valid token database.";
+
+        case EncryptionFailure:   return "Failed to encrypt data.";
+        case DecryptionFailure:   return "Failed to decrypt data.";
+        case InvalidCiphertext:   return "Failed to decrypt data. Either the password is incorrect or the file is corrupt.";
+        case PasswordEmpty:       return "Password is empty.";
+        case PasswordHashFailure: return "Failed to hash password.";
+
+        case UnknownFailure:      return "An unknown error occurred!";
+    }
+
+    return "";
+}
+
 bool TokenDatabase::setPassword(const std::string &password)
 {
     if (password.empty())
