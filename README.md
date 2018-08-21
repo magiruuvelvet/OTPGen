@@ -23,6 +23,7 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
  - Search your tokens with regular expressions in the search bar and never lose
    time because of a huge token database
  - Copy tokens to clipboard without revealing them in the UI
+ - Copy tokens straight from the system tray menu without even opening the UI at all
  - Custom icons to better recognize your tokens
 
 
