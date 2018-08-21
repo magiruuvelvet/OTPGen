@@ -6,11 +6,16 @@
 
 #ifdef OTPGEN_GUI
 #include <QString>
+#include <QSettings>
+#ifdef OTPGEN_DEBUG
+#include <QDebug>
+#endif
 #endif
 
 class AppConfig final
 {
 public:
+    static const std::string Developer;
     static const std::string Name;
     static const std::string Version;
     static const std::uint16_t VersionMajor;
@@ -26,6 +31,10 @@ public:
     static const QString titleBarForeground();
     static const QString titleBarButtonBackground();
     static const QString titleBarButtonForeground();
+
+    static QSettings *settings();
+    static const QString &path();
+    static const std::string &database();
 #endif
 
 private:
