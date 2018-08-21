@@ -32,6 +32,9 @@ public:
 
     TokenTableWidget *tokens();
 
+    QAction *tokenVisibilityAction();
+    QAction *tokenIconVisibilityAction();
+
     static QWidget *make_showToggle(int row, const QObject *receiver,
                                     const std::function<void(bool)> &cbCallback,
                                     const std::function<void()> &btnCallback);

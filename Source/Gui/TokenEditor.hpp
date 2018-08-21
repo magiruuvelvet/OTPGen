@@ -15,6 +15,9 @@ public:
 signals:
     void tokensSaved();
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 private:
     void addNewToken();
     void addNewToken(OTPToken *token);

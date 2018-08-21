@@ -2,6 +2,8 @@
 
 #include <Core/TokenDatabase.hpp>
 
+#include <Config/AppConfig.hpp>
+
 #include <QMessageBox>
 
 #include <chrono>
@@ -15,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
 
     // initial window size
-    this->resize(461, 490);
+    this->resize(cfg::defaultGeometryMainWindow());
 
     GuiHelpers::centerWindow(this);
 
@@ -109,6 +111,28 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Initialize Clipboard
     clipboard = QGuiApplication::clipboard();
+
+    // Restore UI state
+    const auto _geometry = saveGeometry();
+    restoreGeometry(cfg::settings()->value(cfg::keyGeometryMainWindow(), _geometry).toByteArray());
+    const auto columns = cfg::settings()->value(cfg::keyTokenWidgetColumns());
+    if (!columns.isNull())
+    {
+        QSequentialIterable iterable = columns.value<QSequentialIterable>();
+        int c = 0;
+        for (auto&& col : iterable)
+        {
+            tokenWidget->tokens()->setColumnWidth(c, col.toInt());
+            ++c;
+        }
+    }
+    auto tokenVisibility = cfg::settings()->value(cfg::keyTokensVisible(), tokenWidget->tokenVisibilityAction()->isChecked()).toBool();
+    tokenWidget->tokenVisibilityAction()->setChecked(!tokenVisibility);
+    tokenWidget->tokenVisibilityAction()->trigger();
+
+    auto tokenIconVisibility = cfg::settings()->value(cfg::keyTokenIconsVisible(), tokenWidget->tokenIconVisibilityAction()->isChecked()).toBool();
+    tokenWidget->tokenIconVisibilityAction()->setChecked(!tokenIconVisibility);
+    tokenWidget->tokenIconVisibilityAction()->trigger();
 }
 
 MainWindow::~MainWindow()
@@ -333,6 +357,25 @@ void MainWindow::closeEvent(QCloseEvent *event)
     {
         tokenEditor->close();
     }
+
+    // Save UI state
+    cfg::settings()->setValue(cfg::keyGeometryMainWindow(), saveGeometry());
+    QList<int> columns;
+    for (auto i = 0; i < tokenWidget->tokens()->columnCount() - 1; i++)
+    {
+        columns.append(tokenWidget->tokens()->columnWidth(i));
+    }
+    auto tokenColumnWidth = tokenWidget->tokens()->columnWidth(3);
+    if (tokenColumnWidth <= 0)
+    {
+        tokenColumnWidth = 120;
+    }
+    columns.append(tokenColumnWidth);
+    cfg::settings()->setValue(cfg::keyTokenWidgetColumns(), QVariant::fromValue(columns));
+    cfg::settings()->setValue(cfg::keyTokensVisible(), tokenWidget->tokenVisibilityAction()->isChecked());
+    cfg::settings()->setValue(cfg::keyTokenIconsVisible(), tokenWidget->tokenIconVisibilityAction()->isChecked());
+    cfg::settings()->sync();
+
     qApp->quit();
     event->accept();
 }

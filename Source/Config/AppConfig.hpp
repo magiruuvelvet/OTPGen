@@ -7,6 +7,7 @@
 #ifdef OTPGEN_GUI
 #include <QString>
 #include <QSettings>
+#include <QSize>
 #ifdef OTPGEN_DEBUG
 #include <QDebug>
 #endif
@@ -35,6 +36,26 @@ public:
     static QSettings *settings();
     static const QString &path();
     static const std::string &database();
+
+    // QSettings keys
+    static const QString keyGeometryMainWindow()
+    { return "UI/MainWindowGeometry"; }
+    static const QString keyGeometryTokenEditor()
+    { return "UI/TokenEditorGeometry"; }
+    static const QString keyTokenWidgetColumns()
+    { return "UI/TokenWidgetColumns"; }
+    static const QString keyTokenEditWidgetColumns()
+    { return "UI/TokenEditWidgetColumns"; }
+    static const QString keyTokenIconsVisible()
+    { return "UI/TokenIconsVisible"; }
+    static const QString keyTokensVisible()
+    { return "UI/TokensVisible"; }
+
+    // Settings defaults
+    static const QSize defaultGeometryMainWindow()
+    { return QSize(461, 490); }
+    static const QSize defaultGeometryTokenEditor()
+    { return QSize(957, 290); }
 #endif
 
 private:

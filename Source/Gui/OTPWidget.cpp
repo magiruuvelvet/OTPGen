@@ -130,6 +130,16 @@ TokenTableWidget *OTPWidget::tokens()
     return _tokens.get();
 }
 
+QAction *OTPWidget::tokenVisibilityAction()
+{
+    return actionTokenVisibility.get();
+}
+
+QAction *OTPWidget::tokenIconVisibilityAction()
+{
+    return actionIconVisibility.get();
+}
+
 QWidget *OTPWidget::make_showToggle(int row, const QObject *receiver,
                                     const std::function<void(bool)> &cbCallback,
                                     const std::function<void()> &btnCallback)

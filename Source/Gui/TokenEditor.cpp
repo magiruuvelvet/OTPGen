@@ -10,6 +10,8 @@
 
 #include <Core/TokenDatabase.hpp>
 
+#include <Config/AppConfig.hpp>
+
 #include <Core/Import/andOTP.hpp>
 #include <Core/Import/Authy.hpp>
 #include <Core/Import/Steam.hpp>
@@ -23,7 +25,7 @@ TokenEditor::TokenEditor(QWidget *parent)
     this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
 
     // initial window size
-    this->resize(957, 290);
+    this->resize(cfg::defaultGeometryTokenEditor());
 
     GuiHelpers::centerWindow(this);
 
@@ -240,6 +242,21 @@ TokenEditor::TokenEditor(QWidget *parent)
     btnMenu->addAction(btnDeleteIcon.get());
 
     this->setLayout(vbox.get());
+
+    // Restore UI state
+    const auto _geometry = saveGeometry();
+    restoreGeometry(cfg::settings()->value(cfg::keyGeometryTokenEditor(), _geometry).toByteArray());
+    const auto columns = cfg::settings()->value(cfg::keyTokenEditWidgetColumns());
+    if (!columns.isNull())
+    {
+        QSequentialIterable iterable = columns.value<QSequentialIterable>();
+        int c = 0;
+        for (auto&& col : iterable)
+        {
+            tokenEditWidget->tokens()->setColumnWidth(c, col.toInt());
+            ++c;
+        }
+    }
 }
 
 TokenEditor::~TokenEditor()
@@ -247,6 +264,21 @@ TokenEditor::~TokenEditor()
     buttons.clear();
     windowControls.clear();
     importActions.clear();
+}
+
+void TokenEditor::closeEvent(QCloseEvent *event)
+{
+    // Save UI state
+    cfg::settings()->setValue(cfg::keyGeometryTokenEditor(), saveGeometry());
+    QList<int> columns;
+    for (auto i = 0; i < tokenEditWidget->tokens()->columnCount(); i++)
+    {
+        columns.append(tokenEditWidget->tokens()->columnWidth(i));
+    }
+    cfg::settings()->setValue(cfg::keyTokenEditWidgetColumns(), QVariant::fromValue(columns));
+    cfg::settings()->sync();
+
+    WidgetBase::closeEvent(event);
 }
 
 void TokenEditor::addNewToken()
