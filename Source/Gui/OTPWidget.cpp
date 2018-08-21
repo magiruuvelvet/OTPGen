@@ -332,16 +332,17 @@ QWidget *OTPWidget::make_labelDisplay(const std::string &userIcon, const QString
     auto icon = new QLabel();
     icon->setObjectName("icon");
     icon->setFrameShape(QFrame::NoFrame);
-    icon->setContentsMargins(7,0,5,0);
-    icon->setFixedSize(35, 25);
+    icon->setContentsMargins(2,0,5,0);
+    icon->setFixedSize(35, 32);
     icon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    icon->setAlignment(Qt::AlignCenter);
     if (!userIcon.empty())
     {
         QPixmap pixmap;
         const auto status = pixmap.loadFromData(reinterpret_cast<const unsigned char*>(userIcon.data()), static_cast<uint>(userIcon.size()));
         if (status)
         {
-            icon->setPixmap(pixmap.scaled(25, 25, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            icon->setPixmap(pixmap.scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }
     }
     hbox->addWidget(icon);
