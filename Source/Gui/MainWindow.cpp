@@ -109,7 +109,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Quit Application
     auto ctrl_q = new QShortcut(QKeySequence("Ctrl+Q"), this);
     QObject::connect(ctrl_q, &QShortcut::activated, this, [&]{
-        qApp->quit();
+        this->close();
     });
 
     // Initialize Clipboard
