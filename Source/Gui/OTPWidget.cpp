@@ -232,7 +232,7 @@ QPushButton *OTPWidget::make_delBtn(int row, const QObject *receiver, const std:
     btn->setFixedWidth(35);
     btn->setFlat(true);
     btn->setToolTip("Delete token");
-    btn->setIcon(GuiHelpers::i()->close_icon());
+    btn->setIcon(GuiHelpers::i()->delete_icon());
     QObject::connect(btn, &QPushButton::clicked, receiver, callback);
     return btn;
 }

@@ -56,6 +56,14 @@ public:
     { return "UI/Theming"; }
     static const QString keyIconColor()
     { return "UI/IconColor"; }
+    static const QString keyTitleBarBackground()
+    { return "UI/TitleBarBackground"; }
+    static const QString keyTitleBarForeground()
+    { return "UI/TitleBarForeground"; }
+    static const QString keyTitleBarButtonBackground()
+    { return "UI/TitleBarButtonBackground"; }
+    static const QString keyTitleBarButtonForeground()
+    { return "UI/TitleBarButtonForeground"; }
 
     // Settings defaults
     static const QSize defaultGeometryMainWindow()

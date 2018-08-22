@@ -17,6 +17,7 @@ GuiHelpers::GuiHelpers()
 
     _add_icon = loadIcon(":/GuiAssets/add.svgz");
     _remove_icon = loadIcon(":/GuiAssets/remove.svgz");
+    _delete_icon = QIcon(":/GuiAssets/close.svgz");
     _save_icon = loadIcon(":/GuiAssets/save.svgz");
     _import_icon = loadIcon(":/GuiAssets/import.svgz");
     _qr_code_icon = QIcon(":/GuiAssets/qr-code.svgz");

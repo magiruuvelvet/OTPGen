@@ -75,6 +75,7 @@ public:
 
     inline const QIcon &add_icon() const             { return _add_icon; }
     inline const QIcon &remove_icon() const          { return _remove_icon; }
+    inline const QIcon &delete_icon() const          { return _delete_icon; }
     inline const QIcon &save_icon() const            { return _save_icon; }
     inline const QIcon &import_icon() const          { return _import_icon; }
     inline const QIcon &qr_code_icon() const         { return _qr_code_icon; }
@@ -97,6 +98,7 @@ private:
 
     QIcon _add_icon;
     QIcon _remove_icon;
+    QIcon _delete_icon;
     QIcon _save_icon;
     QIcon _import_icon;
     QIcon _qr_code_icon;

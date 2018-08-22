@@ -25,23 +25,22 @@ const QString AppConfig::q(const std::string &str)
 }
 
 bool AppConfig::useTheming()
-{
-    return settings()->value(keyUseTheming(), true).toBool();
-}
+{ return settings()->value(keyUseTheming(), true).toBool(); }
 
 const QString AppConfig::iconColor()
-{
-    return settings()->value(keyIconColor(), "default").toString();
-}
+{ return settings()->value(keyIconColor(), "default").toString(); }
 
 const QString AppConfig::titleBarBackground()
-{ return "#454545"; }
+{ return settings()->value(keyTitleBarBackground(), "#454545").toString(); }
+
 const QString AppConfig::titleBarForeground()
-{ return "#ffffff"; }
+{ return settings()->value(keyTitleBarForeground(), "#ffffff").toString(); }
+
 const QString AppConfig::titleBarButtonBackground()
-{ return "#555555"; }
+{ return settings()->value(keyTitleBarButtonBackground(), "#55555").toString(); }
+
 const QString AppConfig::titleBarButtonForeground()
-{ return "#ffffff"; }
+{ return settings()->value(keyTitleBarButtonForeground(), "#ffffff").toString(); }
 
 QSettings *AppConfig::settings()
 {
@@ -87,6 +86,22 @@ void AppConfig::initDefaultSettings()
     if (!settingsHasKey(keyIconColor()))
     {
         settings()->setValue(keyIconColor(), "default");
+    }
+    if (!settingsHasKey(keyTitleBarBackground()))
+    {
+        settings()->setValue(keyTitleBarBackground(), "#454545");
+    }
+    if (!settingsHasKey(keyTitleBarForeground()))
+    {
+        settings()->setValue(keyTitleBarForeground(), "#ffffff");
+    }
+    if (!settingsHasKey(keyTitleBarButtonBackground()))
+    {
+        settings()->setValue(keyTitleBarButtonBackground(), "#555555");
+    }
+    if (!settingsHasKey(keyTitleBarButtonForeground()))
+    {
+        settings()->setValue(keyTitleBarButtonForeground(), "#ffffff");
     }
 
     settings()->sync();

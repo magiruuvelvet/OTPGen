@@ -31,6 +31,7 @@ void SvgTool::changeFillColor(std::string &svg, const std::string &color)
     // TODO: add all fillable SVG tags
     SetAttrRecur(doc.documentElement(), "path", "fill", fill);
     SetAttrRecur(doc.documentElement(), "polygon", "fill", fill);
+    SetAttrRecur(doc.documentElement(), "circle", "fill", fill);
     auto str = doc.toByteArray();
     svg = std::string(str.constData(), str.constData() + str.size());
 }
