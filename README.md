@@ -5,7 +5,9 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 <br>
 
-> This application is still in development, but already somewhat usable.
+> This application is still in development, but the only missing mandatory bit is HOTP
+> in the GUI. The counter isn't increased at all right now. If you don't need HOTP than
+> this application is stable enough already for production use.
 
 <br>
 
