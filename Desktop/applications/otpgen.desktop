@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=OTPGen
+Comment=One Time Password Generator
+Exec=otpgen
+Icon=otpgen
+Type=Application
+Terminal=false
+StartupNotify=false
+X-KDE-StartupNotify=false
