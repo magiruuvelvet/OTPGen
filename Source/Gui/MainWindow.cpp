@@ -28,11 +28,11 @@ MainWindow::MainWindow(QWidget *parent)
         true, "Add tokens", [&]{ addNewTokens(); },
         true, "Remove selected tokens", [&]{ removeSelectedTokens(); }
     );
-    buttons.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->edit_icon, "Edit selected tokens", this, [&]{
+    buttons.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->edit_icon(), "Edit selected tokens", this, [&]{
         editSelectedTokens();
     }));
 
-    windowControls += GuiHelpers::make_toolbtn(GuiHelpers::i()->info_icon, "Info", this, [&]{
+    windowControls += GuiHelpers::make_toolbtn(GuiHelpers::i()->info_icon(), "Info", this, [&]{
         // TODO: implement about dialog
         QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
     });
@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
         trayIcon = std::make_shared<QSystemTrayIcon>(this);
-        trayIcon->setIcon(GuiHelpers::i()->tray_icon);
+        trayIcon->setIcon(GuiHelpers::i()->tray_icon());
 
         trayMenu = std::make_shared<QMenu>();
         trayIcon->setContextMenu(trayMenu.get());

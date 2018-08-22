@@ -147,7 +147,7 @@ int main(int argc, char **argv)
     // initialize application settings
     std::printf("path: %s\n", cfg::path().toUtf8().constData());
     std::printf("settings: %s\n", cfg::settings()->fileName().toUtf8().constData());
-    cfg::settings()->sync();
+    cfg::initDefaultSettings();
 
     // set token database path
     TokenDatabase::setTokenFile(cfg::database());

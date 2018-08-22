@@ -160,7 +160,7 @@ QWidget *OTPWidget::make_showToggle(int row, const QObject *receiver,
     btn->setUserData(0, new TableWidgetCellUserData(row));
     btn->setFlat(true);
     btn->setFixedSize(23, 23);
-    btn->setIcon(GuiHelpers::i()->copy_content_icon);
+    btn->setIcon(GuiHelpers::i()->copy_content_icon());
     btn->setIconSize(QSize(20, 20));
     btn->setToolTip("Copy token to clipboard");
     btn->setFocusPolicy(Qt::NoFocus);
@@ -232,7 +232,7 @@ QPushButton *OTPWidget::make_delBtn(int row, const QObject *receiver, const std:
     btn->setFixedWidth(35);
     btn->setFlat(true);
     btn->setToolTip("Delete token");
-    btn->setIcon(GuiHelpers::i()->close_icon);
+    btn->setIcon(GuiHelpers::i()->close_icon());
     QObject::connect(btn, &QPushButton::clicked, receiver, callback);
     return btn;
 }

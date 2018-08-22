@@ -28,6 +28,8 @@ public:
 
     static bool useTheming();
 
+    static const QString iconColor();
+
     static const QString titleBarBackground();
     static const QString titleBarForeground();
     static const QString titleBarButtonBackground();
@@ -50,16 +52,26 @@ public:
     { return "UI/TokenIconsVisible"; }
     static const QString keyTokensVisible()
     { return "UI/TokensVisible"; }
+    static const QString keyUseTheming()
+    { return "UI/Theming"; }
+    static const QString keyIconColor()
+    { return "UI/IconColor"; }
 
     // Settings defaults
     static const QSize defaultGeometryMainWindow()
     { return QSize(461, 490); }
     static const QSize defaultGeometryTokenEditor()
     { return QSize(957, 290); }
+
+    static void initDefaultSettings();
 #endif
 
 private:
     AppConfig() = delete;
+
+#ifdef OTPGEN_GUI
+    static bool settingsHasKey(const QString &key);
+#endif
 };
 
 using cfg = AppConfig;

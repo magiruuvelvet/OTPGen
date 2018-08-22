@@ -25,7 +25,15 @@ const QString AppConfig::q(const std::string &str)
 }
 
 bool AppConfig::useTheming()
-{ return true; }
+{
+    return settings()->value(keyUseTheming(), true).toBool();
+}
+
+const QString AppConfig::iconColor()
+{
+    return settings()->value(keyIconColor(), "default").toString();
+}
+
 const QString AppConfig::titleBarBackground()
 { return "#454545"; }
 const QString AppConfig::titleBarForeground()
@@ -68,6 +76,25 @@ const std::string &AppConfig::database()
     static const std::string db = (path() + "/database").toUtf8().constData();
 #endif
     return db;
+}
+
+void AppConfig::initDefaultSettings()
+{
+    if (!settingsHasKey(keyUseTheming()))
+    {
+        settings()->setValue(keyUseTheming(), true);
+    }
+    if (!settingsHasKey(keyIconColor()))
+    {
+        settings()->setValue(keyIconColor(), "default");
+    }
+
+    settings()->sync();
+}
+
+bool AppConfig::settingsHasKey(const QString &key)
+{
+    return !settings()->value(key).isNull();
 }
 
 #endif

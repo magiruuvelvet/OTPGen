@@ -32,11 +32,11 @@ void WidgetBase::updateWindowControls()
     {
         if (isMaximized())
         {
-            _maxRestoreButton->setIcon(GuiHelpers::i()->restore_icon);
+            _maxRestoreButton->setIcon(GuiHelpers::i()->restore_icon());
         }
         else
         {
-            _maxRestoreButton->setIcon(GuiHelpers::i()->maximize_icon);
+            _maxRestoreButton->setIcon(GuiHelpers::i()->maximize_icon());
         }
     }
 }

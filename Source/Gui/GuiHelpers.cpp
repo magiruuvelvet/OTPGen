@@ -2,24 +2,24 @@
 
 #include <Config/AppConfig.hpp>
 
-GuiHelpers::GuiHelpers() :
-    app_icon(QIcon(":/GuiAssets/app-icon.svgz")),
-    tray_icon(QIcon(":/GuiAssets/tray-icon.png")),
-
-    close_icon(QIcon(":/GuiAssets/close.svgz")),
-    minimize_icon(QIcon(":/GuiAssets/minimize.svgz")),
-    maximize_icon(QIcon(":/GuiAssets/maximize.svgz")),
-    restore_icon(QIcon(":/GuiAssets/restore.svgz")),
-
-    add_icon(QIcon(":/GuiAssets/add.svgz")),
-    remove_icon(QIcon(":/GuiAssets/remove.svgz")),
-    save_icon(QIcon(":/GuiAssets/save.svgz")),
-    import_icon(QIcon(":/GuiAssets/import.svgz")),
-    qr_code_icon(QIcon(":/GuiAssets/qr-code.svgz")),
-    copy_content_icon(QIcon(":/GuiAssets/copy-content.svgz")),
-    edit_icon(QIcon(":/GuiAssets/pencil-edit-button.svgz")),
-    info_icon(QIcon(":/GuiAssets/info.svgz"))
+GuiHelpers::GuiHelpers()
 {
+    _app_icon = QIcon(":/GuiAssets/app-icon.svgz");
+    _tray_icon = QIcon(":/GuiAssets/tray-icon.png");
+
+    _close_icon = QIcon(":/GuiAssets/close.svgz");
+    _minimize_icon = QIcon(":/GuiAssets/minimize.svgz");
+    _maximize_icon = QIcon(":/GuiAssets/maximize.svgz");
+    _restore_icon = QIcon(":/GuiAssets/restore.svgz");
+
+    _add_icon = QIcon(":/GuiAssets/add.svgz");
+    _remove_icon = QIcon(":/GuiAssets/remove.svgz");
+    _save_icon = QIcon(":/GuiAssets/save.svgz");
+    _import_icon = QIcon(":/GuiAssets/import.svgz");
+    _qr_code_icon = QIcon(":/GuiAssets/qr-code.svgz");
+    _copy_content_icon = QIcon(":/GuiAssets/copy-content.svgz");
+    _edit_icon = QIcon(":/GuiAssets/pencil-edit-button.svgz");
+    _info_icon = QIcon(":/GuiAssets/info.svgz");
 }
 
 GuiHelpers *GuiHelpers::i()
@@ -110,7 +110,7 @@ QList<std::shared_ptr<QPushButton>> GuiHelpers::make_windowControls(const Widget
     QList<std::shared_ptr<QPushButton>> windowControls;
     if (minimize)
     {
-        windowControls.append(GuiHelpers::make_toolbtn(i()->minimize_icon, "Minimize Window", receiver, minimizeCallback));
+        windowControls.append(GuiHelpers::make_toolbtn(i()->_minimize_icon, "Minimize Window", receiver, minimizeCallback));
     }
     if (maximizeRestore)
     {
@@ -120,7 +120,7 @@ QList<std::shared_ptr<QPushButton>> GuiHelpers::make_windowControls(const Widget
     }
     if (close)
     {
-        windowControls.append(GuiHelpers::make_toolbtn(i()->close_icon, "Close Window", receiver, closeCallback));
+        windowControls.append(GuiHelpers::make_toolbtn(i()->_close_icon, "Close Window", receiver, closeCallback));
     }
     return windowControls;
 }
@@ -132,11 +132,11 @@ QList<std::shared_ptr<QPushButton>> GuiHelpers::make_tokenControls(const WidgetB
     QList<std::shared_ptr<QPushButton>> tokenControls;
     if (add)
     {
-        tokenControls.append(GuiHelpers::make_toolbtn(i()->add_icon, tooltip1, receiver, addCallback));
+        tokenControls.append(GuiHelpers::make_toolbtn(i()->_add_icon, tooltip1, receiver, addCallback));
     }
     if (remove)
     {
-        tokenControls.append(GuiHelpers::make_toolbtn(i()->remove_icon, tooltip2, receiver, removeCallback));
+        tokenControls.append(GuiHelpers::make_toolbtn(i()->_remove_icon, tooltip2, receiver, removeCallback));
     }
     return tokenControls;
 }
@@ -168,12 +168,12 @@ void GuiHelpers::default_maximizeRestoreCallback(WidgetBase *receiver)
     if (receiver->isMaximized())
     {
         receiver->showNormal();
-        receiver->maxRestoreButton()->setIcon(i()->maximize_icon);
+        receiver->maxRestoreButton()->setIcon(i()->_maximize_icon);
     }
     else
     {
         receiver->showMaximized();
-        receiver->maxRestoreButton()->setIcon(i()->restore_icon);
+        receiver->maxRestoreButton()->setIcon(i()->_restore_icon);
     }
 }
 

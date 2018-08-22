@@ -204,7 +204,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             }
         }),
         GuiHelpers::make_menuSeparator(),
-        GuiHelpers::make_importAction("QR Code", GuiHelpers::i()->qr_code_icon, this, [&]{
+        GuiHelpers::make_importAction("QR Code", GuiHelpers::i()->qr_code_icon(), this, [&]{
             // TODO: implement qr code
             QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
         }),
@@ -223,13 +223,13 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
         true, "New token", [&]{ addNewToken(); },
         false, "", [&]{ }
     );
-    buttons.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->import_icon, "Import tokens", this, [&]{
+    buttons.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->import_icon(), "Import tokens", this, [&]{
         showImportTokensMenu();
     }));
 
     } // Edit Mode
 
-    windowControls.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->save_icon, "Save tokens", this, [&]{
+    windowControls.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->save_icon(), "Save tokens", this, [&]{
         saveTokens();
     }));
     windowControls.append(GuiHelpers::make_windowControls(this,
