@@ -313,6 +313,7 @@ void MainWindow::addNewTokens()
         });
         QObject::connect(tokenEditor.get(), &TokenEditor::tokensSaved, this, &MainWindow::updateTokenList);
         tokenEditor->show();
+        tokenEditor->activateWindow();
     }
 }
 
@@ -370,6 +371,7 @@ void MainWindow::editSelectedTokens()
         tokenEditor->linkTokens(tokens);
 
         tokenEditor->show();
+        tokenEditor->activateWindow();
     }
 }
 
@@ -426,6 +428,7 @@ void MainWindow::trayShowHideCallback()
     else
     {
         this->show();
+        this->activateWindow();
         trayShowHide->setText(trayHideText);
     }
 }

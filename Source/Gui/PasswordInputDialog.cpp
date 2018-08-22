@@ -89,6 +89,7 @@ void PasswordInputDialog::exec()
 {
     this->setWindowModality(Qt::ApplicationModal);
     this->show();
+    this->activateWindow();
 
     QEventLoop block;
     QObject::connect(this, &PasswordInputDialog::closed, &block, &QEventLoop::quit);
