@@ -124,6 +124,28 @@ bool TokenStore::renameToken(const OTPToken::Label &oldLabel, const OTPToken::La
     return false;
 }
 
+bool TokenStore::swapTokens(const OTPToken::Label &token1, const OTPToken::Label &token2)
+{
+    auto pos1 = std::find_if(_tokens.begin(), _tokens.end(), [&](const auto &value){
+        return value->label() == token1;
+    });
+    if (pos1 == _tokens.end())
+    {
+        return false;
+    }
+
+    auto pos2 = std::find_if(_tokens.begin(), _tokens.end(), [&](const auto &value){
+        return value->label() == token2;
+    });
+    if (pos2 == _tokens.end())
+    {
+        return false;
+    }
+
+    std::iter_swap(pos1, pos2);
+    return true;
+}
+
 bool TokenStore::contains(const OTPToken::Label &label) const
 {
     for (auto&& token : _tokens)

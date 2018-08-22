@@ -30,6 +30,8 @@ public:
     void removeToken(const OTPToken::Label &label);
     bool renameToken(const OTPToken::Label &oldLabel, const OTPToken::Label &newLabel);
 
+    bool swapTokens(const OTPToken::Label &token1, const OTPToken::Label &token2);
+
     bool contains(const OTPToken::Label &label) const;
     bool empty() const;
     void clear();
