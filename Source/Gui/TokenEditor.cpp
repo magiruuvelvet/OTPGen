@@ -337,9 +337,9 @@ void TokenEditor::addNewToken()
         btnMenu->popup(QCursor::pos());
     }));
     tokens->setCellWidget(row, 2, OTPWidget::make_secretInput()); // Secret
-    tokens->setCellWidget(row, 3, OTPWidget::make_intInput(3, 15)); // Digits
-    tokens->setCellWidget(row, 4, OTPWidget::make_intInput(1, 120)); // Period
-    tokens->setCellWidget(row, 5, OTPWidget::make_intInput(1, 0x7FFFFFFF)); // Counter
+    tokens->setCellWidget(row, 3, OTPWidget::make_intInput(OTPToken::min_digits, OTPToken::max_digits)); // Digits
+    tokens->setCellWidget(row, 4, OTPWidget::make_intInput(OTPToken::min_period, OTPToken::max_period)); // Period
+    tokens->setCellWidget(row, 5, OTPWidget::make_intInput(OTPToken::min_counter, OTPToken::max_counter)); // Counter
     tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
     tokens->setCellWidget(row, 7, OTPWidget::make_delBtn(row, this,
         [&]{ deleteRow(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row); }));
@@ -373,9 +373,9 @@ void TokenEditor::addNewToken(OTPToken *token)
         tokens->cellWidget(row, 1)->setUserData(2, new TokenOldNameUserData(token->label()));
     }
     tokens->setCellWidget(row, 2, OTPWidget::make_secretInput()); // Secret
-    tokens->setCellWidget(row, 3, OTPWidget::make_intInput(3, 15)); // Digits
-    tokens->setCellWidget(row, 4, OTPWidget::make_intInput(1, 120)); // Period
-    tokens->setCellWidget(row, 5, OTPWidget::make_intInput(1, 0x7FFFFFFF)); // Counter
+    tokens->setCellWidget(row, 3, OTPWidget::make_intInput(OTPToken::min_digits, OTPToken::max_digits)); // Digits
+    tokens->setCellWidget(row, 4, OTPWidget::make_intInput(OTPToken::min_period, OTPToken::max_period)); // Period
+    tokens->setCellWidget(row, 5, OTPWidget::make_intInput(OTPToken::min_counter, OTPToken::max_counter)); // Counter
     tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
     tokens->setCellWidget(row, 7, OTPWidget::make_delBtn(row, this,
         [&]{ deleteRow(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row); }));

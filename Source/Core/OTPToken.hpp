@@ -22,6 +22,14 @@ public:
     using PeriodType = std::uint32_t;
     using CounterType = std::uint32_t;
 
+    // Token limits
+    static const int min_digits;
+    static const int max_digits;
+    static const int min_period;
+    static const int max_period;
+    static const int min_counter;
+    static const int max_counter;
+
     OTPToken();
     OTPToken(const OTPToken *other);
     OTPToken(const Label &label);
