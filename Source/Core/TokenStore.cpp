@@ -100,9 +100,9 @@ void TokenStore::removeToken(const OTPToken::Label &label)
     if (label.empty())
         return;
 
-    _tokens.remove_if([&](const auto &value) {
+    _tokens.erase(std::remove_if(_tokens.begin(), _tokens.end(), [&](const auto &value){
         return value->label() == label;
-    });
+    }), _tokens.end());
 }
 
 bool TokenStore::renameToken(const OTPToken::Label &oldLabel, const OTPToken::Label &newLabel)

@@ -4,7 +4,7 @@
 #include "Tokens.hpp"
 
 #include <memory>
-#include <list>
+#include <vector>
 
 class TokenStore final
 {
@@ -15,7 +15,7 @@ public:
     ~TokenStore();
 
     using Token = std::shared_ptr<OTPToken>;
-    using TokenList = std::list<std::shared_ptr<OTPToken>>;
+    using TokenList = std::vector<std::shared_ptr<OTPToken>>;
 
     enum Status {
         Success = 0,
