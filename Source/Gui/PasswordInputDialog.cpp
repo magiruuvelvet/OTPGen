@@ -37,9 +37,12 @@ PasswordInputDialog::PasswordInputDialog(QWidget *parent)
     dialogNotice->setAutoFillBackground(true);
     dialogNotice->setReadOnly(true);
     dialogNotice->setMinimumHeight(50);
-    dialogNotice->setStyleSheet(QString("background-color: %1; color: %2").arg(
-                                    cfg::titleBarBackground(),
-                                    cfg::titleBarForeground()));
+    if (cfg::useTheming())
+    {
+        dialogNotice->setStyleSheet(QString("background-color: %1; color: %2").arg(
+                                        cfg::titleBarBackground(),
+                                        cfg::titleBarForeground()));
+    }
     dialogNotice->setWordWrapMode(QTextOption::WordWrap);
     innerVBox->addWidget(dialogNotice.get());
 
@@ -54,7 +57,10 @@ PasswordInputDialog::PasswordInputDialog(QWidget *parent)
 
     buttons.append(GuiHelpers::make_toolbtn(QIcon(), QString()));
     buttons.last()->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-    buttons.last()->setStyleSheet("background-color: #777");
+    if (cfg::useTheming())
+    {
+        buttons.last()->setStyleSheet("background-color: #777");
+    }
     buttons.last()->setText("OK");
     QObject::connect(buttons.last().get(), &QPushButton::clicked, this, &PasswordInputDialog::sendPassword);
 

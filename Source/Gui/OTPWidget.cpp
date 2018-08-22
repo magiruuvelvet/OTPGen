@@ -1,5 +1,7 @@
 #include "OTPWidget.hpp"
 
+#include <Config/AppConfig.hpp>
+
 #include <QIntValidator>
 
 OTPWidget::OTPWidget(Mode mode, QWidget *parent)
@@ -180,7 +182,10 @@ QComboBox *OTPWidget::make_typeCb(int row, const QObject *receiver, const std::f
     cb->setFrame(false);
     cb->setAutoFillBackground(true);
     cb->setPalette(GuiHelpers::make_cb_theme(cb->palette()));
-    cb->setStyleSheet("color: black");
+    if (cfg::useTheming())
+    {
+        cb->setStyleSheet("color: black");
+    }
     cb->setUserData(0, new TableWidgetCellUserData(row));
     cb->insertItem(0, "  TOTP",  OTPToken::TOTP);
     cb->insertItem(1, "  HOTP",  OTPToken::HOTP);
@@ -198,7 +203,10 @@ QComboBox *OTPWidget::make_algoCb()
     cb->setFrame(false);
     cb->setAutoFillBackground(true);
     cb->setPalette(GuiHelpers::make_cb_theme(cb->palette()));
-    cb->setStyleSheet("color: black");
+    if (cfg::useTheming())
+    {
+        cb->setStyleSheet("color: black");
+    }
     cb->insertItem(0, "  SHA1",   OTPToken::SHA1);
     cb->insertItem(1, "  SHA256", OTPToken::SHA256);
     cb->insertItem(2, "  SHA512", OTPToken::SHA512);
@@ -300,7 +308,10 @@ QWidget *OTPWidget::make_steamInput()
     en->setFrame(false);
     en->setAutoFillBackground(true);
     en->setPalette(GuiHelpers::make_cb_theme(en->palette()));
-    en->setStyleSheet("color: black");
+    if (cfg::useTheming())
+    {
+        en->setStyleSheet("color: black");
+    }
     en->addItem("  base-64", "base64");
     en->addItem("  base-32", "base32");
     en->setCurrentIndex(0);
@@ -396,7 +407,17 @@ QWidget *OTPWidget::make_tokenGenDisplay(const unsigned int &to, const OTPToken:
     timeout->setFixedHeight(3);
     timeout->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     timeout->setTextVisible(false);
-    timeout->setStyleSheet("QProgressBar { background-color: white; border: 0; outline: 0; } QProgressBar::chunk { background-color: lightgray; border: 0; outline: 0; }");
+    const QString stylesheetBase = "QProgressBar { background-color: transparent; border: 0; outline: 0; } ";
+    QString stylesheetExtra;
+    if (cfg::useTheming())
+    {
+        stylesheetExtra = "QProgressBar::chunk { background-color: lightgray; border: 0; outline: 0; }";
+    }
+    else
+    {
+        stylesheetExtra = "QProgressBar::chunk { border: 0; outline: 0; }";
+    }
+    timeout->setStyleSheet(stylesheetBase + stylesheetExtra);
     timeout->setValue(0);
     timeout->setFocusPolicy(Qt::NoFocus);
     if (type == OTPToken::HOTP)
