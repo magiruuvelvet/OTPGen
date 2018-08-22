@@ -126,6 +126,18 @@ else()
     message(FATAL_ERROR "Unknown application mode!")
 endif()
 
+if (MODE STREQUAL "GUI")
+    # Configure QtKeychain
+    message(STATUS "Configuring QtKeychain...")
+    set(BUILD_TEST_APPLICATION OFF CACHE BOOLEAN "")
+    set(BUILD_TRANSLATIONS OFF CACHE BOOLEAN "")
+    set(QTKEYCHAIN_STATIC ON CACHE BOOLEAN "")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/qtkeychain")
+    include_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/qtkeychain")
+    link_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/qtkeychain")
+    message(STATUS "Configured QtKeychain.")
+endif()
+
 # Target
 if (MODE STREQUAL "GUI")
     add_executable(${PROJECT_NAME} ${SourceList} ${GuiSourceList})
@@ -135,6 +147,7 @@ if (MODE STREQUAL "GUI")
         Qt5::Widgets
         ${GCRYPT_LIBRARIES}
         ${CRYPTOPP_LDFLAGS}
+        qt5keychain
     )
 elseif(MODE STREQUAL "CLI")
     add_executable("${PROJECT_NAME}Cli" ${SourceList} ${CliSourceList})

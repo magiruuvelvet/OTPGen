@@ -11,6 +11,15 @@
 
 #include <Core/TokenDatabase.hpp>
 
+#include <qtkeychain/keychain.h>
+
+std::shared_ptr<MainWindow> mainWindow;
+std::shared_ptr<FramelessContainer> mainWindowContainer;
+
+// QKeychain already handles raw pointers and deletes them
+QKeychain::ReadPasswordJob *receivePassword = nullptr;
+QKeychain::WritePasswordJob *storePassword = nullptr;
+
 int askPass(const QString &dialogNotice, const QString &error, std::string &password, const QApplication *app = nullptr)
 {
     auto passwordDialog = std::make_shared<PasswordInputDialog>();
@@ -34,39 +43,32 @@ int askPass(const QString &dialogNotice, const QString &error, std::string &pass
     return 0;
 }
 
-int main(int argc, char **argv)
+int start(QApplication *a, const std::string &keychainPassword, bool create = false)
 {
-    QApplication a(argc, argv);
-    a.setOrganizationName(cfg::q(cfg::Developer));
-    a.setApplicationDisplayName(cfg::q(cfg::Name));
-    a.setApplicationVersion(cfg::q(cfg::Version));
-    a.setUserData(0, new AppIcon());
-
-    // initialize application settings
-    std::printf("path: %s\n", cfg::path().toUtf8().constData());
-    std::printf("settings: %s\n", cfg::settings()->fileName().toUtf8().constData());
-    cfg::settings()->sync();
-
-    // set token database path
-    TokenDatabase::setTokenFile(cfg::database());
+    std::string password;
 
     // token database exists, ask for decryption and load tokens
     if (QFileInfo(QString::fromUtf8(cfg::database().c_str())).exists())
     {
         // Release Build
 #ifndef OTPGEN_DEBUG
-        std::string password;
-        int res = askPass("Please enter the decryption password for your token database.",
-                          "You didn't entered a password for decryption. Application will quit now.",
-                          password, &a);
-
-        if (res != 0)
+        if (keychainPassword.empty())
         {
-            return res;
+            int res = askPass("Please enter the decryption password for your token database.",
+                              "You didn't entered a password for decryption. Application will quit now.",
+                              password, a);
+
+            if (res != 0)
+            {
+                return res;
+            }
+        }
+        else
+        {
+            password = keychainPassword;
         }
 
         TokenDatabase::setPassword(password);
-        password.clear();
 
         const auto status = TokenDatabase::loadTokens();
         if (status != TokenDatabase::Success)
@@ -88,11 +90,10 @@ int main(int argc, char **argv)
     // token database needs to be created, ask for new password
     else
     {
-        std::string password;
         int res = askPass("No token database found. Please enter a password to create a new database.",
                           "Password may not be empty. Using this application without encryption "
                           "is not supported!",
-                          password, &a);
+                          password, a);
 
         if (res != 0)
         {
@@ -100,15 +101,118 @@ int main(int argc, char **argv)
         }
 
         TokenDatabase::setPassword(password);
-        password.clear();
 
         // save empty database
         TokenDatabase::saveTokens();
     }
 
-    MainWindow w;
-    FramelessContainer f(&w);
-    w.show();
+    if (create)
+    {
+        storePassword->setTextData(QString::fromUtf8(password.c_str()));
+        QObject::connect(storePassword, &QKeychain::ReadPasswordJob::finished, a, [&]{
+            auto error = storePassword->error();
+
+            if (error != QKeychain::NoError)
+            {
+                QMessageBox::critical(nullptr, "Keychain Error", receivePassword->errorString());
+            }
+        });
+        storePassword->start();
+    }
+    else
+    {
+        // not automatically deleted when not used
+        delete storePassword;
+    }
+
+    password.clear();
+
+    mainWindow = std::make_shared<MainWindow>();
+    mainWindowContainer = std::make_shared<FramelessContainer>(mainWindow.get());
+    mainWindow->show();
+
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    // QApplication::setDesktopSettingsAware(false);
+    QApplication a(argc, argv);
+    a.setOrganizationName(cfg::q(cfg::Developer));
+    a.setApplicationDisplayName(cfg::q(cfg::Name));
+    a.setApplicationVersion(cfg::q(cfg::Version));
+    a.setUserData(0, new AppIcon());
+
+    // initialize application settings
+    std::printf("path: %s\n", cfg::path().toUtf8().constData());
+    std::printf("settings: %s\n", cfg::settings()->fileName().toUtf8().constData());
+    cfg::settings()->sync();
+
+    // set token database path
+    TokenDatabase::setTokenFile(cfg::database());
+
+#ifdef OTPGEN_DEBUG
+    const auto keychain_service_name = a.applicationDisplayName() + "_d";
+#else
+    const auto keychain_service_name = a.applicationDisplayName();
+#endif
+    const QString keychain_secret_key = "secret";
+
+    // setup QKeychain
+    receivePassword = new QKeychain::ReadPasswordJob(keychain_service_name, &a);
+    storePassword = new QKeychain::WritePasswordJob(keychain_service_name, &a);
+    receivePassword->setKey(keychain_secret_key);
+    storePassword->setKey(keychain_secret_key);
+
+    QObject::connect(receivePassword, &QKeychain::ReadPasswordJob::finished, &a, [&]{
+        auto error = receivePassword->error();
+
+        // success, use password from keychain
+        if (error == QKeychain::NoError)
+        {
+            auto res = start(&a, receivePassword->textData().toUtf8().constData());
+            if (res != 0)
+            {
+                qApp->exit(res);
+            }
+        }
+
+        // no entry found, create a new one
+        else if (error == QKeychain::EntryNotFound)
+        {
+            auto res = start(&a, "", true);
+            if (res != 0)
+            {
+                qApp->exit(res);
+            }
+        }
+
+        // silently fallback to password input on these errors
+        else if (error == QKeychain::AccessDeniedByUser ||
+                 error == QKeychain::AccessDenied ||
+                 error == QKeychain::NoBackendAvailable ||
+                 error == QKeychain::NotImplemented)
+        {
+            auto res = start(&a, "");
+            if (res != 0)
+            {
+                qApp->exit(res);
+            }
+        }
+
+        // other error, show error to user and fallback to password input
+        else
+        {
+            QMessageBox::critical(nullptr, "Keychain Error", receivePassword->errorString());
+
+            auto res = start(&a, "");
+            if (res != 0)
+            {
+                qApp->exit(res);
+            }
+        }
+    });
+    receivePassword->start();
 
     return a.exec();
 }
