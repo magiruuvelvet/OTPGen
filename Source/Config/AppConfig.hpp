@@ -26,6 +26,8 @@ public:
 #ifdef OTPGEN_GUI
     static const QString q(const std::string &str);
 
+    static bool startMinimizedToTray();
+
     static bool useTheming();
 
     static const QString iconColor();
@@ -52,6 +54,8 @@ public:
     { return "UI/TokenIconsVisible"; }
     static const QString keyTokensVisible()
     { return "UI/TokensVisible"; }
+    static const QString keyStartMinimizedToTray()
+    { return "UI/MinimizeToTrayOnStart"; }
     static const QString keyUseTheming()
     { return "UI/Theming"; }
     static const QString keyIconColor()

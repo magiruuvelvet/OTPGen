@@ -101,6 +101,11 @@ MainWindow::MainWindow(QWidget *parent)
         });
 
         trayIcon->show();
+
+        if (cfg::startMinimizedToTray())
+        {
+            trayShowHide->setText(trayShowText);
+        }
     }
 
     // load stored tokens

@@ -18,10 +18,23 @@ const std::string AppConfig::Version =
 #ifdef OTPGEN_GUI
 
 #include <QStandardPaths>
+#include <QSystemTrayIcon>
 
 const QString AppConfig::q(const std::string &str)
 {
     return QString::fromUtf8(str.c_str());
+}
+
+bool AppConfig::startMinimizedToTray()
+{
+    if (QSystemTrayIcon::isSystemTrayAvailable())
+    {
+        return settings()->value(keyStartMinimizedToTray(), false).toBool();
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool AppConfig::useTheming()
@@ -79,6 +92,10 @@ const std::string &AppConfig::database()
 
 void AppConfig::initDefaultSettings()
 {
+    if (!settingsHasKey(keyStartMinimizedToTray()))
+    {
+        settings()->setValue(keyStartMinimizedToTray(), false);
+    }
     if (!settingsHasKey(keyUseTheming()))
     {
         settings()->setValue(keyUseTheming(), true);

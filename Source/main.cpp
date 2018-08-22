@@ -129,8 +129,12 @@ int start(QApplication *a, const std::string &keychainPassword, bool create = fa
 
     mainWindow = std::make_shared<MainWindow>();
     mainWindowContainer = std::make_shared<FramelessContainer>(mainWindow.get());
-    mainWindow->show();
-    mainWindow->activateWindow();
+
+    if (!cfg::startMinimizedToTray())
+    {
+        mainWindow->show();
+        mainWindow->activateWindow();
+    }
 
     return 0;
 }
