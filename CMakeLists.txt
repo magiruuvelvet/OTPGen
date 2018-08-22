@@ -59,6 +59,7 @@ message(STATUS "Finding Qt...")
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Xml REQUIRED)
 
 find_package(Gcrypt REQUIRED)
 include_directories(${GCRYPT_INCLUDE_DIR})
@@ -148,6 +149,7 @@ if (MODE STREQUAL "GUI")
         Qt5::Core
         Qt5::Gui
         Qt5::Widgets
+        Qt5::Xml
         ${GCRYPT_LIBRARIES}
         ${CRYPTOPP_LDFLAGS}
         ${ZLIB_LIBRARIES}

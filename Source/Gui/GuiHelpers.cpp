@@ -2,24 +2,50 @@
 
 #include <Config/AppConfig.hpp>
 
+#include <Core/Tools/zlibTool.hpp>
+#include <Core/Tools/SvgTool.hpp>
+
 GuiHelpers::GuiHelpers()
 {
     _app_icon = QIcon(":/GuiAssets/app-icon.svgz");
     _tray_icon = QIcon(":/GuiAssets/tray-icon.png");
 
-    _close_icon = QIcon(":/GuiAssets/close.svgz");
-    _minimize_icon = QIcon(":/GuiAssets/minimize.svgz");
-    _maximize_icon = QIcon(":/GuiAssets/maximize.svgz");
-    _restore_icon = QIcon(":/GuiAssets/restore.svgz");
+    _close_icon = loadIcon(":/GuiAssets/close.svgz");
+    _minimize_icon = loadIcon(":/GuiAssets/minimize.svgz");
+    _maximize_icon = loadIcon(":/GuiAssets/maximize.svgz");
+    _restore_icon = loadIcon(":/GuiAssets/restore.svgz");
 
-    _add_icon = QIcon(":/GuiAssets/add.svgz");
-    _remove_icon = QIcon(":/GuiAssets/remove.svgz");
-    _save_icon = QIcon(":/GuiAssets/save.svgz");
-    _import_icon = QIcon(":/GuiAssets/import.svgz");
+    _add_icon = loadIcon(":/GuiAssets/add.svgz");
+    _remove_icon = loadIcon(":/GuiAssets/remove.svgz");
+    _save_icon = loadIcon(":/GuiAssets/save.svgz");
+    _import_icon = loadIcon(":/GuiAssets/import.svgz");
     _qr_code_icon = QIcon(":/GuiAssets/qr-code.svgz");
     _copy_content_icon = QIcon(":/GuiAssets/copy-content.svgz");
-    _edit_icon = QIcon(":/GuiAssets/pencil-edit-button.svgz");
-    _info_icon = QIcon(":/GuiAssets/info.svgz");
+    _edit_icon = loadIcon(":/GuiAssets/pencil-edit-button.svgz");
+    _info_icon = loadIcon(":/GuiAssets/info.svgz");
+}
+
+const QIcon GuiHelpers::loadIcon(const QString &path)
+{
+    const auto color = cfg::iconColor();
+    if (color.compare("default", Qt::CaseInsensitive) == 0)
+    {
+        return QIcon(path);
+    }
+    else
+    {
+        QFile file(path);
+        file.open(QIODevice::ReadOnly);
+        auto buf = file.readAll();
+        file.close();
+
+        auto svg = zlibTool::uncompress(buf.constData(), buf.size());
+        SvgTool::changeFillColor(svg, color.toUtf8().constData());
+
+        QPixmap pixmap;
+        pixmap.loadFromData(reinterpret_cast<const unsigned char*>(svg.data()), static_cast<uint>(svg.size()));
+        return QIcon(pixmap);
+    }
 }
 
 GuiHelpers *GuiHelpers::i()

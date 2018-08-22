@@ -85,6 +85,8 @@ public:
 private:
     GuiHelpers();
 
+    const QIcon loadIcon(const QString &path);
+
     QIcon _app_icon;
     QIcon _tray_icon;
 
