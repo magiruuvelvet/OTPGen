@@ -180,20 +180,17 @@ if ( BUILD_TRANSLATIONS )
     add_custom_target(translations DEPENDS ${qtkeychain_QM_FILES})
 
     if(NOT QT_TRANSLATIONS_DIR)
-	# If this directory is missing, we are in a Qt5 environment.
-	# Extract the qmake executable location
-	get_target_property(QT5_QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
-	# Ask Qt5 where to put the translations
-	execute_process( COMMAND ${QT5_QMAKE_EXECUTABLE} -query QT_INSTALL_TRANSLATIONS
-	    OUTPUT_VARIABLE qt_translations_dir OUTPUT_STRIP_TRAILING_WHITESPACE )
-	# make sure we have / and not \ as qmake gives on windows
-	file( TO_CMAKE_PATH "${qt_translations_dir}" qt_translations_dir)
-	set( QT_TRANSLATIONS_DIR ${qt_translations_dir} CACHE PATH
-	     "The location of the Qt translations" FORCE)
+    # If this directory is missing, we are in a Qt5 environment.
+    # Extract the qmake executable location
+    get_target_property(QT5_QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
+    # Ask Qt5 where to put the translations
+    execute_process( COMMAND ${QT5_QMAKE_EXECUTABLE} -query QT_INSTALL_TRANSLATIONS
+        OUTPUT_VARIABLE qt_translations_dir OUTPUT_STRIP_TRAILING_WHITESPACE )
+    # make sure we have / and not \ as qmake gives on windows
+    file( TO_CMAKE_PATH "${qt_translations_dir}" qt_translations_dir)
+    set( QT_TRANSLATIONS_DIR ${qt_translations_dir} CACHE PATH
+         "The location of the Qt translations" FORCE)
     endif()
-
-    install(FILES ${qtkeychain_QM_FILES}
-	    DESTINATION ${QT_TRANSLATIONS_DIR})
 endif( BUILD_TRANSLATIONS )
 
 set(QTKEYCHAIN_TARGET_NAME qt${QTKEYCHAIN_VERSION_INFIX}keychain)
@@ -217,17 +214,6 @@ set_target_properties(${QTKEYCHAIN_TARGET_NAME} PROPERTIES
     MACOSX_RPATH 1
     INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
     INSTALL_RPATH_USE_LINK_PATH TRUE
-)
-
-install(FILES keychain.h ${CMAKE_CURRENT_BINARY_DIR}/qkeychain_export.h
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qt${QTKEYCHAIN_VERSION_INFIX}keychain/
-)
-
-install(TARGETS ${QTKEYCHAIN_TARGET_NAME}
-  EXPORT Qt${QTKEYCHAIN_VERSION_INFIX}KeychainLibraryDepends
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 if(BUILD_TEST_APPLICATION)
@@ -256,16 +242,3 @@ ecm_generate_pri_file(BASE_NAME Qt${QTKEYCHAIN_VERSION_INFIX}Keychain
   DEPS "core ${PRI_EXTRA_DEPS}"
   INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}
   FILENAME_VAR pri_filename)
-
-install(FILES ${pri_filename} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
-
-
-install(EXPORT Qt${QTKEYCHAIN_VERSION_INFIX}KeychainLibraryDepends
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Qt${QTKEYCHAIN_VERSION_INFIX}Keychain"
-)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qt${QTKEYCHAIN_VERSION_INFIX}KeychainConfig.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/Qt${QTKEYCHAIN_VERSION_INFIX}KeychainConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qt${QTKEYCHAIN_VERSION_INFIX}Keychain
-)
-
