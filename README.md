@@ -47,7 +47,8 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 ## Requirements
 
  - Qt 5
- - Qt 5 D-Bus
+ - Qt 5 D-Bus (only when using Qt Keychain with KWallet)
+ - zlib
  - [libgcrypt](https://gnupg.org/software/libgcrypt/) (for the bundled OTP generation library written in C)
  - [libsecret](https://wiki.gnome.org/Projects/Libsecret) (for the bundled Qt Keychain library)
  - [crypto++](https://cryptopp.com/) (for the database encryption)

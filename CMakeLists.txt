@@ -63,6 +63,9 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Gcrypt REQUIRED)
 include_directories(${GCRYPT_INCLUDE_DIR})
 
+find_package(ZLIB REQUIRED)
+include_directories("${ZLIB_INCLUDE_DIRS}")
+
 pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
 include_directories("${CRYPTOPP_INCLUDEDIR}")
 
@@ -147,6 +150,7 @@ if (MODE STREQUAL "GUI")
         Qt5::Widgets
         ${GCRYPT_LIBRARIES}
         ${CRYPTOPP_LDFLAGS}
+        ${ZLIB_LIBRARIES}
         qt5keychain
     )
 elseif(MODE STREQUAL "CLI")
@@ -154,6 +158,7 @@ elseif(MODE STREQUAL "CLI")
     target_link_libraries("${PROJECT_NAME}Cli"
         ${GCRYPT_LIBRARIES}
         ${CRYPTOPP_LDFLAGS}
+        ${ZLIB_LIBRARIES}
     )
 endif()
 
