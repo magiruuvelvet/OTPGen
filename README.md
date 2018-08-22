@@ -15,6 +15,8 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
  - Supports custom digit lengths and periods <br>
    Non-standard OTPs may not use either 6 or 8 digits. Example: Authy (7 digits and 10 seconds)
  - System Tray Icon
+ - [Qt Keychain](https://github.com/frankosterfeld/qtkeychain) Integration
+   - KWallet, GNOME Keyring, OS X Keychain, Windows Credential Store
  - Clean interface
  - Import token secrets from other applications
    - andOTP (supports both: plaintext and encrypted backups)
