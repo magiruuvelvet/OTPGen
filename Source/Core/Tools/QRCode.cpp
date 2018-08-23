@@ -1,5 +1,5 @@
 #ifdef OTPGEN_WITH_QR_CODES
-#include "QRDecoder.hpp"
+#include "QRCode.hpp"
 
 #include <ImageReaderSource.h>
 
@@ -70,7 +70,7 @@ static int read_image(const Ref<LuminanceSource> &source, std::vector<Ref<Result
     return res;
 }
 
-bool QRDecoder::decode(const std::string &filename, std::string &data)
+bool QRCode::decode(const std::string &filename, std::string &data)
 {
     Ref<LuminanceSource> source;
     data.clear();
@@ -110,6 +110,12 @@ bool QRDecoder::decode(const std::string &filename, std::string &data)
     }
 
     return true;
+}
+
+bool QRCode::encode(const std::string &input, std::string &out)
+{
+    // TODO: implement qr code encoder
+    return false;
 }
 
 #endif
