@@ -17,9 +17,6 @@ include(ECMPackageConfigHelpers)
 include(ECMSetupVersion)
 include(ECMGeneratePriFile)
 
-option(BUILD_WITH_QT4 "Build qtkeychain with Qt4 no matter if Qt5 was found" OFF)
-option(BUILD_TEST_APPLICATION "Build test application" ON)
-option(BUILD_TRANSLATIONS "Build translations" ON)
 option(QTKEYCHAIN_STATIC "Build static library" OFF)
 
 if(CMAKE_SYSTEM_NAME STREQUAL Android)
@@ -34,81 +31,25 @@ if (WIN32)
     endif()
 endif()
 
-if( NOT BUILD_WITH_QT4 )
-    # try Qt5 first, and prefer that if found
-    find_package(Qt5Core QUIET)
-endif()
+find_package(Qt5Core QUIET)
 
-if (Qt5Core_FOUND AND NOT BUILD_WITH_QT4)
-  set(QTKEYCHAIN_VERSION_INFIX 5)
+set(QTKEYCHAIN_VERSION_INFIX 5)
 
-  if(UNIX AND NOT APPLE AND NOT ANDROID)
-    find_package(Qt5DBus REQUIRED)
-    include_directories(${Qt5DBus_INCLUDE_DIRS})
-    set(QTDBUS_LIBRARIES ${Qt5DBus_LIBRARIES})
-    macro(qt_add_dbus_interface)
-      qt5_add_dbus_interface(${ARGN})
-    endmacro()
-  endif()
-
-  if(BUILD_TRANSLATIONS)
-    find_package(Qt5LinguistTools REQUIRED)
-    macro(qt_add_translation)
-      qt5_add_translation(${ARGN})
-    endmacro(qt_add_translation)
-    macro(qt_create_translation)
-      qt5_create_translation(${ARGN})
-    endmacro(qt_create_translation)
-  endif()
-
-  macro(qt_wrap_cpp)
-    qt5_wrap_cpp(${ARGN})
-  endmacro()
-
-  set(QTCORE_LIBRARIES ${Qt5Core_LIBRARIES})
-  include_directories(${Qt5Core_INCLUDE_DIRS})
-
-  if (NOT Qt5Core_VERSION VERSION_LESS "5.7.0")
-    if (CMAKE_COMPILER_IS_GNUCXX)
-      if ((NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7.0") AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.1.0"))
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-      elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7.0")
-        message(FATAL_ERROR "Can't build QtKeychain using g++-${CMAKE_CXX_COMPILER_VERSION} and Qt ${Qt5Core_VERSION}: compiler supporting C++11 is required")
-      endif()
-    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      if (NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.3)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-      else()
-        message(FATAL_ERROR "Can't build QtKeychain using clang++-${CMAKE_CXX_COMPILER_VERSION} and Qt ${Qt5Core_VERSION}: compiler supporting C++11 is required")
-      endif()
-    elseif ((CMAKE_CXX_COMPILER_ID MATCHES "MSVC") AND (MSVC_VERSION LESS 1700))
-      message(FATAL_ERROR "Can't build QtKeychain using VC++-${MSVC_VERSION} and Qt ${Qt5Core_VERSION}: compiler supporting C++11 is required")
-    endif()
-  endif()
-else()
-  set(QTKEYCHAIN_VERSION_INFIX "")
-  if(UNIX AND NOT APPLE)
-    find_package(Qt4 COMPONENTS QtCore QtDBus REQUIRED)
-    set(QTDBUS_LIBRARIES ${QT_QTDBUS_LIBRARY})
-    macro(qt_add_dbus_interface)
-      qt4_add_dbus_interface(${ARGN})
-    endmacro()
-  else()
-    find_package(Qt4 COMPONENTS QtCore REQUIRED)
-  endif()
-  include_directories(${QT_INCLUDES})
-  set(QTCORE_LIBRARIES ${QT_QTCORE_LIBRARY})
-  macro(qt_add_translation)
-    qt4_add_translation(${ARGN})
-  endmacro(qt_add_translation)
-  macro(qt_create_translation)
-    qt4_create_translation(${ARGN})
-  endmacro(qt_create_translation)
-  macro(qt_wrap_cpp)
-    qt4_wrap_cpp(${ARGN})
+if(UNIX AND NOT APPLE AND NOT ANDROID)
+  find_package(Qt5DBus REQUIRED)
+  include_directories(${Qt5DBus_INCLUDE_DIRS})
+  set(QTDBUS_LIBRARIES ${Qt5DBus_LIBRARIES})
+  macro(qt_add_dbus_interface)
+    qt5_add_dbus_interface(${ARGN})
   endmacro()
 endif()
 
+macro(qt_wrap_cpp)
+  qt5_wrap_cpp(${ARGN})
+endmacro()
+
+set(QTCORE_LIBRARIES ${Qt5Core_LIBRARIES})
+include_directories(${Qt5Core_INCLUDE_DIRS})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -118,8 +59,6 @@ set(qtkeychain_SOURCES
     qkeychain_export.h
     keychain.h
 )
-
-add_definitions( -Wall )
 
 if(WIN32)
     list(APPEND qtkeychain_SOURCES keychain_win.cpp)
@@ -167,31 +106,7 @@ endif()
 
 QT_WRAP_CPP(qtkeychain_MOC_OUTFILES keychain.h keychain_p.h gnomekeyring_p.h)
 
-set(qtkeychain_TR_FILES
-      translations/qtkeychain_de.ts
-      translations/qtkeychain_ro.ts
-)
-
 file(GLOB qtkeychain_TR_SOURCES *.cpp *.h *.ui)
-if ( BUILD_TRANSLATIONS )
-    qt_create_translation(qtkeychain_MESSAGES ${qtkeychain_TR_SOURCES} ${qtkeychain_TR_FILES})
-    qt_add_translation(qtkeychain_QM_FILES ${qtkeychain_TR_FILES})
-    add_custom_target(messages DEPENDS ${qtkeychain_MESSAGES})
-    add_custom_target(translations DEPENDS ${qtkeychain_QM_FILES})
-
-    if(NOT QT_TRANSLATIONS_DIR)
-    # If this directory is missing, we are in a Qt5 environment.
-    # Extract the qmake executable location
-    get_target_property(QT5_QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
-    # Ask Qt5 where to put the translations
-    execute_process( COMMAND ${QT5_QMAKE_EXECUTABLE} -query QT_INSTALL_TRANSLATIONS
-        OUTPUT_VARIABLE qt_translations_dir OUTPUT_STRIP_TRAILING_WHITESPACE )
-    # make sure we have / and not \ as qmake gives on windows
-    file( TO_CMAKE_PATH "${qt_translations_dir}" qt_translations_dir)
-    set( QT_TRANSLATIONS_DIR ${qt_translations_dir} CACHE PATH
-         "The location of the Qt translations" FORCE)
-    endif()
-endif( BUILD_TRANSLATIONS )
 
 set(QTKEYCHAIN_TARGET_NAME qt${QTKEYCHAIN_VERSION_INFIX}keychain)
 if(NOT QTKEYCHAIN_STATIC)
@@ -215,12 +130,6 @@ set_target_properties(${QTKEYCHAIN_TARGET_NAME} PROPERTIES
     INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
     INSTALL_RPATH_USE_LINK_PATH TRUE
 )
-
-if(BUILD_TEST_APPLICATION)
-    add_executable( testclient testclient.cpp )
-    target_link_libraries( testclient ${QTKEYCHAIN_TARGET_NAME})
-endif()
-
 
 ###
 ### CMake config file
