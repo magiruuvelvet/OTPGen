@@ -128,6 +128,9 @@ if (WITH_QR_CODES)
     file(GLOB_RECURSE ZXingSupportList
         "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader/*.cpp"
         "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader/*.h"
+
+        "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.cpp"
+        "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.hpp"
     )
     set(SourceList ${SourceListCore} ${ZXingSupportList})
 else()

@@ -30,4 +30,12 @@
 
  - URL: [https://github.com/glassechidna/zxing-cpp](https://github.com/glassechidna/zxing-cpp)
  - Status: clean, except cmake files
- - QR Code Decoder/Encoder
+ - QR Code Decoder (only decodes raw pixel data)
+ - Doesn't support encoding
+
+## QRCodeGenerator
+
+ - URL: [https://github.com/nayuki/QR-Code-generator](https://github.com/nayuki/QR-Code-generator)
+ - Status: clean, C++ version
+ - QR Code Encoder (only encodes text/binary data)
+ - Doesn't support decoding

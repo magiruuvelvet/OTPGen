@@ -26,6 +26,8 @@
 #include <zxing/multi/MultipleBarcodeReader.h>
 #include <zxing/multi/GenericMultipleBarcodeReader.h>
 
+#include <QRCodeGenerator/QrCode.hpp>
+
 using namespace zxing;
 using namespace zxing::multi;
 using namespace zxing::qrcode;
@@ -72,6 +74,11 @@ static int read_image(const Ref<LuminanceSource> &source, std::vector<Ref<Result
 
 bool QRCode::decode(const std::string &filename, std::string &data)
 {
+    if (filename.empty())
+    {
+        return false;
+    }
+
     Ref<LuminanceSource> source;
     data.clear();
 
@@ -114,8 +121,15 @@ bool QRCode::decode(const std::string &filename, std::string &data)
 
 bool QRCode::encode(const std::string &input, std::string &out)
 {
-    // TODO: implement qr code encoder
-    return false;
+    // empty data can't be and should not be encoded
+    if (input.empty())
+    {
+        return false;
+    }
+
+    const auto qr = qrcodegen::QrCode::encodeText(input.c_str(), qrcodegen::QrCode::Ecc::QUARTILE);
+    out = qr.toSvgString(3);
+    return true;
 }
 
 #endif
