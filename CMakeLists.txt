@@ -48,18 +48,44 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
     "${CMAKE_SOURCE_DIR}/CMake/Modules")     # Meta and Helper Modules
 
-# Qt deprecated warnings
-add_definitions(-DQT_DEPRECATED_WARNINGS)
-add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)
+# Install Configuration
+include(GNUInstallDirs)
+
+# Application Mode Flag
+set(MODE "GUI" CACHE STRING "Application mode (GUI, CLI)")
+if (MODE STREQUAL "GUI")
+    message(STATUS "Building GUI...")
+    add_definitions(-DOTPGEN_GUI)
+elseif (MODE STREQUAL "CLI")
+    message(STATUS "Building CLI...")
+    add_definitions(-DOTPGEN_CLI)
+else()
+    message(FATAL_ERROR "Unknown application mode!")
+endif()
 
 # Find runtime dependencies
 find_package(PkgConfig)
 
-message(STATUS "Finding Qt...")
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Xml REQUIRED)
+if (MODE STREQUAL "GUI")
+    message(STATUS "Finding Qt...")
+    find_package(Qt5Core REQUIRED)
+    find_package(Qt5Gui REQUIRED)
+    find_package(Qt5Widgets REQUIRED)
+    find_package(Qt5Xml REQUIRED)
+
+    # Qt deprecated warnings
+    add_definitions(-DQT_DEPRECATED_WARNINGS)
+    add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)
+
+    # Qt automoc
+    message(STATUS "Enabling Qt automoc...")
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    set(CMAKE_AUTOMOC ON)
+
+    # Handle Qt qrc files automatically
+    message(STATUS "Enabling Qt autorcc...")
+    set(CMAKE_AUTORCC ON)
+endif()
 
 find_package(Gcrypt REQUIRED)
 include_directories(${GCRYPT_INCLUDE_DIR})
@@ -69,15 +95,6 @@ include_directories("${ZLIB_INCLUDE_DIRS}")
 
 pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
 include_directories("${CRYPTOPP_INCLUDEDIR}")
-
-# Qt automoc
-message(STATUS "Enabling Qt automoc...")
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-
-# Handle Qt qrc files automatically
-message(STATUS "Enabling Qt autorcc...")
-set(CMAKE_AUTORCC ON)
 
 # Generate source list
 file(GLOB_RECURSE SourceList
@@ -119,20 +136,9 @@ include_directories("${CMAKE_SOURCE_DIR}/Libs/libbaseencode")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/libcotp")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/cereal")
 
-set(MODE "GUI" CACHE STRING "Application mode (GUI, CLI)")
-if (MODE STREQUAL "GUI")
-    message(STATUS "Building GUI...")
-    add_definitions(-DOTPGEN_GUI)
-elseif (MODE STREQUAL "CLI")
-    message(STATUS "Building CLI...")
-    add_definitions(-DOTPGEN_CLI)
-else()
-    message(FATAL_ERROR "Unknown application mode!")
-endif()
-
 if (MODE STREQUAL "GUI")
     # Configure QtKeychain
-    message(STATUS "Configuring QtKeychain...")
+    message(STATUS "=== Configuring QtKeychain...")
     set(BUILD_TEST_APPLICATION OFF CACHE BOOLEAN "")
     set(BUILD_TRANSLATIONS OFF CACHE BOOLEAN "")
     set(QTKEYCHAIN_STATIC ON CACHE BOOLEAN "")
@@ -140,7 +146,7 @@ if (MODE STREQUAL "GUI")
     add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/qtkeychain")
     include_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/qtkeychain")
     link_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/qtkeychain")
-    message(STATUS "Configured QtKeychain.")
+    message(STATUS "=== Configured QtKeychain.")
 endif()
 
 # Target
@@ -167,11 +173,18 @@ endif()
 
 # Install rules
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OTPGen
-        DESTINATION ${CMAKE_INSTALL_BINDIR}
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        RENAME otpgen)
+if (MODE STREQUAL "GUI")
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OTPGen
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
+            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+            RENAME otpgen)
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/Desktop/applications
-                  ${CMAKE_SOURCE_DIR}/Desktop/icons
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/Desktop/applications
+                      ${CMAKE_SOURCE_DIR}/Desktop/icons
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
+elseif(MODE STREQUAL "CLI")
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OTPGenCli
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
+            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+            RENAME otpgen-cli)
+endif()

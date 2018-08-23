@@ -1,3 +1,4 @@
+#ifdef OTPGEN_GUI
 #ifndef SVGTOOL_HPP
 #define SVGTOOL_HPP
 
@@ -12,3 +13,4 @@ public:
 };
 
 #endif // SVGTOOL_HPP
+#endif

@@ -11,7 +11,6 @@ set(QTKEYCHAIN_SOVERSION 1)
 ###
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/cmake/Modules")
-include(GNUInstallDirs)
 include(GenerateExportHeader)
 include(ECMPackageConfigHelpers)
 include(ECMSetupVersion)

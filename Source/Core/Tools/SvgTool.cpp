@@ -1,3 +1,4 @@
+#ifdef OTPGEN_GUI
 #include "SvgTool.hpp"
 
 #include <QDomDocument>
@@ -35,3 +36,5 @@ void SvgTool::changeFillColor(std::string &svg, const std::string &color)
     auto str = doc.toByteArray();
     svg = std::string(str.constData(), str.constData() + str.size());
 }
+
+#endif
