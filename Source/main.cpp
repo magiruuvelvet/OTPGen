@@ -144,6 +144,7 @@ int main(int argc, char **argv)
     // QApplication::setDesktopSettingsAware(false);
     QApplication a(argc, argv);
     a.setOrganizationName(cfg::q(cfg::Developer));
+    a.setApplicationName(cfg::q(cfg::Name));
     a.setApplicationDisplayName(cfg::q(cfg::Name));
     a.setApplicationVersion(cfg::q(cfg::Version));
     a.setUserData(0, new AppIcon());
