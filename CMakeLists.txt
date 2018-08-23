@@ -63,6 +63,13 @@ else()
     message(FATAL_ERROR "Unknown application mode!")
 endif()
 
+# Use QR Code feature?
+set(WITH_QR_CODES ON CACHE BOOLEAN "Enable support for QR codes")
+if (WITH_QR_CODES)
+    message(STATUS "Building with QR code support.")
+    add_definitions(-DOTPGEN_WITH_QR_CODES)
+endif()
+
 # Find runtime dependencies
 find_package(PkgConfig)
 
@@ -97,7 +104,7 @@ pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
 include_directories("${CRYPTOPP_INCLUDEDIR}")
 
 # Generate source list
-file(GLOB_RECURSE SourceList
+file(GLOB_RECURSE SourceListCore
     "${CMAKE_SOURCE_DIR}/main.cpp"
 
     "${CMAKE_SOURCE_DIR}/Source/Core/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Core/*.hpp"
@@ -117,6 +124,16 @@ file(GLOB_RECURSE SourceList
     "${CMAKE_SOURCE_DIR}/Libs/cereal/*.hpp"
 )
 
+if (WITH_QR_CODES)
+    file(GLOB_RECURSE ZXingSupportList
+        "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader/*.cpp"
+        "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader/*.h"
+    )
+    set(SourceList ${SourceListCore} ${ZXingSupportList})
+else()
+    set(SourceList ${SourceListCore})
+endif()
+
 file(GLOB_RECURSE GuiSourceList
     "${CMAKE_SOURCE_DIR}/EmbeddedAssets.qrc"
 
@@ -135,6 +152,7 @@ include_directories("${CMAKE_SOURCE_DIR}/Libs")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/libbaseencode")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/libcotp")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/cereal")
+include_directories("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader")
 
 if (MODE STREQUAL "GUI")
     # Configure QtKeychain
@@ -147,6 +165,14 @@ if (MODE STREQUAL "GUI")
     include_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/qtkeychain")
     link_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/qtkeychain")
     message(STATUS "=== Configured QtKeychain.")
+endif()
+
+if (WITH_QR_CODES)
+    message(STATUS "=== Configuring zxing-cpp...")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp")
+    include_directories("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/core/src")
+    link_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/zxing-cpp")
+    message(STATUS "=== Configured zxing-cpp.")
 endif()
 
 # Target
@@ -169,6 +195,14 @@ elseif(MODE STREQUAL "CLI")
         ${CRYPTOPP_LDFLAGS}
         ${ZLIB_LIBRARIES}
     )
+endif()
+
+if (WITH_QR_CODES)
+    if (MODE STREQUAL "GUI")
+        target_link_libraries(${PROJECT_NAME} libzxing)
+    else()
+        target_link_libraries("${PROJECT_NAME}Cli" libzxing)
+    endif()
 endif()
 
 # Install rules
