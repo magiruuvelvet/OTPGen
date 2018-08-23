@@ -25,3 +25,9 @@
  - URL: [https://github.com/frankosterfeld/qtkeychain](https://github.com/frankosterfeld/qtkeychain)
  - Status: clean, except cmake files
  - Native OS Keychain Integration (store/receive token database password from keychain)
+
+## zxing-cpp
+
+ - URL: [https://github.com/glassechidna/zxing-cpp](https://github.com/glassechidna/zxing-cpp)
+ - Status: clean, except cmake files
+ - QR Code Decoder/Encoder
