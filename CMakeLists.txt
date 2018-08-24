@@ -104,41 +104,48 @@ include_directories("${ZLIB_INCLUDE_DIRS}")
 pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
 include_directories("${CRYPTOPP_INCLUDEDIR}")
 
-# Generate source list
-file(GLOB_RECURSE SourceListCore
-    "${CMAKE_SOURCE_DIR}/main.cpp"
+#######################################################################################################################
+# Generate source lists
+#######################################################################################################################
 
+# Core library
+file(GLOB_RECURSE SourceListCore
     "${CMAKE_SOURCE_DIR}/Source/Core/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Core/*.hpp"
     "${CMAKE_SOURCE_DIR}/Source/Core/*.c"      "${CMAKE_SOURCE_DIR}/Source/Core/*.h"
 
-    "${CMAKE_SOURCE_DIR}/Source/Config/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Config/*.hpp"
-    "${CMAKE_SOURCE_DIR}/Source/Config/*.c"      "${CMAKE_SOURCE_DIR}/Source/Config/*.h"
+    "${CMAKE_SOURCE_DIR}/Libs/cereal/*.hpp"
+)
 
-    # bundled dependencies
-
+# Core library support (libcotp)
+file(GLOB_RECURSE SourceListCoreSupport
     "${CMAKE_SOURCE_DIR}/Libs/libbaseencode/*.c"
     "${CMAKE_SOURCE_DIR}/Libs/libbaseencode/*.h"
 
     "${CMAKE_SOURCE_DIR}/Libs/libcotp/*.c"
     "${CMAKE_SOURCE_DIR}/Libs/libcotp/*.h"
-
-    "${CMAKE_SOURCE_DIR}/Libs/cereal/*.hpp"
 )
 
+# App launcher and config
+file(GLOB_RECURSE SourceListApp
+    "${CMAKE_SOURCE_DIR}/main.cpp"
+
+    "${CMAKE_SOURCE_DIR}/Source/Config/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Config/*.hpp"
+    "${CMAKE_SOURCE_DIR}/Source/Config/*.c"      "${CMAKE_SOURCE_DIR}/Source/Config/*.h"
+)
+
+# QR Code Support - depends on libzxing
 if (WITH_QR_CODES)
-    file(GLOB_RECURSE ZXingSupportList
+    file(GLOB_RECURSE SourceListQRCodeSupport
         "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader/*.cpp"
         "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader/*.h"
 
         "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.cpp"
         "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.hpp"
     )
-    set(SourceList ${SourceListCore} ${ZXingSupportList})
-else()
-    set(SourceList ${SourceListCore})
 endif()
 
-file(GLOB_RECURSE GuiSourceList
+# Graphical User Interface - depends on Qt
+file(GLOB_RECURSE SourceListGui
     "${CMAKE_SOURCE_DIR}/EmbeddedAssets.qrc"
 
     "${CMAKE_SOURCE_DIR}/Source/Gui/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Gui/*.hpp"
@@ -151,17 +158,19 @@ file(GLOB_RECURSE GuiSourceList
     "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.h"
 )
 
+# Platform-specific sources for the GUI
 if (WIN32)
-    file(GLOB_RECURSE PlatformGuiSources
+    file(GLOB_RECURSE SourceListGuiPlatform
         "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_win.cpp"
     )
 else()
-    file(GLOB_RECURSE PlatformGuiSources
+    file(GLOB_RECURSE SourceListGuiPlatform
         "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_unix.cpp"
     )
 endif()
 
-file(GLOB_RECURSE CliSourceList
+# Cli mode sources
+file(GLOB_RECURSE SourceListCli
     "${CMAKE_SOURCE_DIR}/Source/Cli/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Cli/*.hpp"
     "${CMAKE_SOURCE_DIR}/Source/Cli/*.c"      "${CMAKE_SOURCE_DIR}/Source/Cli/*.h"
 )
@@ -197,22 +206,49 @@ if (WITH_QR_CODES)
     message(STATUS "=== Configured zxing-cpp.")
 endif()
 
-# Target
+#######################################################################################################################
+# Targets
+#######################################################################################################################
+
+# Core library
+add_library(CoreLib ${SourceListCore})
+
+# Core Library Support
+add_library(CoreLibSupport ${SourceListCoreSupport})
+
+# QR Code Support
+if (WITH_QR_CODES)
+    add_library(QRCodeSupportLib ${SourceListQRCodeSupport})
+endif()
+
 if (MODE STREQUAL "GUI")
-    add_executable(${PROJECT_NAME} ${SourceList} ${GuiSourceList} ${PlatformGuiSources})
+    add_executable(${PROJECT_NAME} ${SourceListApp} ${SourceListGui} ${SourceListGuiPlatform})
     target_link_libraries(${PROJECT_NAME}
+        CoreLib
+        CoreLibSupport
         Qt5::Core
         Qt5::Gui
         Qt5::Network
         Qt5::Widgets
         Qt5::Xml
-        ${GCRYPT_LIBRARIES}
-        ${CRYPTOPP_LDFLAGS}
-        ${ZLIB_LIBRARIES}
         qt5keychain
     )
 elseif(MODE STREQUAL "CLI")
-    add_executable("${PROJECT_NAME}Cli" ${SourceList} ${CliSourceList})
+    add_executable("${PROJECT_NAME}Cli" ${SourceListApp} ${SourceListCli})
+    target_link_libraries("${PROJECT_NAME}Cli"
+        CoreLib
+        CoreLibSupport
+    )
+endif()
+
+# Link additional external dependencies
+if (MODE STREQUAL "GUI")
+    target_link_libraries(${PROJECT_NAME}
+        ${GCRYPT_LIBRARIES}
+        ${CRYPTOPP_LDFLAGS}
+        ${ZLIB_LIBRARIES}
+    )
+else()
     target_link_libraries("${PROJECT_NAME}Cli"
         ${GCRYPT_LIBRARIES}
         ${CRYPTOPP_LDFLAGS}
@@ -220,15 +256,19 @@ elseif(MODE STREQUAL "CLI")
     )
 endif()
 
+# Link to bundled ZXing library when QR Code support was enabled
 if (WITH_QR_CODES)
     if (MODE STREQUAL "GUI")
-        target_link_libraries(${PROJECT_NAME} libzxing)
+        target_link_libraries(${PROJECT_NAME} QRCodeSupportLib libzxing)
     else()
-        target_link_libraries("${PROJECT_NAME}Cli" libzxing)
+        target_link_libraries("${PROJECT_NAME}Cli" QRCodeSupportLib libzxing)
     endif()
 endif()
 
+
+#######################################################################################################################
 # Install rules
+#######################################################################################################################
 
 if (MODE STREQUAL "GUI")
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OTPGen
