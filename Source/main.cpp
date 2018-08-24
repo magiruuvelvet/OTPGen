@@ -149,7 +149,11 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
 int main(int argc, char **argv)
 {
     // QApplication::setDesktopSettingsAware(false);
+#ifdef OTPGEN_DEBUG
+    QtSingleApplication a(cfg::q(cfg::Name) + "_DEBUG", argc, argv);
+#else
     QtSingleApplication a(cfg::q(cfg::Name), argc, argv);
+#endif
     a.setOrganizationName(cfg::q(cfg::Developer));
     a.setApplicationName(cfg::q(cfg::Name));
     a.setApplicationDisplayName(cfg::q(cfg::Name));
