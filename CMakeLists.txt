@@ -77,6 +77,7 @@ if (MODE STREQUAL "GUI")
     message(STATUS "Finding Qt...")
     find_package(Qt5Core REQUIRED)
     find_package(Qt5Gui REQUIRED)
+    find_package(Qt5Network REQUIRED)
     find_package(Qt5Widgets REQUIRED)
     find_package(Qt5Xml REQUIRED)
 
@@ -142,7 +143,23 @@ file(GLOB_RECURSE GuiSourceList
 
     "${CMAKE_SOURCE_DIR}/Source/Gui/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Gui/*.hpp"
     "${CMAKE_SOURCE_DIR}/Source/Gui/*.c"      "${CMAKE_SOURCE_DIR}/Source/Gui/*.h"
+
+    "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication/*.cpp"
+    "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication/*.h"
+
+    "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.cpp"
+    "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.h"
 )
+
+if (WIN32)
+    file(GLOB_RECURSE PlatformGuiSources
+        "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_win.cpp"
+    )
+else()
+    file(GLOB_RECURSE PlatformGuiSources
+        "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_unix.cpp"
+    )
+endif()
 
 file(GLOB_RECURSE CliSourceList
     "${CMAKE_SOURCE_DIR}/Source/Cli/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Cli/*.hpp"
@@ -156,6 +173,8 @@ include_directories("${CMAKE_SOURCE_DIR}/Libs/libbaseencode")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/libcotp")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/cereal")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader")
+include_directories("${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication")
+include_directories("${CMAKE_SOURCE_DIR}/Libs/qtlockedfile")
 
 if (MODE STREQUAL "GUI")
     # Configure QtKeychain
@@ -180,10 +199,11 @@ endif()
 
 # Target
 if (MODE STREQUAL "GUI")
-    add_executable(${PROJECT_NAME} ${SourceList} ${GuiSourceList})
+    add_executable(${PROJECT_NAME} ${SourceList} ${GuiSourceList} ${PlatformGuiSources})
     target_link_libraries(${PROJECT_NAME}
         Qt5::Core
         Qt5::Gui
+        Qt5::Network
         Qt5::Widgets
         Qt5::Xml
         ${GCRYPT_LIBRARIES}

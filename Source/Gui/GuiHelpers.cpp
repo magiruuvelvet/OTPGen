@@ -3,7 +3,7 @@
 #include <Config/AppConfig.hpp>
 
 #include <Core/Tools/zlibTool.hpp>
-#include <Core/Tools/SvgTool.hpp>
+#include <Gui/Tools/SvgTool.hpp>
 
 GuiHelpers::GuiHelpers()
 {

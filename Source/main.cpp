@@ -7,6 +7,8 @@
 #include <Gui/MainWindow.hpp>
 #include <Gui/PasswordInputDialog.hpp>
 
+#include <qtsingleapplication.h>
+
 #include <QFileInfo>
 
 #include <Core/TokenDatabase.hpp>
@@ -43,7 +45,7 @@ int askPass(const QString &dialogNotice, const QString &error, std::string &pass
     return 0;
 }
 
-int start(QApplication *a, const std::string &keychainPassword, bool create = false)
+int start(QtSingleApplication *a, const std::string &keychainPassword, bool create = false)
 {
     std::string password;
 
@@ -136,18 +138,30 @@ int start(QApplication *a, const std::string &keychainPassword, bool create = fa
         mainWindow->activateWindow();
     }
 
+    QObject::connect(a, &QtSingleApplication::messageReceived, a, [&](const QString &message, QObject *socket){
+        mainWindow->show();
+        mainWindow->activateWindow();
+    });
+
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     // QApplication::setDesktopSettingsAware(false);
-    QApplication a(argc, argv);
+    QtSingleApplication a(cfg::q(cfg::Name), argc, argv);
     a.setOrganizationName(cfg::q(cfg::Developer));
     a.setApplicationName(cfg::q(cfg::Name));
     a.setApplicationDisplayName(cfg::q(cfg::Name));
     a.setApplicationVersion(cfg::q(cfg::Version));
     a.setUserData(0, new AppIcon());
+
+    if (a.isRunning())
+    {
+        std::printf("%s is already running.\n", cfg::Name.c_str());
+        a.sendMessage("activateWindow");
+        return 0;
+    }
 
     // initialize application settings
     std::printf("path: %s\n", cfg::path().toUtf8().constData());
