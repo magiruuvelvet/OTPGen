@@ -161,17 +161,39 @@ bool TokenStore::moveToken(const OTPToken::Label &token, std::size_t pos)
         return false;
     }
 
-    const auto move_range = [&](std::size_t start, std::size_t length, std::size_t dst, TokenList &list)
-    {
-        const std::size_t final_dst = dst > start ? dst - length : dst;
-
-        TokenList tmp(list.begin() + start, list.begin() + start + length);
-        list.erase(list.begin() + start, list.begin() + start + length);
-        list.insert(list.begin() + final_dst, tmp.begin(), tmp.end());
-    };
-
-    move_range(std::distance(_tokens.begin(), oldPos), 1, pos, _tokens);
+    moveRange(std::distance(_tokens.begin(), oldPos), 1, pos, _tokens);
     return true;
+}
+
+bool TokenStore::moveTokenBelow(const OTPToken::Label &token, const OTPToken::Label &below)
+{
+    auto pos1 = std::find_if(_tokens.begin(), _tokens.end(), [&](const auto &value){
+        return value->label() == token;
+    });
+    if (pos1 == _tokens.end())
+    {
+        return false;
+    }
+
+    auto pos2 = std::find_if(_tokens.begin(), _tokens.end(), [&](const auto &value){
+        return value->label() == below;
+    });
+    if (pos2 == _tokens.end())
+    {
+        return false;
+    }
+
+    moveRange(std::distance(_tokens.begin(), pos1), 1, std::distance(_tokens.begin(), pos2) + 1, _tokens);
+    return true;
+}
+
+void TokenStore::moveRange(std::size_t start, std::size_t length, std::size_t dst, TokenList &list)
+{
+    const std::size_t final_dst = dst > start ? dst - length : dst;
+
+    TokenList tmp(list.begin() + start, list.begin() + start + length);
+    list.erase(list.begin() + start, list.begin() + start + length);
+    list.insert(list.begin() + final_dst, tmp.begin(), tmp.end());
 }
 
 bool TokenStore::contains(const OTPToken::Label &label) const

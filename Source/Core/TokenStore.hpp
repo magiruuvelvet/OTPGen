@@ -32,6 +32,7 @@ public:
 
     bool swapTokens(const OTPToken::Label &token1, const OTPToken::Label &token2);
     bool moveToken(const OTPToken::Label &token, std::size_t pos);
+    bool moveTokenBelow(const OTPToken::Label &token, const OTPToken::Label &below);
 
     bool contains(const OTPToken::Label &label) const;
     bool empty() const;
@@ -46,6 +47,7 @@ public:
 private:
     TokenStore();
 
+    static void moveRange(std::size_t start, std::size_t length, std::size_t dst, TokenList &list);
     void addTokenUnsafe(const Token &token);
 
     TokenList _tokens;
