@@ -16,6 +16,11 @@
 #include <Core/Import/Authy.hpp>
 #include <Core/Import/Steam.hpp>
 
+#ifdef OTPGEN_WITH_QR_CODES
+#include <Core/Tools/QRCode.hpp>
+#include <Core/Tools/otpauthURI.hpp>
+#endif
+
 TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     : WidgetBase(parent),
       _mode(mode)
@@ -204,10 +209,79 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             }
         }),
         GuiHelpers::make_menuSeparator(),
+    #ifdef OTPGEN_WITH_QR_CODES
         GuiHelpers::make_importAction("QR Code", GuiHelpers::i()->qr_code_icon(), this, [&]{
-            // TODO: implement qr code
-            QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
+            auto file = QFileDialog::getOpenFileName(this, "Open QR Code", QString(),
+                "PNG, JPG, SVG (*.png *.jpg *.jpe *.jpeg *.svg)");
+            if (file.isEmpty() || file.isNull())
+            {
+                return;
+            }
+            if (!(file.endsWith("png", Qt::CaseInsensitive) ||
+                file.endsWith("jpg", Qt::CaseInsensitive) ||
+                file.endsWith("jpe", Qt::CaseInsensitive) ||
+                file.endsWith("jpeg", Qt::CaseInsensitive) ||
+                file.endsWith("svg", Qt::CaseInsensitive)))
+            {
+                QMessageBox::critical(this, "Unsupported Image Format",
+                    "This image format is not supported by the QR decoder.\n"
+                    "Only PNG, JPG and SVG (experimental) are supported.");
+                return;
+            }
+
+            std::string out;
+            auto res = QRCode::decode(file.toUtf8().constData(), out);
+            if (!res)
+            {
+                QMessageBox::critical(this, "QR Code Error",
+                    "Failed to decode the given image. Make sure that the image is a valid QR Code and that the image quality is not too low. "
+                    "Also note that the decoder currently only supports PNG, JPG and SVG (experimental).");
+                return;
+            }
+
+            otpauthURI uri(out);
+            if (!uri.valid())
+            {
+                QMessageBox::critical(this, "QR Code Error",
+                    QString("The given QR Code doesn't seem to be a valid otpauth:// URI.\n\n"
+                            "Decoded text: %1").arg(QString::fromUtf8(out.c_str())));
+                out.clear();
+                return;
+            }
+
+            if (uri.type() == otpauthURI::TOTP)
+            {
+                TOTPToken token(uri.label(), "", uri.secret(), uri.digitsNumber(), uri.periodNumber(), 0, OTPToken::Invalid);
+                token.setAlgorithmFromString(uri.algorithm());
+                if (token.algorithm() == OTPToken::Invalid)
+                {
+                    QMessageBox::critical(this, "Invalid Token Algorithm",
+                        "The algorithm from the otpauth URI is invalid!");
+                    return;
+                }
+                addNewToken(&token);
+            }
+            else if (uri.type() == otpauthURI::HOTP)
+            {
+                HOTPToken token(uri.label(), "", uri.secret(), uri.digitsNumber(), 0, uri.counterNumber(), OTPToken::Invalid);
+                token.setAlgorithmFromString(uri.algorithm());
+                if (token.algorithm() == OTPToken::Invalid)
+                {
+                    QMessageBox::critical(this, "Invalid Token Algorithm",
+                        "The algorithm from the otpauth URI is invalid!");
+                    return;
+                }
+                addNewToken(&token);
+            }
+            else
+            {
+                QMessageBox::critical(this, "Invalid otpauth URI",
+                    QString("The otpauth URI is either incomplete or lacks required information.\n\n"
+                            "URI: %1").arg(QString::fromUtf8(out.c_str())));
+                return;
+            }
         }),
+    #endif
         GuiHelpers::make_importAction("otpauth URI", QIcon(), this, [&]{
             // TODO: implement otpauth uri
             QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
