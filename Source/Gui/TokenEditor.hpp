@@ -26,6 +26,7 @@ private:
     void saveTokens();
 
     void showImportTokensMenu();
+    void showExportTokensMenu();
 
     void updateRow(int row);
     void deleteRow(int row);
@@ -54,6 +55,9 @@ private:
 
     std::shared_ptr<QMenu> importMenu;
     QList<std::shared_ptr<QAction>> importActions;
+
+    std::shared_ptr<QMenu> exportMenu;
+    QList<std::shared_ptr<QAction>> exportActions;
 };
 
 #endif // TOKENEDITOR_HPP

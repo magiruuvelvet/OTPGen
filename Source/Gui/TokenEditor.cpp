@@ -48,7 +48,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
 
     importMenu = std::make_shared<QMenu>();
     importActions = {
-        GuiHelpers::make_importAction("andOTP", QIcon(":/GuiAssets/logos/andotp.svgz"), this, [&]{
+        GuiHelpers::make_menuAction("andOTP", QIcon(":/GuiAssets/logos/andotp.svgz"), this, [&]{
             std::vector<TOTPToken> target;
             auto file = QFileDialog::getOpenFileName(this, "Open andOTP token file", QString(),
                 "otp_accounts.json (Plain Text) (otp_accounts.json);;"
@@ -105,7 +105,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                             "Mode: %1").arg(type == Import::andOTP::PlainText ? "Plain Text Import" : "Encrypted Import"));
             }
         }),
-        GuiHelpers::make_importAction("Authy", QIcon(":/GuiAssets/logos/authy.svgz"), this, [&]{
+        GuiHelpers::make_menuAction("Authy", QIcon(":/GuiAssets/logos/authy.svgz"), this, [&]{
             auto file = QFileDialog::getOpenFileName(this, "Open Authy token file", QString(),
                 "com.authy.storage.tokens.authenticator.xml (TOTP Tokens) (com.authy.storage.tokens.authenticator.xml);;"
                 "com.authy.storage.tokens.authy.xml (Authy Tokens) (com.authy.storage.tokens.authy.xml);;"
@@ -189,7 +189,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 QMessageBox::critical(this, "Unknown Authy file", "The given file wasn't recognized as an Authy token file.");
             }
         }),
-        GuiHelpers::make_importAction("Steam", QIcon(":/GuiAssets/logos/steam.svgz"), this, [&]{
+        GuiHelpers::make_menuAction("Steam", QIcon(":/GuiAssets/logos/steam.svgz"), this, [&]{
             SteamToken token("Steam");
             auto file = QFileDialog::getOpenFileName(this, "Open SteamGuard configuration file", QString(),
                 "Steamguard* (Steamguard*)");
@@ -210,7 +210,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
         }),
         GuiHelpers::make_menuSeparator(),
     #ifdef OTPGEN_WITH_QR_CODES
-        GuiHelpers::make_importAction("QR Code", GuiHelpers::i()->qr_code_icon(), this, [&]{
+        GuiHelpers::make_menuAction("QR Code", GuiHelpers::i()->qr_code_icon(), this, [&]{
             auto file = QFileDialog::getOpenFileName(this, "Open QR Code", QString(),
                 "PNG, JPG, SVG (*.png *.jpg *.jpe *.jpeg *.svg)");
             if (file.isEmpty() || file.isNull())
@@ -282,7 +282,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             }
         }),
     #endif
-        GuiHelpers::make_importAction("otpauth URI", QIcon(), this, [&]{
+        GuiHelpers::make_menuAction("otpauth URI", QIcon(), this, [&]{
             // TODO: implement otpauth uri
             QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
         }),
@@ -302,6 +302,40 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     }));
 
     } // Edit Mode
+
+    else {
+
+    exportMenu = std::make_shared<QMenu>();
+    exportActions = {
+        GuiHelpers::make_menuAction("andOTP", QIcon(":/GuiAssets/logos/andotp.svgz"), this, [&]{
+            // TODO: implement otpauth uri
+            QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
+        }),
+        GuiHelpers::make_menuSeparator(),
+    #ifdef OTPGEN_WITH_QR_CODES
+        GuiHelpers::make_menuAction("QR Code", GuiHelpers::i()->qr_code_icon(), this, [&]{
+            // TODO: implement otpauth uri
+            QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
+        }),
+    #endif
+        GuiHelpers::make_menuAction("otpauth URI", QIcon(), this, [&]{
+            // TODO: implement otpauth uri
+            QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
+        }),
+    };
+
+    for (auto&& action : exportActions)
+    {
+        exportMenu->addAction(action.get());
+    }
+
+    buttons = {
+        GuiHelpers::make_toolbtn(GuiHelpers::i()->export_icon(), "Export tokens", this, [&]{
+            showExportTokensMenu();
+        })
+    };
+
+    } // View Mode
 
     windowControls.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->save_icon(), "Save tokens", this, [&]{
         saveTokens();
@@ -689,6 +723,11 @@ void TokenEditor::saveTokens()
 void TokenEditor::showImportTokensMenu()
 {
     importMenu->popup(QCursor::pos());
+}
+
+void TokenEditor::showExportTokensMenu()
+{
+    exportMenu->popup(QCursor::pos());
 }
 
 void TokenEditor::updateRow(int row)

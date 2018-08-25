@@ -56,8 +56,8 @@ public:
                                                                   bool remove, const QString &tooltip2, const std::function<void()> &removeCallback);
 
     static std::shared_ptr<QAction> make_menuSeparator();
-    static std::shared_ptr<QAction> make_importAction(const QString &name, const QIcon &icon,
-                                                      const QObject *receiver, const std::function<void()> &callback);
+    static std::shared_ptr<QAction> make_menuAction(const QString &name, const QIcon &icon,
+                                                    const QObject *receiver, const std::function<void()> &callback);
 
     static void default_minimizeCallback(WidgetBase *receiver);
     static void default_maximizeRestoreCallback(WidgetBase *receiver);
@@ -79,6 +79,7 @@ public:
     inline const QIcon &delete_icon() const          { return _delete_icon; }
     inline const QIcon &save_icon() const            { return _save_icon; }
     inline const QIcon &import_icon() const          { return _import_icon; }
+    inline const QIcon &export_icon() const          { return _export_icon; }
     inline const QIcon &qr_code_icon() const         { return _qr_code_icon; }
     inline const QIcon &copy_content_icon() const    { return _copy_content_icon; }
     inline const QIcon &edit_icon() const            { return _edit_icon; }
@@ -102,6 +103,7 @@ private:
     QIcon _delete_icon;
     QIcon _save_icon;
     QIcon _import_icon;
+    QIcon _export_icon;
     QIcon _qr_code_icon;
     QIcon _copy_content_icon;
     QIcon _edit_icon;

@@ -20,6 +20,7 @@ GuiHelpers::GuiHelpers()
     _delete_icon = QIcon(":/GuiAssets/close.svgz");
     _save_icon = loadIcon(":/GuiAssets/save.svgz");
     _import_icon = loadIcon(":/GuiAssets/import.svgz");
+    _export_icon = loadIcon(":/GuiAssets/export.svgz");
     _qr_code_icon = QIcon(":/GuiAssets/qr-code.svgz");
     _copy_content_icon = QIcon(":/GuiAssets/copy-content.svgz");
     _edit_icon = loadIcon(":/GuiAssets/pencil-edit-button.svgz");
@@ -175,8 +176,8 @@ std::shared_ptr<QAction> GuiHelpers::make_menuSeparator()
     return sep;
 }
 
-std::shared_ptr<QAction> GuiHelpers::make_importAction(const QString &name, const QIcon &icon,
-                                                       const QObject *receiver, const std::function<void()> &callback)
+std::shared_ptr<QAction> GuiHelpers::make_menuAction(const QString &name, const QIcon &icon,
+                                                     const QObject *receiver, const std::function<void()> &callback)
 {
     auto action = std::make_shared<QAction>();
     action->setText(name);
