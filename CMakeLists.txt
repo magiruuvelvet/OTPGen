@@ -146,11 +146,12 @@ endif()
 
 # Graphical User Interface - depends on Qt
 file(GLOB_RECURSE SourceListGui
-    "${CMAKE_SOURCE_DIR}/EmbeddedAssets.qrc"
-
     "${CMAKE_SOURCE_DIR}/Source/Gui/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Gui/*.hpp"
     "${CMAKE_SOURCE_DIR}/Source/Gui/*.c"      "${CMAKE_SOURCE_DIR}/Source/Gui/*.h"
+)
 
+# GUI Support Library
+file(GLOB_RECURSE SourceListGuiSupport
     "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication/*.cpp"
     "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication/*.h"
 
@@ -160,14 +161,15 @@ file(GLOB_RECURSE SourceListGui
 
 # Platform-specific sources for the GUI
 if (WIN32)
-    file(GLOB_RECURSE SourceListGuiPlatform
+    file(GLOB_RECURSE SourceListGuiPlatformSupport
         "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_win.cpp"
     )
 else()
-    file(GLOB_RECURSE SourceListGuiPlatform
+    file(GLOB_RECURSE SourceListGuiPlatformSupport
         "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_unix.cpp"
     )
 endif()
+set(SourceListGuiSupport ${SourceListGuiSupport} ${SourceListGuiPlatformSupport})
 
 # Cli mode sources
 file(GLOB_RECURSE SourceListCli
@@ -210,11 +212,12 @@ endif()
 # Targets
 #######################################################################################################################
 
-# Core library
-add_library(CoreLib ${SourceListCore})
-
 # Core Library Support
 add_library(CoreLibSupport ${SourceListCoreSupport})
+
+# Core library
+add_library(CoreLib ${SourceListCore})
+target_link_libraries(CoreLib CoreLibSupport)
 
 # QR Code Support
 if (WITH_QR_CODES)
@@ -222,22 +225,38 @@ if (WITH_QR_CODES)
 endif()
 
 if (MODE STREQUAL "GUI")
-    add_executable(${PROJECT_NAME} ${SourceListApp} ${SourceListGui} ${SourceListGuiPlatform})
-    target_link_libraries(${PROJECT_NAME}
-        CoreLib
-        CoreLibSupport
+    add_library(GuiLibSupport STATIC ${SourceListGuiSupport})
+    target_link_libraries(GuiLibSupport
         Qt5::Core
         Qt5::Gui
+        Qt5::Widgets
         Qt5::Network
+    )
+
+    qt5_add_resources(RCC_SOURCES "${CMAKE_SOURCE_DIR}/EmbeddedAssets.qrc")
+    add_library(GuiLib STATIC ${SourceListGui} ${RCC_SOURCES})
+    target_link_libraries(GuiLib
+        CoreLib
+        GuiLibSupport
+        Qt5::Core
+        Qt5::Gui
         Qt5::Widgets
         Qt5::Xml
+    )
+endif()
+
+if (MODE STREQUAL "GUI")
+    add_executable(${PROJECT_NAME} ${SourceListApp})
+    target_link_libraries(${PROJECT_NAME}
+        CoreLib
+        GuiLib
+        ${RCC_SOURCES}
         qt5keychain
     )
 elseif(MODE STREQUAL "CLI")
     add_executable("${PROJECT_NAME}Cli" ${SourceListApp} ${SourceListCli})
     target_link_libraries("${PROJECT_NAME}Cli"
         CoreLib
-        CoreLibSupport
     )
 endif()
 
