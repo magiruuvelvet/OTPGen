@@ -1,3 +1,7 @@
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+
 #include <Config/AppConfig.hpp>
 
 #ifdef OTPGEN_GUI
@@ -270,8 +274,6 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef OTPGEN_CLI
-
-#include <cstdio>
 
 int main(int argc, char **argv)
 {
