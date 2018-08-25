@@ -79,8 +79,9 @@ Ref<LuminanceSource> ImageReaderSource::create(string const& filename) {
     comps = 4;
     image = zxing::ArrayRef<char>(4 * width * height);
     memcpy(&image[0], &out[0], image->size());
-  } else if (extension == "jpg" || extension == "jpeg" ||
-             extension == "JPG" || extension == "JPEG") {
+  } else if (extension == "jpg" || extension == "JPG" ||
+             extension == "jpe" || extension == "JPE" ||
+             extension == "jpeg" || extension == "JPEG") {
     char *buffer = reinterpret_cast<char*>(jpgd::decompress_jpeg_image_from_file(
         filename.c_str(), &width, &height, &comps, 4));
     image = zxing::ArrayRef<char>(buffer, 4 * width * height);
