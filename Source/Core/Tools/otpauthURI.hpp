@@ -61,6 +61,8 @@ public:
     inline const auto &digits() const
     { return _params.at("digits"); }
 
+    std::uint8_t digitsNumber() const;
+
     inline const std::string &counter() const
     {
         static const std::string empty;
@@ -73,6 +75,7 @@ public:
             return empty;
         }
     }
+    std::uint32_t counterNumber() const;
 
     inline const std::string &period() const
     {
@@ -86,6 +89,7 @@ public:
             return empty;
         }
     }
+    std::uint32_t periodNumber() const;
 
     inline const auto &params() const
     { return _params; }

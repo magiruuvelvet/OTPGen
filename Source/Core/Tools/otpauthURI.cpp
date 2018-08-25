@@ -126,6 +126,21 @@ otpauthURI::otpauthURI(const std::string &uri)
     }
 }
 
+std::uint8_t otpauthURI::digitsNumber() const
+{
+    return static_cast<std::uint8_t>(std::stoul(digits()));
+}
+
+std::uint32_t otpauthURI::counterNumber() const
+{
+    return static_cast<std::uint32_t>(std::stoul(counter()));
+}
+
+std::uint32_t otpauthURI::periodNumber() const
+{
+    return static_cast<std::uint32_t>(std::stoul(period()));
+}
+
 otpauthURI::~otpauthURI()
 {
     uri.clear();
