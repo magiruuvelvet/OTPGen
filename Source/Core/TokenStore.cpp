@@ -146,6 +146,34 @@ bool TokenStore::swapTokens(const OTPToken::Label &token1, const OTPToken::Label
     return true;
 }
 
+bool TokenStore::moveToken(const OTPToken::Label &token, std::size_t pos)
+{
+    if (pos >= _tokens.size())
+    {
+        return false;
+    }
+
+    auto oldPos = std::find_if(_tokens.begin(), _tokens.end(), [&](const auto &value){
+        return value->label() == token;
+    });
+    if (oldPos == _tokens.end())
+    {
+        return false;
+    }
+
+    const auto move_range = [&](std::size_t start, std::size_t length, std::size_t dst, TokenList &list)
+    {
+        const std::size_t final_dst = dst > start ? dst - length : dst;
+
+        TokenList tmp(list.begin() + start, list.begin() + start + length);
+        list.erase(list.begin() + start, list.begin() + start + length);
+        list.insert(list.begin() + final_dst, tmp.begin(), tmp.end());
+    };
+
+    move_range(std::distance(_tokens.begin(), oldPos), 1, pos, _tokens);
+    return true;
+}
+
 bool TokenStore::contains(const OTPToken::Label &label) const
 {
     for (auto&& token : _tokens)

@@ -31,6 +31,7 @@ public:
     bool renameToken(const OTPToken::Label &oldLabel, const OTPToken::Label &newLabel);
 
     bool swapTokens(const OTPToken::Label &token1, const OTPToken::Label &token2);
+    bool moveToken(const OTPToken::Label &token, std::size_t pos);
 
     bool contains(const OTPToken::Label &label) const;
     bool empty() const;
