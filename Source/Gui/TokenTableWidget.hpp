@@ -76,7 +76,7 @@ public:
     { return qobject_cast<QLineEdit*>(cellWidget(row, 5)); }
 
     inline QPushButton *tokenDeleteButton(const int row)
-    { return qobject_cast<QPushButton*>(cellWidget(row, 7)); }
+    { return cellWidget(row, 7)->findChild<QPushButton*>("delete"); }
 
     inline QLineEdit *tokenEditLabel(const int row)
     { return cellWidget(row, 1)->findChild<QLineEdit*>(); }

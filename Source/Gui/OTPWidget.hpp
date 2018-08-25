@@ -44,7 +44,7 @@ public:
     static QLabel *make_algoForAuthy();
     static QLabel *make_algoForSteam();
     static QLineEdit *make_intInput(int min, int max);
-    static QPushButton *make_delBtn(int row, const QObject *receiver, const std::function<void()> &callback);
+    static QWidget *make_buttons(int row, const QObject *receiver, const std::function<void()> &callback);
     static QWidget *make_labelInput(int row, const QObject *receiver, const std::function<void()> &callback,
                                                                       const std::function<void(const QPoint&)> &contextMenu);
     static QLineEdit *make_secretInput();

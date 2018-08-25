@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QBoxLayout>
+#include <QGridLayout>
 #include <QPalette>
 
 #include <QPushButton>

@@ -341,7 +341,7 @@ void TokenEditor::addNewToken()
     tokens->setCellWidget(row, 4, OTPWidget::make_intInput(OTPToken::min_period, OTPToken::max_period)); // Period
     tokens->setCellWidget(row, 5, OTPWidget::make_intInput(OTPToken::min_counter, OTPToken::max_counter)); // Counter
     tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
-    tokens->setCellWidget(row, 7, OTPWidget::make_delBtn(row, this,
+    tokens->setCellWidget(row, 7, OTPWidget::make_buttons(row, this,
         [&]{ deleteRow(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row); }));
 
     // update row
@@ -377,7 +377,7 @@ void TokenEditor::addNewToken(OTPToken *token)
     tokens->setCellWidget(row, 4, OTPWidget::make_intInput(OTPToken::min_period, OTPToken::max_period)); // Period
     tokens->setCellWidget(row, 5, OTPWidget::make_intInput(OTPToken::min_counter, OTPToken::max_counter)); // Counter
     tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
-    tokens->setCellWidget(row, 7, OTPWidget::make_delBtn(row, this,
+    tokens->setCellWidget(row, 7, OTPWidget::make_buttons(row, this,
         [&]{ deleteRow(static_cast<TableWidgetCellUserData*>(this->sender()->userData(0))->row); }));
 
     // update row

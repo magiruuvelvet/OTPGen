@@ -233,16 +233,44 @@ QLineEdit *OTPWidget::make_intInput(int min, int max)
     return input;
 }
 
-QPushButton *OTPWidget::make_delBtn(int row, const QObject *receiver, const std::function<void()> &callback)
+QWidget *OTPWidget::make_buttons(int row, const QObject *receiver, const std::function<void()> &callback)
 {
+    auto w = new QWidget();
+    auto box = new QGridLayout();
+    box->setSpacing(1);
+    box->setMargin(0);
+    box->setContentsMargins(0,0,0,0);
+
     auto btn = new QPushButton();
+    btn->setObjectName("delete");
     btn->setUserData(0, new TableWidgetCellUserData(row));
     btn->setFixedWidth(35);
     btn->setFlat(true);
     btn->setToolTip("Delete token");
     btn->setIcon(GuiHelpers::i()->delete_icon());
     QObject::connect(btn, &QPushButton::clicked, receiver, callback);
-    return btn;
+    box->addWidget(btn, 0, 0, 2, 1, Qt::AlignLeft | Qt::AlignVCenter);
+
+//    auto moveUp = new QPushButton();
+//    moveUp->setObjectName("moveup");
+//    moveUp->setUserData(0, new TableWidgetCellUserData(row));
+//    moveUp->setFlat(true);
+//    moveUp->setToolTip("Move up");
+//    moveUp->setFixedWidth(22);
+//    moveUp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//    box->addWidget(moveUp, 0, 1, 1, 1, Qt::AlignRight);
+
+//    auto moveDown = new QPushButton();
+//    moveDown->setObjectName("movedown");
+//    moveDown->setUserData(0, new TableWidgetCellUserData(row));
+//    moveDown->setFlat(true);
+//    moveDown->setToolTip("Move down");
+//    moveDown->setFixedWidth(22);
+//    moveDown->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//    box->addWidget(moveDown, 1, 1, 1, 1, Qt::AlignRight);
+
+    w->setLayout(box);
+    return w;
 }
 
 QWidget *OTPWidget::make_labelInput(int row, const QObject *receiver, const std::function<void()> &callback,
