@@ -218,6 +218,12 @@ add_library(CoreLibSupport ${SourceListCoreSupport})
 # Core library
 add_library(CoreLib ${SourceListCore})
 target_link_libraries(CoreLib CoreLibSupport)
+if (WITH_QR_CODES)
+    target_link_libraries(CoreLib
+        QRCodeSupportLib
+        libzxing
+    )
+endif()
 
 # QR Code Support
 if (WITH_QR_CODES)
@@ -243,6 +249,13 @@ if (MODE STREQUAL "GUI")
         Qt5::Widgets
         Qt5::Xml
     )
+
+    if (WITH_QR_CODES)
+        target_link_libraries(GuiLib
+            QRCodeSupportLib
+            libzxing
+        )
+    endif()
 endif()
 
 if (MODE STREQUAL "GUI")
