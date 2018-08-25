@@ -129,6 +129,32 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
 
     password.clear();
 
+    const auto args = a->arguments();
+    if (args.size() > 1)
+    {
+        if (args.at(1).compare("--swap", Qt::CaseInsensitive) == 0)
+        {
+            if (args.size() != 4)
+            {
+                std::cerr << "Swap operation requires 2 labels!" << std::endl;
+                std::exit(2);
+            }
+
+            const auto res = TokenStore::i()->swapTokens(args.at(2).toUtf8().constData(), args.at(3).toUtf8().constData());
+            if (res)
+            {
+                std::printf("Swapped \"%s\" with \"%s\".\n", args.at(2).toUtf8().constData(), args.at(3).toUtf8().constData());
+                TokenDatabase::saveTokens();
+                std::exit(0);
+            }
+            else
+            {
+                std::fprintf(stderr, "Swapping of \"%s\" and \"%s\" failed.\n", args.at(2).toUtf8().constData(), args.at(3).toUtf8().constData());
+                std::exit(3);
+            }
+        }
+    }
+
     mainWindow = std::make_shared<MainWindow>();
     mainWindowContainer = std::make_shared<FramelessContainer>(mainWindow.get());
 
