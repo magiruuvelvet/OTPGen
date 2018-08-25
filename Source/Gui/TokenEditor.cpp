@@ -239,47 +239,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 return;
             }
 
-            otpauthURI uri(out);
-            if (!uri.valid())
-            {
-                QMessageBox::critical(this, "QR Code Error",
-                    QString("The given QR Code doesn't seem to be a valid otpauth:// URI.\n\n"
-                            "Decoded text: %1").arg(QString::fromUtf8(out.c_str())));
-                out.clear();
-                return;
-            }
-
-            if (uri.type() == otpauthURI::TOTP)
-            {
-                TOTPToken token(uri.label(), "", uri.secret(), uri.digitsNumber(), uri.periodNumber(), 0, OTPToken::Invalid);
-                token.setAlgorithmFromString(uri.algorithm());
-                if (token.algorithm() == OTPToken::Invalid)
-                {
-                    QMessageBox::critical(this, "Invalid Token Algorithm",
-                        "The algorithm from the otpauth URI is invalid!");
-                    return;
-                }
-                addNewToken(&token);
-            }
-            else if (uri.type() == otpauthURI::HOTP)
-            {
-                HOTPToken token(uri.label(), "", uri.secret(), uri.digitsNumber(), 0, uri.counterNumber(), OTPToken::Invalid);
-                token.setAlgorithmFromString(uri.algorithm());
-                if (token.algorithm() == OTPToken::Invalid)
-                {
-                    QMessageBox::critical(this, "Invalid Token Algorithm",
-                        "The algorithm from the otpauth URI is invalid!");
-                    return;
-                }
-                addNewToken(&token);
-            }
-            else
-            {
-                QMessageBox::critical(this, "Invalid otpauth URI",
-                    QString("The otpauth URI is either incomplete or lacks required information.\n\n"
-                            "URI: %1").arg(QString::fromUtf8(out.c_str())));
-                return;
-            }
+            process_otpauthURI(out, true);
         }),
     #endif
         GuiHelpers::make_menuAction("otpauth URI", QIcon(), this, [&]{
@@ -718,6 +678,58 @@ void TokenEditor::saveTokens()
     emit tokensSaved();
 
     this->close();
+}
+
+void TokenEditor::process_otpauthURI(const std::string &out, bool fromQr)
+{
+    otpauthURI uri(out);
+    if (!uri.valid())
+    {
+        if (fromQr)
+        {
+            QMessageBox::critical(this, "QR Code Error",
+                QString("The given QR Code doesn't seem to be a valid otpauth:// URI.\n\n"
+                        "Decoded text: %1").arg(QString::fromUtf8(out.c_str())));
+        }
+        else
+        {
+            QMessageBox::critical(this, "Invalid URI",
+                        "The given otpauth URI isn't valid.");
+        }
+        return;
+    }
+
+    if (uri.type() == otpauthURI::TOTP)
+    {
+        TOTPToken token(uri.label(), "", uri.secret(), uri.digitsNumber(), uri.periodNumber(), 0, OTPToken::Invalid);
+        token.setAlgorithmFromString(uri.algorithm());
+        if (token.algorithm() == OTPToken::Invalid)
+        {
+            QMessageBox::critical(this, "Invalid Token Algorithm",
+                "The algorithm from the otpauth URI is invalid!");
+            return;
+        }
+        addNewToken(&token);
+    }
+    else if (uri.type() == otpauthURI::HOTP)
+    {
+        HOTPToken token(uri.label(), "", uri.secret(), uri.digitsNumber(), 0, uri.counterNumber(), OTPToken::Invalid);
+        token.setAlgorithmFromString(uri.algorithm());
+        if (token.algorithm() == OTPToken::Invalid)
+        {
+            QMessageBox::critical(this, "Invalid Token Algorithm",
+                "The algorithm from the otpauth URI is invalid!");
+            return;
+        }
+        addNewToken(&token);
+    }
+    else
+    {
+        QMessageBox::critical(this, "Invalid otpauth URI",
+            QString("The otpauth URI is either incomplete or lacks required information.\n\n"
+                    "URI: %1").arg(QString::fromUtf8(out.c_str())));
+        return;
+    }
 }
 
 void TokenEditor::showImportTokensMenu()

@@ -25,6 +25,8 @@ private:
     void addNewToken(OTPToken *token);
     void saveTokens();
 
+    void process_otpauthURI(const std::string &uri, bool fromQr = false);
+
     void showImportTokensMenu();
     void showExportTokensMenu();
 
