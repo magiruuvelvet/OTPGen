@@ -24,6 +24,8 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
    - andOTP (supports both: plaintext and encrypted backups)
    - Authy (supports both: xml and json input)
    - SteamGuard
+ - Import tokens from QR Code images
+   - Supported formats are: PNG, JPG and SVG (experimental)
  - Search your tokens with regular expressions in the search bar and never lose
    time because of a huge token database
  - Copy tokens to clipboard without revealing them in the UI
@@ -35,7 +37,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
  - Import
    - `otpauth:` uri
-   - QR Code (file only)
 
  - Export
    - `otpauth:` uri
