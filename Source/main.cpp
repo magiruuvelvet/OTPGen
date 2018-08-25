@@ -157,6 +157,35 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
                 std::exit(3);
             }
         }
+        else if (args.at(1).compare("--move", Qt::CaseInsensitive) == 0)
+        {
+            if (args.size() != 4)
+            {
+                std::cerr << "Swap operation requires 1 label and a new position!" << std::endl;
+                std::exit(2);
+            }
+
+            bool ok = false;
+            const auto newPos = args.at(3).toULongLong(&ok);
+            if (!ok)
+            {
+                std::cerr << "New position must be a positive number!" << std::endl;
+                std::exit(2);
+            }
+
+            const auto res = TokenStore::i()->moveToken(args.at(2).toUtf8().constData(), newPos);
+            if (res)
+            {
+                std::cout << "Move operation successful." << std::endl;
+                TokenDatabase::saveTokens();
+                std::exit(0);
+            }
+            else
+            {
+                std::cerr << "Move operation failed." << std::endl;
+                std::exit(3);
+            }
+        }
     }
 
     mainWindow = std::make_shared<MainWindow>();
