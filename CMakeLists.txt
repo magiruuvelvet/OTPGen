@@ -217,14 +217,15 @@ add_library(CoreLibSupport ${SourceListCoreSupport})
 
 # Core library
 add_library(CoreLib ${SourceListCore})
-target_link_libraries(CoreLib CoreLibSupport)
+target_link_libraries(CoreLib CoreLibSupport
+    ${GCRYPT_LIBRARIES}
+    ${CRYPTOPP_LDFLAGS}
+    ${ZLIB_LIBRARIES}
+)
 if (WITH_QR_CODES)
     target_link_libraries(CoreLib
         QRCodeSupportLib
         libzxing
-        ${GCRYPT_LIBRARIES}
-        ${CRYPTOPP_LDFLAGS}
-        ${ZLIB_LIBRARIES}
     )
 endif()
 
