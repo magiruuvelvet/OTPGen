@@ -222,6 +222,8 @@ if (WITH_QR_CODES)
     target_link_libraries(CoreLib
         QRCodeSupportLib
         libzxing
+        ${GCRYPT_LIBRARIES}
+        ${CRYPTOPP_LDFLAGS}
         ${ZLIB_LIBRARIES}
     )
 endif()
