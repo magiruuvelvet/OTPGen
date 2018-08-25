@@ -161,19 +161,22 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
         {
             if (args.size() != 4)
             {
-                std::cerr << "Swap operation requires 1 label and a new position!" << std::endl;
+                std::cerr << "Swap operation requires 1 label and a new position or a label (below)!" << std::endl;
                 std::exit(2);
             }
 
             bool ok = false;
             const auto newPos = args.at(3).toULongLong(&ok);
+            bool res;
             if (!ok)
             {
-                std::cerr << "New position must be a positive number!" << std::endl;
-                std::exit(2);
+                res = TokenStore::i()->moveTokenBelow(args.at(2).toUtf8().constData(), args.at(3).toUtf8().constData());
+            }
+            else
+            {
+                res = TokenStore::i()->moveToken(args.at(2).toUtf8().constData(), newPos);
             }
 
-            const auto res = TokenStore::i()->moveToken(args.at(2).toUtf8().constData(), newPos);
             if (res)
             {
                 std::cout << "Move operation successful." << std::endl;
