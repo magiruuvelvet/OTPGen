@@ -824,6 +824,22 @@ void TokenEditor::deleteRow(int row)
 {
     auto tokens = tokenEditWidget->tokens();
 
+    if (_mode == OTPWidget::Mode::Override)
+    {
+        const auto res = QMessageBox::question(this, "Delete Token",
+            QString("Are you sure you want to delete <b>%1</b>?").arg(tokens->tokenEditLabel(row)->text()));
+        if (res == QMessageBox::Yes)
+        {
+            // FIXME: token should not be removed here, but rather marked for deletion (saveTokens)
+            const auto oldname = static_cast<TokenOldNameUserData*>(tokens->cellWidget(row, 1)->userData(2))->oldname;
+            TokenStore::i()->removeToken(oldname);
+        }
+        else
+        {
+            return;
+        }
+    }
+
     // delete row widgets
     for (auto i = 0; i < tokens->columnCount(); i++)
     {
