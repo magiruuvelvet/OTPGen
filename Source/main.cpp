@@ -4,19 +4,84 @@
 
 #include <Config/AppConfig.hpp>
 
+#include <Core/TokenDatabase.hpp>
+#include <Core/TokenStore.hpp>
+
+void exec_commandline_operation(const std::vector<std::string> &args)
+{
+    if (args.size() > 1)
+    {
+        if (args.at(1) == "--swap")
+        {
+            if (args.size() != 4)
+            {
+                std::cerr << "Swap operation requires 2 labels!" << std::endl;
+                std::exit(2);
+            }
+
+            const auto res = TokenStore::i()->swapTokens(args.at(2), args.at(3));
+            if (res)
+            {
+                std::printf("Swapped \"%s\" with \"%s\".\n", args.at(2).c_str(), args.at(3).c_str());
+                TokenDatabase::saveTokens();
+                std::exit(0);
+            }
+            else
+            {
+                std::fprintf(stderr, "Swapping of \"%s\" and \"%s\" failed.\n", args.at(2).c_str(), args.at(3).c_str());
+                std::exit(3);
+            }
+        }
+        else if (args.at(1) == "--move")
+        {
+            if (args.size() != 4)
+            {
+                std::cerr << "Swap operation requires 1 label and a new position or a label (below)!" << std::endl;
+                std::exit(2);
+            }
+
+            unsigned long newPos = 0;
+            bool ok = false, res;
+            try {
+                newPos = std::stoul(args.at(3));
+                ok = true;
+            } catch (...) {
+                ok = false;
+            }
+            if (!ok)
+            {
+                res = TokenStore::i()->moveTokenBelow(args.at(2).c_str(), args.at(3).c_str());
+            }
+            else
+            {
+                res = TokenStore::i()->moveToken(args.at(2).c_str(), newPos);
+            }
+
+            if (res)
+            {
+                std::cout << "Move operation successful." << std::endl;
+                TokenDatabase::saveTokens();
+                std::exit(0);
+            }
+            else
+            {
+                std::cerr << "Move operation failed." << std::endl;
+                std::exit(3);
+            }
+        }
+    }
+}
+
 #ifdef OTPGEN_GUI
 
 #include <QApplication>
 #include <QMessageBox>
+#include <QFileInfo>
+
 #include <Gui/MainWindow.hpp>
 #include <Gui/PasswordInputDialog.hpp>
 
 #include <qtsingleapplication.h>
-
-#include <QFileInfo>
-
-#include <Core/TokenDatabase.hpp>
-
 #include <qtkeychain/keychain.h>
 
 std::shared_ptr<MainWindow> mainWindow;
@@ -25,6 +90,16 @@ std::shared_ptr<FramelessContainer> mainWindowContainer;
 // QKeychain already handles raw pointers and deletes them
 QKeychain::ReadPasswordJob *receivePassword = nullptr;
 QKeychain::WritePasswordJob *storePassword = nullptr;
+
+const std::vector<std::string> qtargs_to_strvec(const QStringList &args)
+{
+    std::vector<std::string> strvec;
+    for (auto&& a : args)
+    {
+        strvec.emplace_back(a.toUtf8().constData());
+    }
+    return strvec;
+}
 
 int askPass(const QString &dialogNotice, const QString &error, std::string &password, const QApplication *app = nullptr)
 {
@@ -133,63 +208,9 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
 
     password.clear();
 
+    // run command line operation if any
     const auto args = a->arguments();
-    if (args.size() > 1)
-    {
-        if (args.at(1).compare("--swap", Qt::CaseInsensitive) == 0)
-        {
-            if (args.size() != 4)
-            {
-                std::cerr << "Swap operation requires 2 labels!" << std::endl;
-                std::exit(2);
-            }
-
-            const auto res = TokenStore::i()->swapTokens(args.at(2).toUtf8().constData(), args.at(3).toUtf8().constData());
-            if (res)
-            {
-                std::printf("Swapped \"%s\" with \"%s\".\n", args.at(2).toUtf8().constData(), args.at(3).toUtf8().constData());
-                TokenDatabase::saveTokens();
-                std::exit(0);
-            }
-            else
-            {
-                std::fprintf(stderr, "Swapping of \"%s\" and \"%s\" failed.\n", args.at(2).toUtf8().constData(), args.at(3).toUtf8().constData());
-                std::exit(3);
-            }
-        }
-        else if (args.at(1).compare("--move", Qt::CaseInsensitive) == 0)
-        {
-            if (args.size() != 4)
-            {
-                std::cerr << "Swap operation requires 1 label and a new position or a label (below)!" << std::endl;
-                std::exit(2);
-            }
-
-            bool ok = false;
-            const auto newPos = args.at(3).toULongLong(&ok);
-            bool res;
-            if (!ok)
-            {
-                res = TokenStore::i()->moveTokenBelow(args.at(2).toUtf8().constData(), args.at(3).toUtf8().constData());
-            }
-            else
-            {
-                res = TokenStore::i()->moveToken(args.at(2).toUtf8().constData(), newPos);
-            }
-
-            if (res)
-            {
-                std::cout << "Move operation successful." << std::endl;
-                TokenDatabase::saveTokens();
-                std::exit(0);
-            }
-            else
-            {
-                std::cerr << "Move operation failed." << std::endl;
-                std::exit(3);
-            }
-        }
-    }
+    exec_commandline_operation(qtargs_to_strvec(args));
 
     mainWindow = std::make_shared<MainWindow>();
     mainWindowContainer = std::make_shared<FramelessContainer>(mainWindow.get());
@@ -200,9 +221,19 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
         mainWindow->activateWindow();
     }
 
+    // process messages sent from additional instances
     QObject::connect(a, &QtSingleApplication::messageReceived, a, [&](const QString &message, QObject *socket){
-        mainWindow->show();
-        mainWindow->activateWindow();
+        if (message.isEmpty() || message.compare("activateWindow", Qt::CaseInsensitive) == 0)
+        {
+            std::printf("Trying to activate window...\n");
+            mainWindow->show();
+            mainWindow->activateWindow();
+        }
+        else if (message.compare("reloadTokens", Qt::CaseInsensitive) == 0)
+        {
+            std::printf("Trying to reload the token database...\n");
+            mainWindow->updateTokenList();
+        }
     });
 
     return 0;
@@ -222,10 +253,23 @@ int main(int argc, char **argv)
     a.setApplicationVersion(cfg::q(cfg::Version));
     a.setUserData(0, new AppIcon());
 
+    // don't allow multiple running instances, but send signals to main instance
     if (a.isRunning())
     {
-        std::printf("%s is already running.\n", cfg::Name.c_str());
-        a.sendMessage("activateWindow");
+        if (a.arguments().size() > 1)
+        {
+            if (a.arguments().at(1) == "--reload")
+            {
+                std::printf("Reloading token database...\n");
+                a.sendMessage("reloadTokens");
+            }
+        }
+        else
+        {
+            std::printf("%s is already running.\n", cfg::Name.c_str());
+            a.sendMessage("activateWindow");
+        }
+
         return 0;
     }
 
