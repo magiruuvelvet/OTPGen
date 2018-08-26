@@ -12,7 +12,7 @@ set(GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/Generated)
 include_directories(${GENERATED_DIR})
 
 # Handle configuration types
-option(CMAKE_BUILD_TYPE "Set the CMake configuration type to use" "Debug")
+set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Set the CMake configuration type to use")
 message(STATUS "Using configuration type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE})
 
@@ -35,6 +35,12 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-unused-command-line-arg
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     message(STATUS "Building with development commands.")
     add_definitions(-DOTPGEN_DEBUG)
+endif()
+
+# Unit testing
+set(UNIT_TESTING OFF CACHE BOOLEAN "Build unit tests")
+if (UNIT_TESTING)
+    message(STATUS "Building with unit tests.")
 endif()
 
 # Generic flags
@@ -127,7 +133,7 @@ file(GLOB_RECURSE SourceListCoreSupport
 
 # App launcher and config
 file(GLOB_RECURSE SourceListApp
-    "${CMAKE_SOURCE_DIR}/main.cpp"
+    "${CMAKE_SOURCE_DIR}/Source/main.cpp"
 
     "${CMAKE_SOURCE_DIR}/Source/Config/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Config/*.hpp"
     "${CMAKE_SOURCE_DIR}/Source/Config/*.c"      "${CMAKE_SOURCE_DIR}/Source/Config/*.h"
@@ -141,6 +147,16 @@ if (WITH_QR_CODES)
 
         "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.cpp"
         "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.hpp"
+    )
+endif()
+
+# Unit test sources
+if (UNIT_TESTING)
+    file(GLOB_RECURSE SourceListUnitTests
+        "${CMAKE_SOURCE_DIR}/Libs/bandit/*.h"
+        "${CMAKE_SOURCE_DIR}/Libs/bandit/*.hpp"
+        "${CMAKE_SOURCE_DIR}/Tests/main.cpp"
+        "${CMAKE_SOURCE_DIR}/Tests/*.hpp"
     )
 endif()
 
@@ -299,6 +315,13 @@ if (WITH_QR_CODES)
     else()
         target_link_libraries("${PROJECT_NAME}Cli" QRCodeSupportLib libzxing)
     endif()
+endif()
+
+
+# Unit tests
+if (UNIT_TESTING)
+    add_executable("${PROJECT_NAME}Tests" ${SourceListUnitTests})
+    target_link_libraries("${PROJECT_NAME}Tests" CoreLib)
 endif()
 
 

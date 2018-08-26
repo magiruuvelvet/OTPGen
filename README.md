@@ -69,6 +69,25 @@ Make sure to build a **Release** build!! The Debug build uses a hardcoded test p
 to avoid entering a password all the time during development. Never use real token secrets
 during development.
 
+### Building the unit tests
+
+This application uses the [**bandit**](https://github.com/banditcpp/bandit) unit testing framework.
+It is recommended to run the unit tests first if you experience issues before reporting a bug.
+
+```sh
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Debug -DUNIT_TESTING=ON ..
+make
+```
+
+After compilation copy the `OTPGenTests` binary to the `Tests` directory of this repository
+and run it. Alternatively if you are using an IDE, just set the working directory of the
+test binary to the `Tests` directory. This is required for external files to be found.
+
+To get more detailed output run the unit test binary with the `--reporter=info` option.
+
+*Unit tests are disabled by default.*
+
 
 ## Tips
 
