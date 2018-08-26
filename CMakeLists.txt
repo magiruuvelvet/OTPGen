@@ -191,6 +191,9 @@ set(SourceListGuiSupport ${SourceListGuiSupport} ${SourceListGuiPlatformSupport}
 file(GLOB_RECURSE SourceListCli
     "${CMAKE_SOURCE_DIR}/Source/Cli/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Cli/*.hpp"
     "${CMAKE_SOURCE_DIR}/Source/Cli/*.c"      "${CMAKE_SOURCE_DIR}/Source/Cli/*.h"
+
+    "${CMAKE_SOURCE_DIR}/Libs/PlatformFolders/sago/*.cpp"
+    "${CMAKE_SOURCE_DIR}/Libs/PlatformFolders/sago/*.h"
 )
 
 # Add source directory to include paths
@@ -200,6 +203,7 @@ include_directories("${CMAKE_SOURCE_DIR}/Libs/libbaseencode")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/libcotp")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/cereal")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader")
+include_directories("${CMAKE_SOURCE_DIR}/Libs/PlatformFolders")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication")
 include_directories("${CMAKE_SOURCE_DIR}/Libs/qtlockedfile")
 
