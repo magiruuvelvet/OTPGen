@@ -8,7 +8,7 @@ const std::string AppConfig::Name = "OTPGen";
 
 const std::uint16_t AppConfig::VersionMajor = 0U;
 const std::uint16_t AppConfig::VersionMinor = 7U;
-const std::uint32_t AppConfig::PatchLevel = 1U;
+const std::uint32_t AppConfig::PatchLevel = 2U;
 const std::string AppConfig::Version =
     std::to_string(AppConfig::VersionMajor) + '.' +
     std::to_string(AppConfig::VersionMinor) + '.' +
