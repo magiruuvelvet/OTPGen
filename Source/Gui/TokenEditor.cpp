@@ -833,6 +833,7 @@ void TokenEditor::deleteRow(int row)
             // FIXME: token should not be removed here, but rather marked for deletion (saveTokens)
             const auto oldname = static_cast<TokenOldNameUserData*>(tokens->cellWidget(row, 1)->userData(2))->oldname;
             TokenStore::i()->removeToken(oldname);
+            emit tokensSaved();
         }
         else
         {
