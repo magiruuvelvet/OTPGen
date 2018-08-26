@@ -234,6 +234,7 @@ endif()
 
 # Core Library Support
 add_library(CoreLibSupport ${SourceListCoreSupport})
+target_link_libraries(CoreLibSupport ${GCRYPT_LIBRARIES})
 
 # Core library
 add_library(CoreLib ${SourceListCore})
