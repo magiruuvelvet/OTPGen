@@ -96,6 +96,11 @@ OTPToken::ShaAlgorithm &OTPToken::algorithm()
     return _algorithm;
 }
 
+const std::string OTPToken::algorithmString() const
+{
+    return sha_enum_to_str();
+}
+
 void OTPToken::setAlgorithmFromString(const std::string &_algo)
 {
     std::string algo = _algo;

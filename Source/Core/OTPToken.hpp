@@ -84,6 +84,7 @@ public:
     { return _period; }
 
     void setAlgorithmFromString(const std::string &algo);
+    const std::string algorithmString() const;
 
 #ifdef OTPGEN_DEBUG
     const std::string debug() const;

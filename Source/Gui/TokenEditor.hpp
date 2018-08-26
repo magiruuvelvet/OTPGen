@@ -14,6 +14,8 @@ public:
 
     void linkTokens(std::vector<OTPToken*> tokens);
 
+    const std::vector<OTPToken*> availableTokens() const;
+
 signals:
     void tokensSaved();
 

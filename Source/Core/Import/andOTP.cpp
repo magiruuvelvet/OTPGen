@@ -6,6 +6,8 @@
 
 #include <cereal/external/rapidjson/document.h>
 #include <cereal/external/rapidjson/memorystream.h>
+#include <cereal/external/rapidjson/stringbuffer.h>
+#include <cereal/external/rapidjson/writer.h>
 
 #include <cryptopp/sha.h>
 #include <cryptopp/filters.h>
@@ -121,6 +123,43 @@ bool andOTP::importTOTP(const std::string &file, std::vector<TOTPToken> &target,
         }
     } catch (...) {
         // catch all rapidjson exceptions
+        return false;
+    }
+
+    return true;
+}
+
+bool andOTP::exportTOTP(const std::string &target, const std::vector<OTPToken*> &tokens)
+{
+    try {
+        rapidjson::Document json(rapidjson::kArrayType);
+
+        for (auto&& token : tokens)
+        {
+            rapidjson::Value value(rapidjson::kObjectType);
+            value.AddMember("secret", rapidjson::Value(token->secret().c_str(), json.GetAllocator()), json.GetAllocator());
+            value.AddMember("label", rapidjson::Value(token->label().c_str(), json.GetAllocator()), json.GetAllocator());
+            value.AddMember("period", token->period(), json.GetAllocator());
+            value.AddMember("digits", token->digits(), json.GetAllocator());
+            value.AddMember("type", "TOTP", json.GetAllocator());
+            value.AddMember("algorithm", rapidjson::Value(token->algorithmString().c_str(), json.GetAllocator()), json.GetAllocator());
+            value.AddMember("thumbnail", "Default", json.GetAllocator());
+            value.AddMember("last_used", 0, json.GetAllocator());
+            value.AddMember("tags", rapidjson::Value(rapidjson::kArrayType), json.GetAllocator());
+            json.PushBack(value, json.GetAllocator());
+        }
+
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        json.Accept(writer);
+
+        const auto res = TokenDatabase::writeFile(target, buffer.GetString());
+        if (res != TokenDatabase::Success)
+        {
+            return false;
+        }
+
+    } catch (...) {
         return false;
     }
 

@@ -285,8 +285,30 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     exportMenu = std::make_shared<QMenu>();
     exportActions = {
         GuiHelpers::make_menuAction("andOTP", QIcon(":/GuiAssets/logos/andotp.svgz"), this, [&]{
-            // TODO: implement otpauth uri
-            QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
+
+            const auto answer = QMessageBox::question(this, "andOTP",
+                "<b>WARNING!</b><br><br>Currently only plain text exports of andOTP json files are supported!<br>"
+                "Continue at your own risk. Click \"Yes\" to continue the export.");
+            if (answer != QMessageBox::Yes)
+            {
+                return;
+            }
+
+            auto file = QFileDialog::getSaveFileName(this, "Save andOTP json");
+            if (file.isEmpty() || file.isNull())
+            {
+                return;
+            }
+
+            const auto res = Import::andOTP::exportTOTP(file.toUtf8().constData(), this->availableTokens());
+            if (res)
+            {
+                QMessageBox::information(this, "andOTP", "Successfully exported an andOTP json file!");
+            }
+            else
+            {
+                QMessageBox::critical(this, "andOTP", "Unable to export an andOTP json file!");
+            }
         }),
         GuiHelpers::make_menuSeparator(),
     #ifdef OTPGEN_WITH_QR_CODES
@@ -418,6 +440,16 @@ void TokenEditor::linkTokens(std::vector<OTPToken*> tokens)
             tokenEditWidget->tokens()->cellWidget(i, 6)->setDisabled(true);
         }
     }
+}
+
+const std::vector<OTPToken*> TokenEditor::availableTokens() const
+{
+    std::vector<OTPToken*> tokens;
+    for (auto i = 0; i < tokenEditWidget->tokens()->rowCount(); i++)
+    {
+        tokens.emplace_back(TokenStore::i()->tokenAt(tokenEditWidget->tokens()->tokenEditLabel(i)->text().toUtf8().constData()));
+    }
+    return tokens;
 }
 
 void TokenEditor::closeEvent(QCloseEvent *event)
