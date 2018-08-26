@@ -31,9 +31,13 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     {
         this->setWindowTitle(GuiHelpers::make_windowTitle("Add Tokens"));
     }
-    else
+    else if (mode == OTPWidget::Mode::Override)
     {
         this->setWindowTitle(GuiHelpers::make_windowTitle("Edit Tokens"));
+    }
+    else
+    {
+        this->setWindowTitle(GuiHelpers::make_windowTitle("Export Tokens"));
     }
     this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
 
@@ -323,20 +327,22 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     {
         titleBar = GuiHelpers::make_titlebar("Add Tokens", buttons, windowControls);
     }
-    else
+    else if (mode == OTPWidget::Mode::Override)
     {
         titleBar = GuiHelpers::make_titlebar("Edit Tokens", buttons, windowControls);
+    }
+    else
+    {
+        titleBar = GuiHelpers::make_titlebar("Export Tokens", buttons, windowControls);
+
+        saveButton()->setDisabled(true);
+        saveButton()->setVisible(false);
     }
     vbox->addWidget(titleBar.get());
 
     tokenEditWidget = std::make_shared<OTPWidget>(OTPWidget::Mode::Edit);
     tokenEditWidget->setContentsMargins(3,3,3,3);
     vbox->addWidget(tokenEditWidget.get());
-
-    if (_mode == OTPWidget::Mode::Override)
-    {
-        // tokenEditWidget->tokens()->setColumnHidden(7, true);
-    }
 
     btnMenu = std::make_shared<QMenu>();
     btnDeleteIcon = std::make_shared<QAction>();
@@ -373,12 +379,44 @@ TokenEditor::~TokenEditor()
     importActions.clear();
 }
 
+QPushButton *TokenEditor::saveButton()
+{
+    return windowControls[0].get();
+}
+
 void TokenEditor::linkTokens(std::vector<OTPToken*> tokens)
 {
+    // delete previous linked tokens
+    for (auto i = 0; i < tokenEditWidget->tokens()->rowCount(); i++)
+    {
+        deleteRow(i);
+    }
+
+    // update links
     _linkedTokens = tokens;
     for (auto&& token : tokens)
     {
         addNewToken(token);
+    }
+
+    // disable editing in export mode
+    if (_mode == OTPWidget::Mode::Export)
+    {
+        for (auto i = 0; i < tokenEditWidget->tokens()->rowCount(); i++)
+        {
+            tokenEditWidget->tokens()->tokenEditType(i)->setDisabled(true);
+            QObject::disconnect(tokenEditWidget->tokens()->tokenEditIcon(i), nullptr, nullptr, nullptr);
+            tokenEditWidget->tokens()->tokenEditLabel(i)->setReadOnly(true);
+            tokenEditWidget->tokens()->tokenEditSecret(i)->setDisabled(true);
+            if (tokenEditWidget->tokens()->tokenEditSecretComboBoxExtra(i))
+            {
+                tokenEditWidget->tokens()->tokenEditSecretComboBoxExtra(i)->setDisabled(true);
+            }
+            tokenEditWidget->tokens()->tokenDigits(i)->setDisabled(true);
+            tokenEditWidget->tokens()->tokenPeriod(i)->setDisabled(true);
+            tokenEditWidget->tokens()->tokenCounter(i)->setDisabled(true);
+            tokenEditWidget->tokens()->cellWidget(i, 6)->setDisabled(true);
+        }
     }
 }
 
@@ -449,7 +487,7 @@ void TokenEditor::addNewToken(OTPToken *token)
         btnDeleteIcon->setUserData(0, this->sender()->userData(0));
         btnMenu->popup(QCursor::pos());
     }));
-    if (_mode == OTPWidget::Mode::Override)
+    if (_mode == OTPWidget::Mode::Override || _mode == OTPWidget::Mode::Export)
     {
         tokens->cellWidget(row, 1)->setUserData(2, new TokenOldNameUserData(token->label()));
     }

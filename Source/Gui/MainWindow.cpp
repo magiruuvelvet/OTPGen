@@ -31,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent)
     buttons.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->edit_icon(), "Edit selected tokens", this, [&]{
         editSelectedTokens();
     }));
+    buttons.append(GuiHelpers::make_toolbtn(GuiHelpers::i()->export_icon(), "Export all tokens", this, [&]{
+        exportAllTokens();
+    }));
 
     windowControls += GuiHelpers::make_toolbtn(GuiHelpers::i()->info_icon(), "Info", this, [&]{
         // TODO: implement about dialog
@@ -380,6 +383,34 @@ void MainWindow::editSelectedTokens()
     }
 }
 
+void MainWindow::exportAllTokens()
+{
+    if (tokenExporter)
+    {
+        tokenExporter->show();
+        tokenExporter->activateWindow();
+    }
+    else
+    {
+        tokenExporter = std::make_shared<TokenEditor>(OTPWidget::Mode::Export);
+        tokenExporterHelper = std::make_shared<FramelessContainer>(tokenExporter.get());
+        QObject::connect(tokenExporter.get(), &WidgetBase::closed, this, [&]{
+            tokenExporter.reset();
+            tokenExporterHelper.reset();
+        });
+
+        std::vector<OTPToken*> tokens;
+        for (auto i = 0; i < tokenWidget->tokens()->rowCount(); i++)
+        {
+            tokens.emplace_back(TokenStore::i()->tokenAt(tokenWidget->tokens()->tokenLabel(i)->text().toUtf8().constData()));
+        }
+        tokenExporter->linkTokens(tokens);
+
+        tokenExporter->show();
+        tokenExporter->activateWindow();
+    }
+}
+
 void MainWindow::updateCurrentToken()
 {
     auto timer = qobject_cast<QTimer*>(sender());
@@ -457,6 +488,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (tokenEditor)
     {
         tokenEditor->close();
+    }
+    if (tokenExporter)
+    {
+        tokenExporter->close();
     }
 
     // Save UI state

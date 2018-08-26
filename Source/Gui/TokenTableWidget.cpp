@@ -55,4 +55,22 @@ void TokenTableWidget::paintEvent(QPaintEvent *event)
             }
         }
     }
+
+    else if (mode == Mode::Export)
+    {
+        for (auto i = 0; i < rowCount(); i++)
+        {
+            tokenEditType(i)->setDisabled(true);
+            tokenEditLabel(i)->setReadOnly(true);
+            tokenEditSecret(i)->setDisabled(true);
+            if (tokenEditSecretComboBoxExtra(i))
+            {
+                tokenEditSecretComboBoxExtra(i)->setDisabled(true);
+            }
+            tokenDigits(i)->setDisabled(true);
+            tokenPeriod(i)->setDisabled(true);
+            tokenCounter(i)->setDisabled(true);
+            cellWidget(i, 6)->setDisabled(true);
+        }
+    }
 }

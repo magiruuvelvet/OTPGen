@@ -22,6 +22,7 @@ public:
         View,
         Edit,
         Override,
+        Export,
     };
 
     explicit TokenTableWidget(Mode mode, QWidget *parent = nullptr);

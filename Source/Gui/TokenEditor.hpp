@@ -21,6 +21,8 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
+    QPushButton *saveButton();
+
     void addNewToken();
     void addNewToken(OTPToken *token);
     void saveTokens();

@@ -33,7 +33,7 @@ OTPWidget::OTPWidget(Mode mode, QWidget *parent)
     _tokens->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _tokens->setFocusPolicy(Qt::NoFocus);
 
-    if (mode == Mode::Edit || mode == Mode::Override)
+    if (mode == Mode::Edit || mode == Mode::Override || mode == Mode::Export)
     {
         this->setWindowTitle(GuiHelpers::make_windowTitle("Edit Tokens"));
 
@@ -112,6 +112,11 @@ OTPWidget::OTPWidget(Mode mode, QWidget *parent)
         _tokens->setColumnWidth(1, 95); // Type
         _tokens->setColumnWidth(2, 170); // Label
         _tokens->setColumnWidth(3, 120); // Token
+    }
+
+    if (mode == OTPWidget::Mode::Export)
+    {
+        this->setWindowTitle(GuiHelpers::make_windowTitle("Export Tokens"));
     }
 
     vbox->addWidget(_tokens.get());

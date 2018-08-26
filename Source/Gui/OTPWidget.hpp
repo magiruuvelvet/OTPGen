@@ -21,6 +21,7 @@ public:
         View,
         Edit,
         Override,
+        Export,
     };
     enum class Visibility {
         View,
