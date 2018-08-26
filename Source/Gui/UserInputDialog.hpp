@@ -1,31 +1,37 @@
-#ifndef PASSWORDINPUTDIALOG_HPP
-#define PASSWORDINPUTDIALOG_HPP
+#ifndef USERINPUTDIALOG_HPP
+#define USERINPUTDIALOG_HPP
 
 #include "WidgetBase.hpp"
 #include "GuiHelpers.hpp"
 
 #include <QTextEdit>
 
-class PasswordInputDialog : public WidgetBase
+class UserInputDialog : public WidgetBase
 {
     Q_OBJECT
 
 public:
-    explicit PasswordInputDialog(QWidget *parent = nullptr);
-    ~PasswordInputDialog();
+    enum EchoMode {
+        Default,
+        Password,
+    };
 
+    explicit UserInputDialog(EchoMode mode = Default, QWidget *parent = nullptr);
+    ~UserInputDialog();
+
+    void setEchoMode(EchoMode mode);
     void setDialogNotice(const QString &notice);
-    const QString password() const;
+    const QString text() const;
 
     // blocking execution, application modal
-    // use passwordEntered() to receive entered password
+    // use textEntered() to receive the entered text
     void exec();
 
 signals:
-    void passwordEntered(const QString &password);
+    void textEntered(const QString &password);
 
 private:
-    void sendPassword();
+    void sendText();
 
 private:
     std::shared_ptr<TitleBar> titleBar;
@@ -38,7 +44,7 @@ private:
     QList<std::shared_ptr<QPushButton>> windowControls;
 
     std::shared_ptr<QTextEdit> dialogNotice;
-    std::shared_ptr<QLineEdit> passwordInput;
+    std::shared_ptr<QLineEdit> textInput;
 };
 
-#endif // PASSWORDINPUTDIALOG_HPP
+#endif // USERINPUTDIALOG_HPP

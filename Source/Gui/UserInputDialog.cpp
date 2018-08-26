@@ -1,10 +1,10 @@
-#include "PasswordInputDialog.hpp"
+#include "UserInputDialog.hpp"
 
 #include <QEventLoop>
 
 #include <Config/AppConfig.hpp>
 
-PasswordInputDialog::PasswordInputDialog(QWidget *parent)
+UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
     : WidgetBase(parent)
 {
     this->setWindowFlag(Qt::FramelessWindowHint, true);
@@ -46,14 +46,14 @@ PasswordInputDialog::PasswordInputDialog(QWidget *parent)
     dialogNotice->setWordWrapMode(QTextOption::WordWrap);
     innerVBox->addWidget(dialogNotice.get());
 
-    passwordInput = std::make_shared<QLineEdit>();
-    passwordInput->setFrame(false);
-    passwordInput->setAutoFillBackground(true);
-    passwordInput->setContentsMargins(3,0,3,0);
-    passwordInput->setEchoMode(QLineEdit::Password);
-    passwordInput->setPlaceholderText("Password");
-    QObject::connect(passwordInput.get(), &QLineEdit::returnPressed, this, &PasswordInputDialog::sendPassword);
-    innerVBox->addWidget(passwordInput.get());
+    textInput = std::make_shared<QLineEdit>();
+    textInput->setFrame(false);
+    textInput->setAutoFillBackground(true);
+    textInput->setContentsMargins(3,0,3,0);
+    QObject::connect(textInput.get(), &QLineEdit::returnPressed, this, &UserInputDialog::sendText);
+    innerVBox->addWidget(textInput.get());
+
+    this->setEchoMode(mode);
 
     buttons.append(GuiHelpers::make_toolbtn(QIcon(), QString()));
     buttons.last()->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
@@ -62,7 +62,7 @@ PasswordInputDialog::PasswordInputDialog(QWidget *parent)
         buttons.last()->setStyleSheet("background-color: #777");
     }
     buttons.last()->setText("OK");
-    QObject::connect(buttons.last().get(), &QPushButton::clicked, this, &PasswordInputDialog::sendPassword);
+    QObject::connect(buttons.last().get(), &QPushButton::clicked, this, &UserInputDialog::sendText);
 
     buttonHBox->addWidget(buttons.last().get());
 
@@ -72,40 +72,56 @@ PasswordInputDialog::PasswordInputDialog(QWidget *parent)
     vbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     this->setLayout(vbox.get());
 
-    passwordInput->setFocus();
+    textInput->setFocus();
 }
 
-PasswordInputDialog::~PasswordInputDialog()
+UserInputDialog::~UserInputDialog()
 {
     buttons.clear();
     windowControls.clear();
 }
 
-void PasswordInputDialog::setDialogNotice(const QString &notice)
+void UserInputDialog::setEchoMode(EchoMode mode)
+{
+    switch (mode)
+    {
+        case Default:
+            textInput->setPlaceholderText(QString());
+            textInput->setEchoMode(QLineEdit::Normal);
+            break;
+
+        case Password:
+            textInput->setPlaceholderText("Password");
+            textInput->setEchoMode(QLineEdit::Password);
+            break;
+    }
+}
+
+void UserInputDialog::setDialogNotice(const QString &notice)
 {
     dialogNotice->setPlainText(notice);
 }
 
-const QString PasswordInputDialog::password() const
+const QString UserInputDialog::text() const
 {
-    return passwordInput->text();
+    return textInput->text();
 }
 
-void PasswordInputDialog::exec()
+void UserInputDialog::exec()
 {
     this->setWindowModality(Qt::ApplicationModal);
     this->show();
     this->activateWindow();
 
     QEventLoop block;
-    QObject::connect(this, &PasswordInputDialog::closed, &block, &QEventLoop::quit);
+    QObject::connect(this, &UserInputDialog::closed, &block, &QEventLoop::quit);
     block.exec();
 
     this->setWindowModality(Qt::NonModal);
 }
 
-void PasswordInputDialog::sendPassword()
+void UserInputDialog::sendText()
 {
-    emit passwordEntered(passwordInput->text());
+    emit textEntered(textInput->text());
     this->close();
 }

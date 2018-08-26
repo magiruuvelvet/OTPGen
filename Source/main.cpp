@@ -81,7 +81,7 @@ void exec_commandline_operation(const std::vector<std::string> &args)
 #include <QFileInfo>
 
 #include <Gui/MainWindow.hpp>
-#include <Gui/PasswordInputDialog.hpp>
+#include <Gui/UserInputDialog.hpp>
 
 #include <qtsingleapplication.h>
 #include <qtkeychain/keychain.h>
@@ -105,12 +105,12 @@ const std::vector<std::string> qtargs_to_strvec(const QStringList &args)
 
 int askPass(const QString &dialogNotice, const QString &error, std::string &password, const QApplication *app = nullptr)
 {
-    auto passwordDialog = std::make_shared<PasswordInputDialog>();
+    auto passwordDialog = std::make_shared<UserInputDialog>(UserInputDialog::Password);
     password.clear();
     bool hasPassword = false;
 
     passwordDialog->setDialogNotice(dialogNotice);
-    QObject::connect(passwordDialog.get(), &PasswordInputDialog::passwordEntered, app, [&](const QString &pwd){
+    QObject::connect(passwordDialog.get(), &UserInputDialog::textEntered, app, [&](const QString &pwd){
         password = pwd.toUtf8().constData();
         hasPassword = true;
     });

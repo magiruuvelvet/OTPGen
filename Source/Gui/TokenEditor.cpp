@@ -6,7 +6,7 @@
 
 #include <QFile>
 
-#include "PasswordInputDialog.hpp"
+#include "UserInputDialog.hpp"
 
 #include <Core/TokenDatabase.hpp>
 
@@ -72,9 +72,9 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             {
                 type = Import::andOTP::Encrypted;
 
-                auto passwordDialog = std::make_shared<PasswordInputDialog>();
+                auto passwordDialog = std::make_shared<UserInputDialog>(UserInputDialog::Password);
                 passwordDialog->setDialogNotice("Please enter the decryption password for the given andOTP token database.");
-                QObject::connect(passwordDialog.get(), &PasswordInputDialog::passwordEntered, this, [&](const QString &pwd){
+                QObject::connect(passwordDialog.get(), &UserInputDialog::textEntered, this, [&](const QString &pwd){
                     password = pwd.toUtf8().constData();
                     hasPassword = true;
                 });
@@ -830,7 +830,6 @@ void TokenEditor::deleteRow(int row)
             QString("Are you sure you want to delete <b>%1</b>?").arg(tokens->tokenEditLabel(row)->text()));
         if (res == QMessageBox::Yes)
         {
-            // FIXME: token should not be removed here, but rather marked for deletion (saveTokens)
             const auto oldname = static_cast<TokenOldNameUserData*>(tokens->cellWidget(row, 1)->userData(2))->oldname;
             TokenStore::i()->removeToken(oldname);
             emit tokensSaved();
