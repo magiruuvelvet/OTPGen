@@ -7,6 +7,8 @@
 #include <cereal/external/rapidjson/document.h>
 #include <cereal/external/rapidjson/memorystream.h>
 
+#include <Core/Tools/otpauthURI.hpp>
+
 // SteamGuard JSON schema
 //
 // {
@@ -69,8 +71,13 @@ bool Steam::importFromSteamGuard(const std::string &file, SteamToken &target)
             // if that fails parse the URI and use the base-32 secret directly
             if (object.HasMember("uri"))
             {
-                // TODO: write otpauth uri parser
-                return false;
+                otpauthURI uri(object["uri"].GetString());
+                if (!uri.valid())
+                {
+                    return false;
+                }
+
+                target._secret = uri.secret();
             }
             else
             {
