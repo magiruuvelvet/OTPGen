@@ -243,8 +243,21 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
         }),
     #endif
         GuiHelpers::make_menuAction("otpauth URI", QIcon(), this, [&]{
-            // TODO: implement otpauth uri
-            QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
+            std::string uri;
+            auto inputDialog = std::make_shared<UserInputDialog>();
+            inputDialog->setDialogNotice("Please enter a otpauth:// uri.");
+            QObject::connect(inputDialog.get(), &UserInputDialog::textEntered, this, [&](const QString &text){
+                uri = text.toUtf8().constData();
+            });
+            inputDialog->exec();
+
+            if (uri.empty())
+            {
+                QMessageBox::critical(this, "URI missing", "You didn't entered a otpauth:// uri. Import process will be aborted.");
+                return;
+            }
+
+            process_otpauthURI(uri);
         }),
     };
 
@@ -456,16 +469,15 @@ void TokenEditor::addNewToken(OTPToken *token)
     {
         case OTPToken::TOTP:
             tokens->tokenEditType(row)->setCurrentIndex(0);
-
             tokens->tokenDigits(row)->setText(QString::number(token->digits()));
             tokens->tokenPeriod(row)->setText(QString::number(token->period()));
-            setAlgorithmCbIndex(tokens->tokenEditType(row), token->algorithm());
+            setAlgorithmCbIndex(tokens->tokenAlgorithm(row), token->algorithm());
             break;
         case OTPToken::HOTP:
             tokens->tokenEditType(row)->setCurrentIndex(1);
             tokens->tokenDigits(row)->setText(QString::number(token->digits()));
             tokens->tokenPeriod(row)->setText(QString::number(token->period()));
-            setAlgorithmCbIndex(tokens->tokenEditType(row), token->algorithm());
+            setAlgorithmCbIndex(tokens->tokenAlgorithm(row), token->algorithm());
             break;
         case OTPToken::Steam:
             tokens->tokenEditType(row)->setCurrentIndex(2);
