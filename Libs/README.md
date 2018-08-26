@@ -26,6 +26,13 @@
  - Status: includes custom patches
  - Generates OTP codes
 
+## PlatformFolders
+
+ - URL: [https://github.com/sago007/PlatformFolders](https://github.com/sago007/PlatformFolders)
+ - Status: clean
+ - Only used in the **CLI** version
+ - Alternative to `QStandardPaths` to determine OS standard paths
+
 ## qtkeychain
 
  - URL: [https://github.com/frankosterfeld/qtkeychain](https://github.com/frankosterfeld/qtkeychain)
