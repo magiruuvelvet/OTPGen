@@ -1,5 +1,11 @@
 # Dependency Overview
 
+## bandit
+
+ - URL: [https://github.com/banditcpp/bandit](https://github.com/banditcpp/bandit)
+ - Portable header-only Unit Testing Framework
+ - Required to run the unit tests of this application
+
 ## cereal
 
  - URL: [https://github.com/USCiLab/cereal](https://github.com/USCiLab/cereal)
@@ -39,3 +45,9 @@
  - Status: clean, C++ version
  - QR Code Encoder (only encodes text/binary data)
  - Doesn't support decoding
+
+## qtsingleapplication / qtlockedfile
+
+ - Code taken from Qt Creator 4.7.0 source code
+ - Status: modified, removed namespace
+ - Single instance lock with message sending
