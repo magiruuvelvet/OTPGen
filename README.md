@@ -35,15 +35,14 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 ## Planned
 
- - Import
-   - `otpauth:` uri
-
  - Export
    - `otpauth:` uri
    - QR Code
-   - andOTP
+   - andOTP (encrypted)
 
  - User Settings
+
+ - Get rid of gcrypt in andOTP import, replace with crypto++
 
 <br>
 
