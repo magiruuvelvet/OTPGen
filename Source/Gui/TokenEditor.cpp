@@ -313,12 +313,12 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
         GuiHelpers::make_menuSeparator(),
     #ifdef OTPGEN_WITH_QR_CODES
         GuiHelpers::make_menuAction("QR Code", GuiHelpers::i()->qr_code_icon(), this, [&]{
-            // TODO: implement otpauth uri
+            // TODO: export qr codes
             QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
         }),
     #endif
         GuiHelpers::make_menuAction("otpauth URI", QIcon(), this, [&]{
-            // TODO: implement otpauth uri
+            // TODO: export otpauth uris
             QMessageBox::information(this, "Not Implemented", "This feature is not implemented yet.");
         }),
     };

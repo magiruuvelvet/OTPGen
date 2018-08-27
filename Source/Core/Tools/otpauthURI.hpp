@@ -30,9 +30,6 @@
  *
  */
 
-// TODO: currently only parsing is supported
-// TODO: write generator
-
 class OTPToken;
 
 class otpauthURI
