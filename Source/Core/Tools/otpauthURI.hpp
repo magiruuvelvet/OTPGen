@@ -33,6 +33,8 @@
 // TODO: currently only parsing is supported
 // TODO: write generator
 
+class OTPToken;
+
 class otpauthURI
 {
     class UriComponent;
@@ -41,6 +43,17 @@ public:
     otpauthURI();
     otpauthURI(const std::string &uri);
     ~otpauthURI();
+
+    static otpauthURI fromOtpToken(const OTPToken *token);
+
+    inline const std::string to_s() const
+    {
+        if (this->valid())
+        {
+            return OTPAUTH_PREFIX + uri;
+        }
+        return std::string();
+    }
 
     enum Type {
         Invalid = -1,

@@ -1,5 +1,7 @@
 #include "otpauthURI.hpp"
 
+#include <Core/OTPToken.hpp>
+
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -126,6 +128,60 @@ otpauthURI::otpauthURI(const std::string &uri)
     }
 }
 
+otpauthURI::~otpauthURI()
+{
+    uri.clear();
+    _label.clear();
+    _params.clear();
+}
+
+otpauthURI otpauthURI::fromOtpToken(const OTPToken *token)
+{
+    if (!token)
+    {
+        return otpauthURI();
+    }
+
+    auto t = const_cast<OTPToken*>(token);
+
+    std::string uri = OTPAUTH_PREFIX;
+
+    switch (t->type())
+    {
+        case OTPToken::TOTP:  uri.append("totp/"); break;
+        case OTPToken::HOTP:  uri.append("hotp/"); break;
+        case OTPToken::Authy: uri.append("totp/"); break;
+        case OTPToken::Steam: uri.append("totp/"); break;
+        default: return otpauthURI(); break;
+    }
+
+    UriComponent label(t->label());
+    uri.append(label.encoded());
+
+    uri.append("?");
+    uri.append("secret=" + t->secret());
+
+    if (t->type() != OTPToken::Steam)
+    {
+        uri.append("&");
+        uri.append("digits=" + std::to_string(t->digits()));
+
+        uri.append("&");
+        uri.append("period=" + std::to_string(t->period()));
+
+        if (t->type() == OTPToken::HOTP)
+        {
+            uri.append("&");
+            uri.append("counter=" + std::to_string(t->counter()));
+        }
+
+        uri.append("&");
+        uri.append("algorithm=" + t->algorithmString());
+    }
+
+    return otpauthURI(uri);
+}
+
 std::uint8_t otpauthURI::digitsNumber() const
 {
     return static_cast<std::uint8_t>(std::stoul(digits()));
@@ -139,13 +195,6 @@ std::uint32_t otpauthURI::counterNumber() const
 std::uint32_t otpauthURI::periodNumber() const
 {
     return static_cast<std::uint32_t>(std::stoul(period()));
-}
-
-otpauthURI::~otpauthURI()
-{
-    uri.clear();
-    _label.clear();
-    _params.clear();
 }
 
 void otpauthURI::setTypeEnum(const std::string &type)
@@ -196,11 +245,11 @@ const std::string otpauthURI::UriComponent::encoded() const
     {
         c = chars[i];
         ic = c;
-        if (c == ' ')
-        {
-            new_str += '+';
-        }
-        else if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
+//        if (c == ' ')
+//        {
+//            new_str += '+';
+//        }
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
         {
             new_str += c;
         }
