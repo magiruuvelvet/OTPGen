@@ -12,8 +12,8 @@ using namespace bandit;
 #include <Core/HOTPToken.hpp>
 
 go_bandit([]{
-    describe("otpauth URI Tests", []{
-        it("parse valid 1", [&]{
+    describe("otpauth URI Test", []{
+        it("[parse valid 1]", [&]{
             otpauthURI uri("otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example");
             AssertThat(uri.valid(), Equals(true));
             AssertThat(uri.label(), Equals(std::string("Example:alice@google.com")));
@@ -22,7 +22,7 @@ go_bandit([]{
             AssertThat(uri.algorithm(), Equals(std::string("SHA1")));
         });
 
-        it("parse valid 2", [&]{
+        it("[parse valid 2]", [&]{
             otpauthURI uri("otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA256&digits=6&period=30");
             AssertThat(uri.valid(), Equals(true));
             AssertThat(uri.label(), Equals(std::string("ACME Co:john.doe@email.com")));
@@ -31,12 +31,12 @@ go_bandit([]{
             AssertThat(uri.algorithm(), Equals(std::string("SHA256")));
         });
 
-        it("parse invalid", [&]{
+        it("[parse invalid]", [&]{
             otpauthURI uri("otpauth://totp/Label?");
             AssertThat(uri.valid(), Equals(false));
         });
 
-        it("write totp", [&]{
+        it("[write totp]", [&]{
             TOTPToken totp("Label with space");
             totp.secret() = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ";
             const auto uri = otpauthURI::fromOtpToken(&totp);
@@ -44,7 +44,7 @@ go_bandit([]{
             AssertThat(uri.to_s(), Equals(std::string("otpauth://totp/Label%20with%20space?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&digits=6&period=30&algorithm=SHA1")));
         });
 
-        it("write hotp", [&]{
+        it("[write hotp]", [&]{
             HOTPToken hotp("Label with space");
             hotp.secret() = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ";
             const auto uri = otpauthURI::fromOtpToken(&hotp);
