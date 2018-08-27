@@ -11,6 +11,8 @@ using namespace bandit;
 #include "qr-code-test.hpp"
 #endif
 
+#include "otpauth-tests.hpp"
+
 int main(int argc, char **argv)
 {
     std::cout << "OTPGen Unit Tests" << std::endl << std::endl;
