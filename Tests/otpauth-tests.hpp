@@ -8,8 +8,8 @@ using namespace bandit;
 
 #include <Core/Tools/otpauthURI.hpp>
 
-#include <Core/TOTPToken.hpp>
-#include <Core/HOTPToken.hpp>
+#include <Core/Tokens/TOTPToken.hpp>
+#include <Core/Tokens/HOTPToken.hpp>
 
 go_bandit([]{
     describe("otpauth URI Test", []{
@@ -38,7 +38,7 @@ go_bandit([]{
 
         it("[write totp]", [&]{
             TOTPToken totp("Label with space");
-            totp.secret() = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ";
+            totp.setSecret("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ");
             const auto uri = otpauthURI::fromOtpToken(&totp);
             AssertThat(uri.label(), Equals(std::string("Label with space")));
             AssertThat(uri.to_s(), Equals(std::string("otpauth://totp/Label%20with%20space?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&digits=6&period=30&algorithm=SHA1")));
@@ -46,7 +46,7 @@ go_bandit([]{
 
         it("[write hotp]", [&]{
             HOTPToken hotp("Label with space");
-            hotp.secret() = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ";
+            hotp.setSecret("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ");
             const auto uri = otpauthURI::fromOtpToken(&hotp);
             AssertThat(uri.label(), Equals(std::string("Label with space")));
             AssertThat(uri.to_s(), Equals(std::string("otpauth://hotp/Label%20with%20space?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&digits=6&period=0&counter=0&algorithm=SHA1")));
