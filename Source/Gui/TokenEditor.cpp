@@ -53,7 +53,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     importMenu = std::make_shared<QMenu>();
     importActions = {
         GuiHelpers::make_menuAction("andOTP", QIcon(":/GuiAssets/logos/andotp.svgz"), this, [&]{
-            std::vector<TOTPToken> target;
+            std::vector<OTPToken*> target;
             auto file = QFileDialog::getOpenFileName(this, "Open andOTP token file", QString(),
                 "otp_accounts.json (Plain Text) (otp_accounts.json);;"
                 "otp_accounts.json.aes (Encrypted) (otp_accounts.json.aes)");
@@ -92,13 +92,14 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 }
             }
 
-            status = Import::andOTP::importTOTP(file.toUtf8().constData(), target, type, password);
+            status = Import::andOTP::importTokens(file.toUtf8().constData(), target, type, password);
             password.clear();
             if (status)
             {
                 for(auto&& t : target)
                 {
-                    addNewToken(&t);
+                    addNewToken(t);
+                    delete t;
                 }
             }
             else
@@ -300,7 +301,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 return;
             }
 
-            const auto res = Import::andOTP::exportTOTP(file.toUtf8().constData(), this->availableTokens());
+            const auto res = Import::andOTP::exportTokens(file.toUtf8().constData(), this->availableTokens());
             if (res)
             {
                 QMessageBox::information(this, "andOTP", "Successfully exported an andOTP json file!");
@@ -672,7 +673,7 @@ void TokenEditor::saveTokens()
         }
         else if (type == OTPToken::Steam)
         {
-            algorithm = OTPToken::Invalid;
+            algorithm = OTPToken::SHA1;
         }
         else if (type == OTPToken::Authy)
         {

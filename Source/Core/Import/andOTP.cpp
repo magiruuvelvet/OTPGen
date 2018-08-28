@@ -17,12 +17,14 @@
 // andOTP token entry schema
 // JSON array
 //
+// see also: https://github.com/andOTP/andOTP/wiki/Special-features
+//
 // {
 //     "secret": "",
 //     "label": "",
 //     "period": 30,
 //     "digits": 6,
-//     "type": "TOTP",
+//     "type": "TOTP/HOTP/STEAM",
 //     "algorithm": "SHA1",
 //     "thumbnail": "Default",
 //     "last_used": 0,
@@ -46,7 +48,7 @@ void andOTP::gcrypt_init()
     }
 }
 
-bool andOTP::importTOTP(const std::string &file, std::vector<TOTPToken> &target, const Type &type, const std::string &password)
+bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &target, const Type &type, const std::string &password)
 {
     // read file contents into memory
     std::string out;
@@ -95,31 +97,56 @@ bool andOTP::importTOTP(const std::string &file, std::vector<TOTPToken> &target,
         auto array = json.GetArray();
         for (auto&& elem : array)
         {
-            // (TODO)
-            // andOTP may support other OTP types in the future
-            // because this property exists; skip non-TOTP tokens for now
-            if (!elem.HasMember("type") || std::string(elem["type"].GetString()) != "TOTP")
-            {
-                continue;
-            }
-
             // check if object has all andOTP members
-            if (!(elem.HasMember("secret") &&
-                elem.HasMember("label") &&
+            if (!(elem.HasMember("type") &&
+                elem.HasMember("secret") &&
+                elem.HasMember("label")/* &&
                 elem.HasMember("period") &&
                 elem.HasMember("digits") &&
-                elem.HasMember("algorithm")))
+                elem.HasMember("algorithm")*/))
             {
                 continue;
             }
 
-            TOTPToken token;
-            token._secret = elem["secret"].GetString();
-            token._label = elem["label"].GetString();
-            token._period = elem["period"].GetUint();
-            token._digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
-            token.setAlgorithmFromString(elem["algorithm"].GetString());
-            target.push_back(token);
+            try {
+
+            const auto typeStr = std::string(elem["type"].GetString());
+
+            if (typeStr == "TOTP")
+            {
+                auto token = new TOTPToken();
+                token->_secret = elem["secret"].GetString();
+                token->_label = elem["label"].GetString();
+                token->_period = elem["period"].GetUint();
+                token->_digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
+                token->setAlgorithmFromString(elem["algorithm"].GetString());
+                target.push_back(token);
+            }
+            else if (typeStr == "HOTP")
+            {
+                auto token = new HOTPToken();
+                token->_secret = elem["secret"].GetString();
+                token->_label = elem["label"].GetString();
+                token->_counter = elem["counter"].GetUint();
+                token->_digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
+                token->setAlgorithmFromString(elem["algorithm"].GetString());
+                target.push_back(token);
+            }
+            else if (typeStr == "STEAM")
+            {
+                auto token = new SteamToken();
+                token->_secret = elem["secret"].GetString();
+                token->_label = elem["label"].GetString();
+                target.push_back(token);
+            }
+            else
+            {
+                continue;
+            }
+
+            } catch (...) {
+                continue;
+            }
         }
     } catch (...) {
         // catch all rapidjson exceptions
@@ -129,28 +156,46 @@ bool andOTP::importTOTP(const std::string &file, std::vector<TOTPToken> &target,
     return true;
 }
 
-bool andOTP::exportTOTP(const std::string &target, const std::vector<OTPToken*> &tokens)
+bool andOTP::exportTokens(const std::string &target, const std::vector<OTPToken*> &tokens)
 {
     try {
         rapidjson::Document json(rapidjson::kArrayType);
 
         for (auto&& token : tokens)
         {
-            if (token->type() == OTPToken::TOTP ||
-                token->type() == OTPToken::Authy)
+            rapidjson::Value value(rapidjson::kObjectType);
+            value.AddMember("secret", rapidjson::Value(token->secret().c_str(), json.GetAllocator()), json.GetAllocator());
+            value.AddMember("label", rapidjson::Value(token->label().c_str(), json.GetAllocator()), json.GetAllocator());
+            value.AddMember("period", token->period(), json.GetAllocator());
+            value.AddMember("digits", token->digits(), json.GetAllocator());
+
+            if (token->type() == OTPToken::HOTP)
             {
-                rapidjson::Value value(rapidjson::kObjectType);
-                value.AddMember("secret", rapidjson::Value(token->secret().c_str(), json.GetAllocator()), json.GetAllocator());
-                value.AddMember("label", rapidjson::Value(token->label().c_str(), json.GetAllocator()), json.GetAllocator());
-                value.AddMember("period", token->period(), json.GetAllocator());
-                value.AddMember("digits", token->digits(), json.GetAllocator());
-                value.AddMember("type", "TOTP", json.GetAllocator());
-                value.AddMember("algorithm", rapidjson::Value(token->algorithmString().c_str(), json.GetAllocator()), json.GetAllocator());
-                value.AddMember("thumbnail", "Default", json.GetAllocator());
-                value.AddMember("last_used", 0, json.GetAllocator());
-                value.AddMember("tags", rapidjson::Value(rapidjson::kArrayType), json.GetAllocator());
-                json.PushBack(value, json.GetAllocator());
+                value.AddMember("type", "HOTP", json.GetAllocator());
             }
+            else if (token->type() == OTPToken::Steam)
+            {
+                value.AddMember("type", "STEAM", json.GetAllocator());
+            }
+            else
+            {
+                value.AddMember("type", "TOTP", json.GetAllocator());
+            }
+
+            if (token->type() == OTPToken::Steam)
+            {
+                value.AddMember("algorithm", "SHA1", json.GetAllocator());
+                value["digits"].SetUint(5);
+            }
+            else
+            {
+                value.AddMember("algorithm", rapidjson::Value(token->algorithmString().c_str(), json.GetAllocator()), json.GetAllocator());
+            }
+
+            value.AddMember("thumbnail", "Default", json.GetAllocator());
+            value.AddMember("last_used", 0, json.GetAllocator());
+            value.AddMember("tags", rapidjson::Value(rapidjson::kArrayType), json.GetAllocator());
+            json.PushBack(value, json.GetAllocator());
         }
 
         rapidjson::StringBuffer buffer;

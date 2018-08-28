@@ -101,6 +101,19 @@ const std::string OTPToken::algorithmString() const
     return sha_enum_to_str();
 }
 
+const std::string OTPToken::typeString() const
+{
+    switch (_type)
+    {
+        case TOTP: return "TOTP";
+        case HOTP: return "HOTP";
+        case Authy: return "Authy";
+        case Steam: return "Steam";
+    }
+
+    return "";
+}
+
 void OTPToken::setAlgorithmFromString(const std::string &_algo)
 {
     std::string algo = _algo;

@@ -1,7 +1,7 @@
 #ifndef ANDOTP_HPP
 #define ANDOTP_HPP
 
-#include <Core/TOTPToken.hpp>
+#include <Core/Tokens.hpp>
 
 #include <vector>
 
@@ -23,8 +23,8 @@ public:
         Encrypted,
     };
 
-    static bool importTOTP(const std::string &file, std::vector<TOTPToken> &target, const Type &type = PlainText, const std::string &password = std::string());
-    static bool exportTOTP(const std::string &target, const std::vector<OTPToken*> &tokens);
+    static bool importTokens(const std::string &file, std::vector<OTPToken*> &target, const Type &type = PlainText, const std::string &password = std::string());
+    static bool exportTokens(const std::string &target, const std::vector<OTPToken*> &tokens);
 
 private:
     static const std::string sha256_password(const std::string &password);

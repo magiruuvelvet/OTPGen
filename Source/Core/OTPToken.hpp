@@ -86,6 +86,8 @@ public:
     void setAlgorithmFromString(const std::string &algo);
     const std::string algorithmString() const;
 
+    const std::string typeString() const;
+
 #ifdef OTPGEN_DEBUG
     const std::string debug() const;
 #endif

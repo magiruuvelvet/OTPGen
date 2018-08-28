@@ -16,10 +16,10 @@ SteamToken::SteamToken()
     _type = Steam;
     _name = "Steam";
 
-    _digits = 0U; // digits is not used in Steam TOTP
+    _digits = 5U; // digits is not used in Steam TOTP
     _period = 30U;
     _counter = 0U; // counter is not used in Steam TOTP
-    _algorithm = Invalid; // Steam TOTP can only have a single algorithm
+    _algorithm = SHA1; // Steam TOTP can only have a single algorithm
 }
 
 SteamToken::SteamToken(const Label &label)
