@@ -1,6 +1,6 @@
 #include "otpauthURI.hpp"
 
-#include <Core/OTPToken.hpp>
+#include <Core/Tokens/OTPToken.hpp>
 
 #include <cstring>
 #include <vector>

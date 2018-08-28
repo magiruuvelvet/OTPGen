@@ -18,8 +18,6 @@
 #include <cereal/types/memory.hpp>
 #include <cereal/archives/portable_binary.hpp>
 
-#include "Migration/TokenArchiveVersions.hpp"
-
 namespace {
     static const std::string TOKEN_ARCHIVE_MAGIC = "OTPTokenArchive";
     static const uint32_t TOKEN_ARCHIVE_VERSION = 0x02;
@@ -213,7 +211,6 @@ TokenDatabase::Error TokenDatabase::loadTokens()
 #endif
 
     TokenDataAdapter<> data;
-//    TokenDataAdapter<TokenDataV1> data_v1;
     cereal::PortableBinaryInputArchive archive(buffer);
     try {
         archive(data);
@@ -225,16 +222,6 @@ TokenDatabase::Error TokenDatabase::loadTokens()
     {
         return InvalidTokenFile;
     }
-
-//    if (data.archiveVersion == 0x01)
-//    {
-//        try {
-//            buffer.seekg(0);
-//            archive(data_v1);
-//        } catch (cereal::Exception e) {
-//            return InvalidTokenFile;
-//        }
-//    }
 
     TokenStore::i()->clear();
 

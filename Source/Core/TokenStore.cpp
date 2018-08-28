@@ -116,7 +116,7 @@ bool TokenStore::renameToken(const OTPToken::Label &oldLabel, const OTPToken::La
     {
         if (token->label() == oldLabel)
         {
-            token->label() = newLabel;
+            token->setLabel(newLabel);
             return true;
         }
     }

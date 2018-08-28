@@ -9,6 +9,10 @@ public:
     HOTPToken();
     HOTPToken(const Label &label);
 
+    // token validity period
+    inline void setPeriod(const PeriodType &)
+    { this->_period = 0U; }
+
     const TokenString generateToken(Error *error = nullptr) const override;
 
 private:

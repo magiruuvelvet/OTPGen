@@ -119,7 +119,7 @@ bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &targe
                 token->_label = elem["label"].GetString();
                 token->_period = elem["period"].GetUint();
                 token->_digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
-                token->setAlgorithmFromString(elem["algorithm"].GetString());
+                token->setAlgorithm(elem["algorithm"].GetString());
                 target.push_back(token);
             }
             else if (typeStr == "HOTP")
@@ -129,7 +129,7 @@ bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &targe
                 token->_label = elem["label"].GetString();
                 token->_counter = elem["counter"].GetUint();
                 token->_digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
-                token->setAlgorithmFromString(elem["algorithm"].GetString());
+                token->setAlgorithm(elem["algorithm"].GetString());
                 target.push_back(token);
             }
             else if (typeStr == "STEAM")

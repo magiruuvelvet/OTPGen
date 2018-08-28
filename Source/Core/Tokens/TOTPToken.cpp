@@ -1,33 +1,26 @@
-#include "HOTPToken.hpp"
+#include "TOTPToken.hpp"
 
-extern "C" {
-    #include <libcotp/cotp.h>
-}
+#include "Internal/libcotpsupport.hpp"
 
-// undefine conflicting macros
-#undef SHA1
-#undef SHA256
-#undef SHA512
-
-HOTPToken::HOTPToken()
+TOTPToken::TOTPToken()
 {
-    // set HOTP defaults
-    _type = HOTP;
-    _name = "HOTP";
+    // set TOTP defaults
+    _type = TOTP;
+    _typeName = "TOTP";
 
     _digits = 6U;
-    _period = 0U; // period is not used in HOTP
-    _counter = 0U;
+    _period = 30U;
+    _counter = 0U; // counter is not used in TOTP
     _algorithm = SHA1;
 }
 
-HOTPToken::HOTPToken(const Label &label)
-    : HOTPToken()
+TOTPToken::TOTPToken(const Label &label)
+    : TOTPToken()
 {
     _label = label;
 }
 
-const HOTPToken::TokenString HOTPToken::generateToken(Error *error) const
+const TOTPToken::TokenString TOTPToken::generateToken(Error *error) const
 {
     if (error)
     {
@@ -42,9 +35,9 @@ const HOTPToken::TokenString HOTPToken::generateToken(Error *error) const
 
     cotp_error_t cotp_err = cotp_error_t::VALID;
 
-    auto token = get_hotp(_secret.c_str(),
-                          static_cast<int>(_counter),
+    auto token = get_totp(_secret.c_str(),
                           static_cast<int>(_digits),
+                          static_cast<int>(_period),
                           sha_enum_to_gcrypt(),
                           &cotp_err);
 

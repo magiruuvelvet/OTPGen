@@ -1,7 +1,7 @@
 #ifndef STEAM_HPP
 #define STEAM_HPP
 
-#include <Core/SteamToken.hpp>
+#include <Core/Tokens/SteamToken.hpp>
 
 namespace Import {
 

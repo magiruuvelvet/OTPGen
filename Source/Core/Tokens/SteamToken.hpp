@@ -9,6 +9,24 @@ public:
     SteamToken();
     SteamToken(const Label &label);
 
+    // token algorithm
+    inline void setAlgorithm(const ShaAlgorithm &)
+    { this->_algorithm = SHA1; }
+    void setAlgorithm(const std::string &)
+    { this->_algorithm = SHA1; }
+
+    // digit length
+    inline void setDigitLength(const DigitType &)
+    { this->_digits = 5U; }
+
+    // token validity period
+    inline void setPeriod(const PeriodType &)
+    { this->_period = 30U; }
+
+    // token counter
+    inline void setCounter(const CounterType &)
+    { this->_counter = 0U; }
+
     // Steam tokens are stored in base-64 (RFC 3548, RFC 4648) on the device,
     // but the library libcotp only supports base-32 (RFC 4648) input.
     // For convenience let the user input the base-64 token and convert it

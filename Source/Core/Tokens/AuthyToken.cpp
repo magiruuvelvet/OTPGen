@@ -4,7 +4,7 @@ AuthyToken::AuthyToken()
 {
     // set Authy TOTP defaults
     _type = Authy;
-    _name = "Authy";
+    _typeName = "Authy";
 
     _digits = 7U;
     _period = 10U;

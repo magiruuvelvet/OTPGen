@@ -62,31 +62,56 @@ public:
         INVALID_PERIOD          = 6,
     };
 
-    const TokenType &type() const;   // token type
-    const std::string &name() const; // token name (type)
+    // token type
+    inline const TokenType &type() const
+    { return _type; }
+    // token name (type)
+    inline const std::string &typeString() const
+    { return _typeName; }
 
-    Label &label();                  // display name (label)
-    Icon &icon();                    // custom user icon (GUI only)
-
-    SecretType &secret();            // base-32 encoded secret
-    DigitType &digits();             // digit length
-    PeriodType &period();            // token validity period
-    CounterType &counter();          // token counter
-    ShaAlgorithm &algorithm();       // token algorithm
-
-    inline const Label &getLabel() const
+    // display name (label)
+    inline void setLabel(const Label &label)
+    { this->_label = label; }
+    inline const Label &label() const
     { return _label; }
 
-    inline const DigitType &getDigits() const
+    // custom user icon (GUI only)
+    inline void setIcon(const Icon &icon)
+    { this->_icon = icon; }
+    const Icon &icon() const
+    { return _icon; }
+
+    // base-32 encoded secret
+    inline void setSecret(const SecretType &secret)
+    { this->_secret = secret; }
+    inline const SecretType &secret() const
+    { return _secret; }
+
+    // digit length
+    inline void setDigitLength(const DigitType &digits)
+    { this->_digits = digits; }
+    inline const DigitType &digits() const
     { return _digits; }
 
-    inline const PeriodType &getPeriod() const
+    // token validity period
+    inline void setPeriod(const PeriodType &period)
+    { this->_period = period; }
+    inline const PeriodType &period() const
     { return _period; }
 
-    void setAlgorithmFromString(const std::string &algo);
-    const std::string algorithmString() const;
+    // token counter
+    inline void setCounter(const CounterType &counter)
+    { this->_counter = counter; }
+    inline const CounterType &counter() const
+    { return _counter; }
 
-    const std::string typeString() const;
+    // token algorithm
+    inline void setAlgorithm(const ShaAlgorithm &algo)
+    { this->_algorithm = algo; }
+    void setAlgorithm(const std::string &algo);
+    const ShaAlgorithm &algorithm() const
+    { return _algorithm; }
+    const std::string algorithmString() const;
 
 #ifdef OTPGEN_DEBUG
     const std::string debug() const;
@@ -100,13 +125,12 @@ public:
 
 protected:
     int sha_enum_to_gcrypt() const;
-    const std::string sha_enum_to_str() const;
 
     // returns true when secret empty
     static bool check_empty(const TokenString &secret, Error *error = nullptr);
 
     TokenType _type = None;
-    std::string _name = "None";
+    std::string _typeName = "None";
 
     Label _label = Label();
     Icon _icon = Icon();

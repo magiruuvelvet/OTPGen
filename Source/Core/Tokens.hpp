@@ -3,9 +3,9 @@
 
 // include all tokens at once
 
-#include "TOTPToken.hpp"
-#include "HOTPToken.hpp"
-#include "SteamToken.hpp"
-#include "AuthyToken.hpp"
+#include "Tokens/TOTPToken.hpp"
+#include "Tokens/HOTPToken.hpp"
+#include "Tokens/SteamToken.hpp"
+#include "Tokens/AuthyToken.hpp"
 
 #endif // TOKENS_HPP

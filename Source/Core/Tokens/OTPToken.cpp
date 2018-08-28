@@ -1,8 +1,12 @@
 #include "OTPToken.hpp"
 
 #include <algorithm>
-#include <gcrypt.h>
 
+extern "C" {
+    #include <gcrypt.h>
+}
+
+// limits of libcotp
 const int OTPToken::min_digits = 3;
 const int OTPToken::max_digits = 10;
 const int OTPToken::min_period = 1;
@@ -13,13 +17,13 @@ const int OTPToken::max_counter = 0x7FFFFFFF;
 OTPToken::OTPToken()
 {
     _type = None;
-    _name.clear();
+    _typeName.clear();
 }
 
 OTPToken::OTPToken(const OTPToken *other)
 {
     _type = other->_type;
-    _name = other->_name;
+    _typeName = other->_typeName;
 
     _label = other->_label;
     _icon = other->_icon;
@@ -39,7 +43,7 @@ OTPToken::OTPToken(const Label &label)
 OTPToken::~OTPToken()
 {
     _type = None;
-    _name.clear();
+    _typeName.clear();
 
     _label.clear();
     _icon.clear();
@@ -51,70 +55,8 @@ OTPToken::~OTPToken()
     _algorithm = Invalid;
 }
 
-const OTPToken::TokenType &OTPToken::type() const
-{
-    return _type;
-}
 
-const std::string &OTPToken::name() const
-{
-    return _name;
-}
-
-OTPToken::Label &OTPToken::label()
-{
-    return _label;
-}
-
-OTPToken::Icon &OTPToken::icon()
-{
-    return _icon;
-}
-
-OTPToken::SecretType &OTPToken::secret()
-{
-    return _secret;
-}
-
-OTPToken::DigitType &OTPToken::digits()
-{
-    return _digits;
-}
-
-OTPToken::PeriodType &OTPToken::period()
-{
-    return _period;
-}
-
-OTPToken::CounterType &OTPToken::counter()
-{
-    return _counter;
-}
-
-OTPToken::ShaAlgorithm &OTPToken::algorithm()
-{
-    return _algorithm;
-}
-
-const std::string OTPToken::algorithmString() const
-{
-    return sha_enum_to_str();
-}
-
-const std::string OTPToken::typeString() const
-{
-    switch (_type)
-    {
-        case TOTP: return "TOTP";
-        case HOTP: return "HOTP";
-        case Authy: return "Authy";
-        case Steam: return "Steam";
-    }
-
-    return "";
-}
-
-void OTPToken::setAlgorithmFromString(const std::string &_algo)
+void OTPToken::setAlgorithm(const std::string &_algo)
 {
     std::string algo = _algo;
     std::transform(algo.begin(), algo.end(), algo.begin(), [](unsigned char c) {
@@ -139,19 +81,31 @@ void OTPToken::setAlgorithmFromString(const std::string &_algo)
     }
 }
 
+const std::string OTPToken::algorithmString() const
+{
+    switch (_algorithm)
+    {
+        case SHA1:    return "SHA1";
+        case SHA256:  return "SHA256";
+        case SHA512:  return "SHA512";
+    }
+
+    return "(invalid)";
+}
+
 #ifdef OTPGEN_DEBUG
 #include <sstream>
 const std::string OTPToken::debug() const
 {
     std::stringstream msg;
     msg << "OTPToken {\n";
-    msg << "  type      = " << _name << "\n";
+    msg << "  type      = " << _typeName << "\n";
     msg << "  label     = " << _label << "\n";
     msg << "  secret    = " << (_secret.empty() ? "(empty)" : "(not empty)") << "\n";
     msg << "  digits    = " << std::to_string(_digits) << "\n";
     msg << "  period    = " << std::to_string(_period) << "\n";
     msg << "  counter   = " << std::to_string(_counter) << "\n";
-    msg << "  algorithm = " << sha_enum_to_str() << "\n";
+    msg << "  algorithm = " << algorithmString() << "\n";
     msg << "}";
     return msg.str();
 }
@@ -176,20 +130,6 @@ int OTPToken::sha_enum_to_gcrypt() const
     }
 
     return GCRY_MD_NONE;
-}
-
-const std::string OTPToken::sha_enum_to_str() const
-{
-    switch (_algorithm)
-    {
-        case SHA1:    return "SHA1";
-        case SHA256:  return "SHA256";
-        case SHA512:  return "SHA512";
-
-        case Invalid: return "(invalid)";
-    }
-
-    return "(invalid)";
 }
 
 bool OTPToken::check_empty(const TokenString &secret, Error *error)

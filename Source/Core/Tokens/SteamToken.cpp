@@ -1,20 +1,12 @@
 #include "SteamToken.hpp"
 
-extern "C" {
-    #include <libcotp/cotp.h>
-    #include <libbaseencode/baseencode.h>
-}
-
-// undefine conflicting macros
-#undef SHA1
-#undef SHA256
-#undef SHA512
+#include "Internal/libcotpsupport.hpp"
 
 SteamToken::SteamToken()
 {
     // set Steam TOTP defaults
     _type = Steam;
-    _name = "Steam";
+    _typeName = "Steam";
 
     _digits = 5U; // digit count is always 5
     _period = 30U; // period is always 30 seconds
@@ -86,7 +78,7 @@ const SteamToken::TokenString SteamToken::generateToken(Error *error) const
 
     // Steam secret must be in base-32
     auto token = get_steam_totp(_secret.c_str(),
-                                _period,
+                                30,
                                 &cotp_err);
 
     if (token && cotp_err == cotp_error_t::VALID)

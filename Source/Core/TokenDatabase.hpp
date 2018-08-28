@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "OTPToken.hpp"
+#include "Tokens/OTPToken.hpp"
 
 #ifdef OTPGEN_DEBUG
 #include <iostream>

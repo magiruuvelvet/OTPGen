@@ -9,6 +9,10 @@ public:
     TOTPToken();
     TOTPToken(const Label &label);
 
+    // token counter
+    inline void setCounter(const CounterType &)
+    { this->_counter = 0U; }
+
     const TokenString generateToken(Error *error = nullptr) const override;
 
 private:
