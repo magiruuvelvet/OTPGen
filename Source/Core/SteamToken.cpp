@@ -16,8 +16,8 @@ SteamToken::SteamToken()
     _type = Steam;
     _name = "Steam";
 
-    _digits = 5U; // digits is not used in Steam TOTP
-    _period = 30U;
+    _digits = 5U; // digit count is always 5
+    _period = 30U; // period is always 30 seconds
     _counter = 0U; // counter is not used in Steam TOTP
     _algorithm = SHA1; // Steam TOTP can only have a single algorithm
 }
