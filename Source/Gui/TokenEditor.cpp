@@ -9,12 +9,9 @@
 #include "UserInputDialog.hpp"
 
 #include <Core/TokenDatabase.hpp>
+#include <Core/AppSupport.hpp>
 
 #include <Config/AppConfig.hpp>
-
-#include <Core/Import/andOTP.hpp>
-#include <Core/Import/Authy.hpp>
-#include <Core/Import/Steam.hpp>
 
 #ifdef OTPGEN_WITH_QR_CODES
 #include <Core/Tools/QRCode.hpp>
@@ -63,18 +60,18 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             }
 
             bool status;
-            Import::andOTP::Type type;
+            AppSupport::andOTP::Type type;
             std::string password;
             bool hasPassword = false;
 
             if (file.endsWith("json", Qt::CaseInsensitive))
             {
-                type = Import::andOTP::PlainText;
+                type = AppSupport::andOTP::PlainText;
 
             }
             else
             {
-                type = Import::andOTP::Encrypted;
+                type = AppSupport::andOTP::Encrypted;
 
                 auto passwordDialog = std::make_shared<UserInputDialog>(UserInputDialog::Password);
                 passwordDialog->setDialogNotice("Please enter the decryption password for the given andOTP token database.");
@@ -92,7 +89,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 }
             }
 
-            status = Import::andOTP::importTokens(file.toUtf8().constData(), target, type, password);
+            status = AppSupport::andOTP::importTokens(file.toUtf8().constData(), target, type, password);
             password.clear();
             if (status)
             {
@@ -107,7 +104,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 QMessageBox::critical(this, "Import Error",
                     QString("An error occurred during importing your andOTP tokens! "
                             "If you imported an encrypted file make sure the password is correct.\n\n"
-                            "Mode: %1").arg(type == Import::andOTP::PlainText ? "Plain Text Import" : "Encrypted Import"));
+                            "Mode: %1").arg(type == AppSupport::andOTP::PlainText ? "Plain Text Import" : "Encrypted Import"));
             }
         }),
         GuiHelpers::make_menuAction("Authy", QIcon(":/GuiAssets/logos/authy.svgz"), this, [&]{
@@ -124,7 +121,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             if (file.endsWith("com.authy.storage.tokens.authenticator.xml", Qt::CaseInsensitive))
             {
                 std::vector<TOTPToken> target;
-                auto status = Import::Authy::importTOTP(file.toUtf8().constData(), target, Import::Authy::XML);
+                auto status = AppSupport::Authy::importTOTP(file.toUtf8().constData(), target, AppSupport::Authy::XML);
                 if (status)
                 {
                     for(auto&& t : target)
@@ -141,7 +138,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             else if (file.endsWith("com.authy.storage.tokens.authenticator.json", Qt::CaseInsensitive))
             {
                 std::vector<TOTPToken> target;
-                auto status = Import::Authy::importTOTP(file.toUtf8().constData(), target, Import::Authy::JSON);
+                auto status = AppSupport::Authy::importTOTP(file.toUtf8().constData(), target, AppSupport::Authy::JSON);
                 if (status)
                 {
                     for(auto&& t : target)
@@ -158,7 +155,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             else if (file.endsWith("com.authy.storage.tokens.authy.xml", Qt::CaseInsensitive))
             {
                 std::vector<AuthyToken> target;
-                auto status = Import::Authy::importNative(file.toUtf8().constData(), target, Import::Authy::XML);
+                auto status = AppSupport::Authy::importNative(file.toUtf8().constData(), target, AppSupport::Authy::XML);
                 if (status)
                 {
                     for(auto&& t : target)
@@ -175,7 +172,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             else if (file.endsWith("com.authy.storage.tokens.authy.json", Qt::CaseInsensitive))
             {
                 std::vector<AuthyToken> target;
-                auto status = Import::Authy::importNative(file.toUtf8().constData(), target, Import::Authy::JSON);
+                auto status = AppSupport::Authy::importNative(file.toUtf8().constData(), target, AppSupport::Authy::JSON);
                 if (status)
                 {
                     for(auto&& t : target)
@@ -203,7 +200,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 return;
             }
 
-            auto status = Import::Steam::importFromSteamGuard(file.toUtf8().constData(), token);
+            auto status = AppSupport::Steam::importFromSteamGuard(file.toUtf8().constData(), token);
             if (status)
             {
                 addNewToken(&token);
@@ -301,7 +298,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 return;
             }
 
-            const auto res = Import::andOTP::exportTokens(file.toUtf8().constData(), this->availableTokens());
+            const auto res = AppSupport::andOTP::exportTokens(file.toUtf8().constData(), this->availableTokens());
             if (res)
             {
                 QMessageBox::information(this, "andOTP", "Successfully exported an andOTP json file!");
