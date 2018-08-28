@@ -9,7 +9,7 @@
 #include "GuiHelpers.hpp"
 #include "TokenTableWidget.hpp"
 
-#include <Core/OTPToken.hpp>
+#include <Core/Tokens/OTPToken.hpp>
 #include <Core/TokenStore.hpp>
 
 class OTPWidget : public QWidget

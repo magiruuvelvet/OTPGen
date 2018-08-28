@@ -785,7 +785,7 @@ void TokenEditor::process_otpauthURI(const std::string &out, bool fromQr)
     if (uri.type() == otpauthURI::TOTP)
     {
         TOTPToken token(uri.label(), "", uri.secret(), uri.digitsNumber(), uri.periodNumber(), 0, OTPToken::Invalid);
-        token.setAlgorithmFromString(uri.algorithm());
+        token.setAlgorithm(uri.algorithm());
         if (token.algorithm() == OTPToken::Invalid)
         {
             QMessageBox::critical(this, "Invalid Token Algorithm",
@@ -797,7 +797,7 @@ void TokenEditor::process_otpauthURI(const std::string &out, bool fromQr)
     else if (uri.type() == otpauthURI::HOTP)
     {
         HOTPToken token(uri.label(), "", uri.secret(), uri.digitsNumber(), 0, uri.counterNumber(), OTPToken::Invalid);
-        token.setAlgorithmFromString(uri.algorithm());
+        token.setAlgorithm(uri.algorithm());
         if (token.algorithm() == OTPToken::Invalid)
         {
             QMessageBox::critical(this, "Invalid Token Algorithm",

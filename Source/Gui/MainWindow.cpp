@@ -416,7 +416,7 @@ void MainWindow::updateCurrentToken()
     auto timer = qobject_cast<QTimer*>(sender());
     auto data = static_cast<TokenUserData*>(timer->userData(0));
     // fix period after initial timer creation
-    timer->setInterval(static_cast<int>(1000 * data->token->getPeriod()));
+    timer->setInterval(static_cast<int>(1000 * data->token->period()));
     // update generated token
     tokenWidget->tokens()->tokenSecret(data->row)->setText(
         data->token->generateToken().c_str()

@@ -379,7 +379,7 @@ QWidget *OTPWidget::make_typeDisplay(const OTPToken *token)
     auto label = new QLabel();
     label->setObjectName("name");
     label->setFrameShape(QFrame::NoFrame);
-    label->setText(QString::fromUtf8(token->name().c_str()));
+    label->setText(QString::fromUtf8(token->typeString().c_str()));
     label->setContentsMargins(0,0,7,0);
     hbox->addWidget(label);
 
