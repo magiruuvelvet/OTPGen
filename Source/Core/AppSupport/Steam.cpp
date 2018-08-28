@@ -26,7 +26,7 @@
 //     "steamguard_scheme": ""
 // }
 
-namespace Import {
+namespace AppSupport {
 
 bool Steam::importFromSteamGuard(const std::string &file, SteamToken &target)
 {
@@ -77,7 +77,7 @@ bool Steam::importFromSteamGuard(const std::string &file, SteamToken &target)
                     return false;
                 }
 
-                target._secret = uri.secret();
+                target.setSecret(uri.secret());
             }
             else
             {

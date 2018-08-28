@@ -3,7 +3,7 @@
 
 #include <Core/Tokens/SteamToken.hpp>
 
-namespace Import {
+namespace AppSupport {
 
 class Steam
 {

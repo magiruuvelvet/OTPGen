@@ -70,7 +70,7 @@
 //  }
 //
 
-namespace Import {
+namespace AppSupport {
 
 bool Authy::importTOTP(const std::string &file, std::vector<TOTPToken> &target, const Format &format)
 {
@@ -105,11 +105,9 @@ bool Authy::importTOTP(const std::string &file, std::vector<TOTPToken> &target, 
             }
 
             TOTPToken token;
-            token._secret = elem["decryptedSecret"].GetString();
-            token._label = elem["name"].GetString();
-            token._period = 30U;
-            token._digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
-            token._algorithm = OTPToken::SHA1;
+            token.setSecret(elem["decryptedSecret"].GetString());
+            token.setLabel(elem["name"].GetString());
+            token.setDigitLength(static_cast<OTPToken::DigitType>(elem["digits"].GetUint()));
             target.push_back(token);
         }
     } catch (...) {
@@ -153,10 +151,9 @@ bool Authy::importNative(const std::string &file, std::vector<AuthyToken> &targe
             }
 
             AuthyToken token;
-            token._secret = hexToBase32Rfc4648(elem["secretSeed"].GetString());
-            std::cout << token._secret << std::endl;
-            token._label = elem["name"].GetString();
-            token._digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
+            token.setSecret(hexToBase32Rfc4648(elem["secretSeed"].GetString()));
+            token.setLabel(elem["name"].GetString());
+            token.setDigitLength(static_cast<OTPToken::DigitType>(elem["digits"].GetUint()));
             target.push_back(token);
         }
     } catch (...) {

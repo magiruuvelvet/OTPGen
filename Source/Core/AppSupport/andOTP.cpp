@@ -12,7 +12,9 @@
 #include <cryptopp/sha.h>
 #include <cryptopp/filters.h>
 
-#include <gcrypt.h>
+extern "C" {
+    #include <gcrypt.h>
+}
 
 // andOTP token entry schema
 // JSON array
@@ -31,7 +33,7 @@
 //     "tags": []
 // }
 
-namespace Import {
+namespace AppSupport {
 
 const uint8_t andOTP::ANDOTP_IV_SIZE = 12U;
 const uint8_t andOTP::ANDOTP_TAG_SIZE = 16U;
@@ -100,10 +102,7 @@ bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &targe
             // check if object has all andOTP members
             if (!(elem.HasMember("type") &&
                 elem.HasMember("secret") &&
-                elem.HasMember("label")/* &&
-                elem.HasMember("period") &&
-                elem.HasMember("digits") &&
-                elem.HasMember("algorithm")*/))
+                elem.HasMember("label")))
             {
                 continue;
             }
@@ -115,28 +114,28 @@ bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &targe
             if (typeStr == "TOTP")
             {
                 auto token = new TOTPToken();
-                token->_secret = elem["secret"].GetString();
-                token->_label = elem["label"].GetString();
-                token->_period = elem["period"].GetUint();
-                token->_digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
+                token->setSecret(elem["secret"].GetString());
+                token->setLabel(elem["label"].GetString());
+                token->setPeriod(elem["period"].GetUint());
+                token->setDigitLength(static_cast<OTPToken::DigitType>(elem["digits"].GetUint()));
                 token->setAlgorithm(elem["algorithm"].GetString());
                 target.push_back(token);
             }
             else if (typeStr == "HOTP")
             {
                 auto token = new HOTPToken();
-                token->_secret = elem["secret"].GetString();
-                token->_label = elem["label"].GetString();
-                token->_counter = elem["counter"].GetUint();
-                token->_digits = static_cast<OTPToken::DigitType>(elem["digits"].GetUint());
+                token->setSecret(elem["secret"].GetString());
+                token->setLabel(elem["label"].GetString());
+                token->setCounter(elem["counter"].GetUint());
+                token->setDigitLength(static_cast<OTPToken::DigitType>(elem["digits"].GetUint()));
                 token->setAlgorithm(elem["algorithm"].GetString());
                 target.push_back(token);
             }
             else if (typeStr == "STEAM")
             {
                 auto token = new SteamToken();
-                token->_secret = elem["secret"].GetString();
-                token->_label = elem["label"].GetString();
+                token->setSecret(elem["secret"].GetString());
+                token->setLabel(elem["label"].GetString());
                 target.push_back(token);
             }
             else

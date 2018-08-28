@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace Import {
+namespace AppSupport {
 
 class Authy
 {

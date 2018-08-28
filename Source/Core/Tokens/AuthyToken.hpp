@@ -9,15 +9,9 @@ public:
     AuthyToken();
     AuthyToken(const Label &label);
 
-private:
+public:
     friend struct TokenData;
     friend class TokenStore;
-    friend class TokenDatabase;
-    friend class TokenEditor;
-
-    friend class Import::andOTP;
-    friend class Import::Authy;
-    friend class Import::Steam;
 
     AuthyToken(const Label &label,
                const Icon &icon,

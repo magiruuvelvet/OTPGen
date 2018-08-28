@@ -10,21 +10,16 @@
 #include <iostream>
 #endif
 
-// forward declarations for friends
-namespace Import {
-    class andOTP;
-    class Authy;
-    class Steam;
-}
+#include "AppSupport.hpp"
 
 class TokenDatabase
 {
     TokenDatabase() = delete;
 
     // for readFile()
-    friend class Import::andOTP;
-    friend class Import::Authy;
-    friend class Import::Steam;
+    friend class AppSupport::andOTP;
+    friend class AppSupport::Authy;
+    friend class AppSupport::Steam;
 
     static std::string password;
     static std::string tokenFile;
