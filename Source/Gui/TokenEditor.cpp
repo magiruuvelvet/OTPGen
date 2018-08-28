@@ -872,8 +872,8 @@ void TokenEditor::updateRow(int row)
             tokens->setCellWidget(row, 2, OTPWidget::make_steamInput());
 
             tokens->tokenDigits(row)->setEnabled(false);
-            tokens->tokenDigits(row)->setText("");
-            tokens->tokenPeriod(row)->setEnabled(true);
+            tokens->tokenDigits(row)->setText("5");
+            tokens->tokenPeriod(row)->setEnabled(false);
             tokens->tokenPeriod(row)->setText("30");
             tokens->tokenCounter(row)->setEnabled(false);
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForSteam());
