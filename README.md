@@ -40,9 +40,15 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
    - QR Code
    - andOTP (encrypted)
 
+ - Refactor/Rewrite GUI
+ - Use Model/View instead of a tedious hard-to-manage Widget
+   - Most problematic by now is getting the correct/current row
+ - Make QtKeychain optimal, but enabled by default (CMake build option)
+
  - User Settings
 
  - Get rid of gcrypt in andOTP import, replace with crypto++
+ - Encrypted andOTP export with crypto++
 
 <br>
 
