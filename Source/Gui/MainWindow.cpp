@@ -6,8 +6,6 @@
 
 #include <QMessageBox>
 
-#include <chrono>
-
 MainWindow::MainWindow(QWidget *parent)
     : WidgetBase(parent)
 {
@@ -261,20 +259,7 @@ void MainWindow::updateTokenList()
                 timers.last()->setUserData(0, new TokenUserData(token.get(), tokens->tokenSecretTimeout(row), row));
                 QObject::connect(timers.last().get(), &QTimer::timeout, this, &MainWindow::updateCurrentToken);
 
-                // get remaining seconds since last minute
-                auto now = std::time(nullptr);
-                auto local = std::localtime(&now);
-
-                // FIXME: may have still some issues?? am I doing this right?
-                // all timers are in sync at least; sometimes the token isn't updated on initial timeout
-
-                // calculate token validity with 1 second update threshold
-                auto sec_expired = local->tm_sec;
-                auto token_validity = ( static_cast<int>(token->period()) - sec_expired );
-                if (token_validity < 0)
-                    token_validity = ( static_cast<int>(token->period()) - (sec_expired % static_cast<int>(token->period())) ) + 1;
-                else
-                    token_validity++;
+                auto token_validity = token->remainingTokenValidity();
 
                 // set initial interval of timer to remaining token validity
                 // interval is updated to the real period after the first timeout
