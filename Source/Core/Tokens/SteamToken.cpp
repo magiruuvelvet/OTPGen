@@ -82,7 +82,7 @@ const SteamToken::TokenString SteamToken::generateToken(Error *error) const
 
     // Steam secret must be in base-32
     auto token = get_steam_totp(_secret.c_str(),
-                                30,
+                                DEFAULT_DIGIT_LENGTH,
                                 &cotp_err);
 
     if (token && cotp_err == cotp_error_t::VALID)
