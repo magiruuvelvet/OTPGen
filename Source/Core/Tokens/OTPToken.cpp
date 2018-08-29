@@ -63,22 +63,26 @@ void OTPToken::setAlgorithm(const std::string &_algo)
         return std::toupper(c);
     });
 
+    ShaAlgorithm tmp;
+
     if (algo == "SHA1")
     {
-        _algorithm = SHA1;
+        tmp = SHA1;
     }
     else if (algo == "SHA256")
     {
-        _algorithm = SHA256;
+        tmp = SHA256;
     }
     else if (algo == "SHA512")
     {
-        _algorithm = SHA512;
+        tmp = SHA512;
     }
     else
     {
-        _algorithm = Invalid;
+        tmp = Invalid;
     }
+
+    this->setAlgorithm(tmp);
 }
 
 const std::string OTPToken::algorithmString() const

@@ -9,6 +9,10 @@ public:
     TOTPToken();
     TOTPToken(const Label &label);
 
+    static const DigitType DEFAULT_DIGIT_LENGTH;
+    static const PeriodType DEFAULT_PERIOD;
+    static const ShaAlgorithm DEFAULT_ALGORITHM;
+
     // token counter
     inline void setCounter(const CounterType &)
     { this->_counter = 0U; }

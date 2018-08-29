@@ -9,6 +9,10 @@ public:
     SteamToken();
     SteamToken(const Label &label);
 
+    static const DigitType DEFAULT_DIGIT_LENGTH;
+    static const PeriodType DEFAULT_PERIOD;
+    static const ShaAlgorithm DEFAULT_ALGORITHM;
+
     // token algorithm
     inline void setAlgorithm(const ShaAlgorithm &)
     { this->_algorithm = SHA1; }

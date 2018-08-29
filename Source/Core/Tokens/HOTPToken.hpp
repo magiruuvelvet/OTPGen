@@ -9,6 +9,9 @@ public:
     HOTPToken();
     HOTPToken(const Label &label);
 
+    static const DigitType DEFAULT_DIGIT_LENGTH;
+    static const ShaAlgorithm DEFAULT_ALGORITHM;
+
     // token validity period
     inline void setPeriod(const PeriodType &)
     { this->_period = 0U; }

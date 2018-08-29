@@ -2,16 +2,19 @@
 
 #include "Internal/libcotpsupport.hpp"
 
+const OTPToken::DigitType HOTPToken::DEFAULT_DIGIT_LENGTH = 6U;
+const OTPToken::ShaAlgorithm HOTPToken::DEFAULT_ALGORITHM = OTPToken::SHA1;
+
 HOTPToken::HOTPToken()
 {
     // set HOTP defaults
     _type = HOTP;
     _typeName = "HOTP";
 
-    _digits = 6U;
+    _digits = DEFAULT_DIGIT_LENGTH;
     _period = 0U; // period is not used in HOTP
     _counter = 0U;
-    _algorithm = SHA1;
+    _algorithm = DEFAULT_ALGORITHM;
 }
 
 HOTPToken::HOTPToken(const Label &label)

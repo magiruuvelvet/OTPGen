@@ -2,16 +2,20 @@
 
 #include "Internal/libcotpsupport.hpp"
 
+const OTPToken::DigitType SteamToken::DEFAULT_DIGIT_LENGTH = 5U;
+const OTPToken::PeriodType SteamToken::DEFAULT_PERIOD = 30U;
+const OTPToken::ShaAlgorithm SteamToken::DEFAULT_ALGORITHM = OTPToken::SHA1;
+
 SteamToken::SteamToken()
 {
     // set Steam TOTP defaults
     _type = Steam;
     _typeName = "Steam";
 
-    _digits = 5U; // digit count is always 5
-    _period = 30U; // period is always 30 seconds
+    _digits = DEFAULT_DIGIT_LENGTH; // digit count is always 5
+    _period = DEFAULT_PERIOD; // period is always 30 seconds
     _counter = 0U; // counter is not used in Steam TOTP
-    _algorithm = SHA1; // Steam TOTP can only have a single algorithm
+    _algorithm = DEFAULT_ALGORITHM; // Steam TOTP can only have a single algorithm
 }
 
 SteamToken::SteamToken(const Label &label)

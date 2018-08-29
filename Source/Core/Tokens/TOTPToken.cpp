@@ -2,16 +2,20 @@
 
 #include "Internal/libcotpsupport.hpp"
 
+const OTPToken::DigitType TOTPToken::DEFAULT_DIGIT_LENGTH = 6U;
+const OTPToken::PeriodType TOTPToken::DEFAULT_PERIOD = 30U;
+const OTPToken::ShaAlgorithm TOTPToken::DEFAULT_ALGORITHM = OTPToken::SHA1;
+
 TOTPToken::TOTPToken()
 {
     // set TOTP defaults
     _type = TOTP;
     _typeName = "TOTP";
 
-    _digits = 6U;
-    _period = 30U;
+    _digits = DEFAULT_DIGIT_LENGTH;
+    _period = DEFAULT_PERIOD;
     _counter = 0U; // counter is not used in TOTP
-    _algorithm = SHA1;
+    _algorithm = DEFAULT_ALGORITHM;
 }
 
 TOTPToken::TOTPToken(const Label &label)

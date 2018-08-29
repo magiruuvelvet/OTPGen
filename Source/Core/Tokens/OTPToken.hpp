@@ -82,25 +82,57 @@ public:
 
     // digit length
     inline void setDigitLength(const DigitType &digits)
-    { this->_digits = digits; }
+    {
+        switch (_type)
+        {
+            case TOTP:
+            case HOTP:
+            case Authy:
+                this->_digits = digits;
+                break;
+        }
+    }
     inline const DigitType &digits() const
     { return _digits; }
 
     // token validity period
     inline void setPeriod(const PeriodType &period)
-    { this->_period = period; }
+    {
+        switch (_type)
+        {
+            case TOTP:
+            case Authy:
+                this->_period = period;
+                break;
+        }
+    }
     inline const PeriodType &period() const
     { return _period; }
 
     // token counter
     inline void setCounter(const CounterType &counter)
-    { this->_counter = counter; }
+    {
+        switch (_type)
+        {
+            case HOTP:
+                this->_counter = counter;
+                break;
+        }
+    }
     inline const CounterType &counter() const
     { return _counter; }
 
     // token algorithm
     inline void setAlgorithm(const ShaAlgorithm &algo)
-    { this->_algorithm = algo; }
+    {
+        switch (_type)
+        {
+            case TOTP:
+            case HOTP:
+                this->_algorithm = algo;
+                break;
+        }
+    }
     void setAlgorithm(const std::string &algo);
     const ShaAlgorithm &algorithm() const
     { return _algorithm; }
