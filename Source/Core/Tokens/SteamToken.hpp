@@ -51,19 +51,19 @@ public:
     SteamToken(const Label &label,
                const Icon &icon,
                const SecretType &secret,
-               const DigitType &digits,
-               const PeriodType &period,
-               const CounterType &counter,
-               const ShaAlgorithm &algorithm)
+               const DigitType &digits = SteamToken::DEFAULT_DIGIT_LENGTH,
+               const PeriodType &period = SteamToken::DEFAULT_PERIOD,
+               const CounterType &counter = 0U,
+               const ShaAlgorithm &algorithm = SteamToken::DEFAULT_ALGORITHM)
         : SteamToken()
     {
         _label = label;
         _icon = icon;
         _secret = secret;
-        _digits = digits;
-        _period = period;
-        _counter = counter;
-        _algorithm = algorithm;
+        this->setDigitLength(digits);
+        this->setPeriod(period);
+        this->setCounter(counter);
+        this->setAlgorithm(algorithm);
     }
 };
 

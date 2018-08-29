@@ -34,10 +34,10 @@ public:
         _label = label;
         _icon = icon;
         _secret = secret;
-        _digits = digits;
-        _period = period;
-        _counter = counter;
-        _algorithm = algorithm;
+        this->setDigitLength(digits);
+        this->setPeriod(period);
+        this->setCounter(counter);
+        this->setAlgorithm(algorithm);
     }
 };
 
