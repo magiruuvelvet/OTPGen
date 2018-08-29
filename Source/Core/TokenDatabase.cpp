@@ -237,19 +237,16 @@ TokenDatabase::Error TokenDatabase::loadTokens()
         switch (t.type)
         {
             case OTPToken::TOTP:
-                TokenStore::i()->addTokenUnsafe(std::make_shared<TOTPToken>(TOTPToken(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
+                TokenStore::i()->addTokenUnsafe(std::make_shared<TOTPToken>(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm));
                 break;
             case OTPToken::HOTP:
-                TokenStore::i()->addTokenUnsafe(std::make_shared<HOTPToken>(HOTPToken(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
+                TokenStore::i()->addTokenUnsafe(std::make_shared<HOTPToken>(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm));
                 break;
             case OTPToken::Steam:
-                TokenStore::i()->addTokenUnsafe(std::make_shared<SteamToken>(SteamToken(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
+                TokenStore::i()->addTokenUnsafe(std::make_shared<SteamToken>(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm));
                 break;
             case OTPToken::Authy:
-                TokenStore::i()->addTokenUnsafe(std::make_shared<AuthyToken>(AuthyToken(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm)));
-                break;
-
-            case OTPToken::None:
+                TokenStore::i()->addTokenUnsafe(std::make_shared<AuthyToken>(t.label, t.icon, unmangledSecret, t.digits, t.period, t.counter, t.algorithm));
                 break;
         }
 

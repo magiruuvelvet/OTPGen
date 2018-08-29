@@ -39,20 +39,20 @@ TokenStore::Status TokenStore::addToken(const Token &token, bool override)
             {
                 switch (token->type())
                 {
-                    case OTPToken::TOTP: _token = std::make_shared<TOTPToken>(TOTPToken(
-                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm));
+                    case OTPToken::TOTP: _token = std::make_shared<TOTPToken>(
+                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm);
                         break;
 
-                    case OTPToken::HOTP: _token = std::make_shared<HOTPToken>(HOTPToken(
-                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm));
+                    case OTPToken::HOTP: _token = std::make_shared<HOTPToken>(
+                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm);
                         break;
 
-                    case OTPToken::Steam: _token = std::make_shared<SteamToken>(SteamToken(
-                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm));
+                    case OTPToken::Steam: _token = std::make_shared<SteamToken>(
+                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm);
                         break;
 
-                    case OTPToken::Authy: _token = std::make_shared<AuthyToken>(AuthyToken(
-                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm));
+                    case OTPToken::Authy: _token = std::make_shared<AuthyToken>(
+                        token->_label, token->_icon, token->_secret, token->_digits, token->_period, token->_counter, token->_algorithm);
                         break;
 
                    case OTPToken::None:

@@ -31,10 +31,10 @@ public:
     enum TokenType {
         None = 0,
 
-        TOTP,
-        HOTP,
-        Steam,
-        Authy, // TOTP w/ 7 digits and 10s period
+        TOTP = 1,
+        HOTP = 2,
+        Steam = 3,
+        Authy = 4, // TOTP w/ 7 digits and 10s period
     };
 
     enum ShaAlgorithm {
