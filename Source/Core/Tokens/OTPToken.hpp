@@ -148,6 +148,9 @@ public:
     // token generation method, implemented in sub classes
     virtual const TokenString generateToken(Error *error = nullptr) const = 0;
 
+    // calculate the remaining token validity from the period and current system time
+    std::uint32_t remainingTokenValidity() const;
+
 protected:
     int sha_enum_to_gcrypt() const;
 

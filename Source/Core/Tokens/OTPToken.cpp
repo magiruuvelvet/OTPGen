@@ -1,6 +1,7 @@
 #include "OTPToken.hpp"
 
 #include <algorithm>
+#include <chrono>
 
 extern "C" {
     #include <gcrypt.h>
@@ -120,6 +121,32 @@ bool OTPToken::valid() const
     Error error = VALID;
     const auto &token = this->generateToken(&error);
     return !(token.empty() || error != VALID);
+}
+
+std::uint32_t OTPToken::remainingTokenValidity() const
+{
+    if (_period == 0U)
+    {
+        return 0U;
+    }
+
+    // get remaining seconds since last minute
+    auto now = std::time(nullptr);
+    auto local = std::localtime(&now);
+
+    // calculate token validity with 1 second update threshold
+    auto sec_expired = local->tm_sec;
+    auto token_validity = ( static_cast<int>(_period) - sec_expired );
+    if (token_validity < 0)
+    {
+        token_validity = ( static_cast<int>(_period) - (sec_expired % static_cast<int>(_period)) ) + 1;
+    }
+    else
+    {
+        token_validity++;
+    }
+
+    return static_cast<std::uint32_t>(token_validity);
 }
 
 int OTPToken::sha_enum_to_gcrypt() const
