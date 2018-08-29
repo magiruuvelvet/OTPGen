@@ -1,7 +1,7 @@
 #ifndef STEAM_HPP
 #define STEAM_HPP
 
-#include <Core/Tokens/SteamToken.hpp>
+#include <Tokens/SteamToken.hpp>
 
 namespace AppSupport {
 

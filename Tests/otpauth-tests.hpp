@@ -6,10 +6,10 @@
 using namespace snowhouse;
 using namespace bandit;
 
-#include <Core/Tools/otpauthURI.hpp>
+#include <Tools/otpauthURI.hpp>
 
-#include <Core/Tokens/TOTPToken.hpp>
-#include <Core/Tokens/HOTPToken.hpp>
+#include <Tokens/TOTPToken.hpp>
+#include <Tokens/HOTPToken.hpp>
 
 go_bandit([]{
     describe("otpauth URI Test", []{

@@ -11,10 +11,8 @@ set(QTKEYCHAIN_SOVERSION 1)
 ###
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/cmake/Modules")
-include(GenerateExportHeader)
 include(ECMPackageConfigHelpers)
 include(ECMSetupVersion)
-include(ECMGeneratePriFile)
 
 option(QTKEYCHAIN_STATIC "Build static library" OFF)
 
@@ -55,7 +53,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 list(APPEND qtkeychain_LIBRARIES ${QTCORE_LIBRARIES})
 set(qtkeychain_SOURCES
     keychain.cpp
-    qkeychain_export.h
     keychain.h
 )
 
@@ -117,11 +114,6 @@ endif()
 target_link_libraries(${QTKEYCHAIN_TARGET_NAME} PUBLIC ${qtkeychain_LIBRARIES})
 target_include_directories(${QTKEYCHAIN_TARGET_NAME} PUBLIC $<INSTALL_INTERFACE:include/>)
 
-generate_export_header(${QTKEYCHAIN_TARGET_NAME}
-  EXPORT_FILE_NAME qkeychain_export.h
-  EXPORT_MACRO_NAME QKEYCHAIN_EXPORT
-)
-
 set_target_properties(${QTKEYCHAIN_TARGET_NAME} PROPERTIES
     VERSION ${QTKEYCHAIN_VERSION}
     SOVERSION ${QTKEYCHAIN_SOVERSION}
@@ -141,12 +133,3 @@ ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/QtKeychainConfig.
 ecm_setup_version("${QTKEYCHAIN_VERSION}" VARIABLE_PREFIX SNORE
   PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/Qt${QTKEYCHAIN_VERSION_INFIX}KeychainConfigVersion.cmake"
   SOVERSION ${QTKEYCHAIN_VERSION})
-
-if(UNIX AND NOT APPLE AND NOT ANDROID)
-    set(PRI_EXTRA_DEPS "dbus")
-endif()
-ecm_generate_pri_file(BASE_NAME Qt${QTKEYCHAIN_VERSION_INFIX}Keychain
-  LIB_NAME ${QTKEYCHAIN_TARGET_NAME}
-  DEPS "core ${PRI_EXTRA_DEPS}"
-  INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR}
-  FILENAME_VAR pri_filename)

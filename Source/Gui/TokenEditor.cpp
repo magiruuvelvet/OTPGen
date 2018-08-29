@@ -8,15 +8,16 @@
 
 #include "UserInputDialog.hpp"
 
-#include <Core/TokenDatabase.hpp>
-#include <Core/AppSupport.hpp>
+#include <TokenDatabase.hpp>
+#include <AppSupport.hpp>
 
-#include <Config/AppConfig.hpp>
+#include "GuiConfig.hpp"
 
 #ifdef OTPGEN_WITH_QR_CODES
-#include <Core/Tools/QRCode.hpp>
-#include <Core/Tools/otpauthURI.hpp>
+#include <Tools/QRCode.hpp>
 #endif
+
+#include <Tools/otpauthURI.hpp>
 
 TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     : WidgetBase(parent),
@@ -39,7 +40,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
 
     // initial window size
-    this->resize(cfg::defaultGeometryTokenEditor());
+    this->resize(gcfg::defaultGeometryTokenEditor());
 
     GuiHelpers::centerWindow(this);
 
@@ -49,7 +50,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
 
     importMenu = std::make_shared<QMenu>();
     importActions = {
-        GuiHelpers::make_menuAction("andOTP", QIcon(":/GuiAssets/logos/andotp.svgz"), this, [&]{
+        GuiHelpers::make_menuAction("andOTP", QIcon(":/logos/andotp.svgz"), this, [&]{
             std::vector<OTPToken*> target;
             auto file = QFileDialog::getOpenFileName(this, "Open andOTP token file", QString(),
                 "otp_accounts.json (Plain Text) (otp_accounts.json);;"
@@ -107,7 +108,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                             "Mode: %1").arg(type == AppSupport::andOTP::PlainText ? "Plain Text Import" : "Encrypted Import"));
             }
         }),
-        GuiHelpers::make_menuAction("Authy", QIcon(":/GuiAssets/logos/authy.svgz"), this, [&]{
+        GuiHelpers::make_menuAction("Authy", QIcon(":/logos/authy.svgz"), this, [&]{
             auto file = QFileDialog::getOpenFileName(this, "Open Authy token file", QString(),
                 "com.authy.storage.tokens.authenticator.xml (TOTP Tokens) (com.authy.storage.tokens.authenticator.xml);;"
                 "com.authy.storage.tokens.authy.xml (Authy Tokens) (com.authy.storage.tokens.authy.xml);;"
@@ -191,7 +192,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
                 QMessageBox::critical(this, "Unknown Authy file", "The given file wasn't recognized as an Authy token file.");
             }
         }),
-        GuiHelpers::make_menuAction("Steam", QIcon(":/GuiAssets/logos/steam.svgz"), this, [&]{
+        GuiHelpers::make_menuAction("Steam", QIcon(":/logos/steam.svgz"), this, [&]{
             SteamToken token("Steam");
             auto file = QFileDialog::getOpenFileName(this, "Open SteamGuard configuration file", QString(),
                 "Steamguard* (Steamguard*)");
@@ -282,7 +283,7 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
 
     exportMenu = std::make_shared<QMenu>();
     exportActions = {
-        GuiHelpers::make_menuAction("andOTP", QIcon(":/GuiAssets/logos/andotp.svgz"), this, [&]{
+        GuiHelpers::make_menuAction("andOTP", QIcon(":/logos/andotp.svgz"), this, [&]{
 
             const auto answer = QMessageBox::question(this, "andOTP",
                 "<b>WARNING!</b><br><br>Currently only plain text exports of andOTP json files are supported!<br>"
@@ -378,8 +379,8 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
 
     // Restore UI state
     const auto _geometry = saveGeometry();
-    restoreGeometry(cfg::settings()->value(cfg::keyGeometryTokenEditor(), _geometry).toByteArray());
-    const auto columns = cfg::settings()->value(cfg::keyTokenEditWidgetColumns());
+    restoreGeometry(gcfg::settings()->value(gcfg::keyGeometryTokenEditor(), _geometry).toByteArray());
+    const auto columns = gcfg::settings()->value(gcfg::keyTokenEditWidgetColumns());
     if (!columns.isNull())
     {
         QSequentialIterable iterable = columns.value<QSequentialIterable>();
@@ -453,14 +454,14 @@ const std::vector<OTPToken*> TokenEditor::availableTokens() const
 void TokenEditor::closeEvent(QCloseEvent *event)
 {
     // Save UI state
-    cfg::settings()->setValue(cfg::keyGeometryTokenEditor(), saveGeometry());
+    gcfg::settings()->setValue(gcfg::keyGeometryTokenEditor(), saveGeometry());
     QList<int> columns;
     for (auto i = 0; i < tokenEditWidget->tokens()->columnCount(); i++)
     {
         columns.append(tokenEditWidget->tokens()->columnWidth(i));
     }
-    cfg::settings()->setValue(cfg::keyTokenEditWidgetColumns(), QVariant::fromValue(columns));
-    cfg::settings()->sync();
+    gcfg::settings()->setValue(gcfg::keyTokenEditWidgetColumns(), QVariant::fromValue(columns));
+    gcfg::settings()->sync();
 
     WidgetBase::closeEvent(event);
 }

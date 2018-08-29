@@ -1,8 +1,8 @@
 #include "MainWindow.hpp"
 
-#include <Core/TokenDatabase.hpp>
+#include <TokenDatabase.hpp>
 
-#include <Config/AppConfig.hpp>
+#include "GuiConfig.hpp"
 
 #include <QMessageBox>
 
@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
 
     // initial window size
-    this->resize(cfg::defaultGeometryMainWindow());
+    this->resize(gcfg::defaultGeometryMainWindow());
 
     GuiHelpers::centerWindow(this);
 
@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent)
 
         trayIcon->show();
 
-        if (cfg::startMinimizedToTray())
+        if (gcfg::startMinimizedToTray())
         {
             trayShowHide->setText(trayShowText);
         }
@@ -125,8 +125,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Restore UI state
     const auto _geometry = saveGeometry();
-    restoreGeometry(cfg::settings()->value(cfg::keyGeometryMainWindow(), _geometry).toByteArray());
-    const auto columns = cfg::settings()->value(cfg::keyTokenWidgetColumns());
+    restoreGeometry(gcfg::settings()->value(gcfg::keyGeometryMainWindow(), _geometry).toByteArray());
+    const auto columns = gcfg::settings()->value(gcfg::keyTokenWidgetColumns());
     if (!columns.isNull())
     {
         QSequentialIterable iterable = columns.value<QSequentialIterable>();
@@ -137,11 +137,11 @@ MainWindow::MainWindow(QWidget *parent)
             ++c;
         }
     }
-    auto tokenVisibility = cfg::settings()->value(cfg::keyTokensVisible(), tokenWidget->tokenVisibilityAction()->isChecked()).toBool();
+    auto tokenVisibility = gcfg::settings()->value(gcfg::keyTokensVisible(), tokenWidget->tokenVisibilityAction()->isChecked()).toBool();
     tokenWidget->tokenVisibilityAction()->setChecked(!tokenVisibility);
     tokenWidget->tokenVisibilityAction()->trigger();
 
-    auto tokenIconVisibility = cfg::settings()->value(cfg::keyTokenIconsVisible(), tokenWidget->tokenIconVisibilityAction()->isChecked()).toBool();
+    auto tokenIconVisibility = gcfg::settings()->value(gcfg::keyTokenIconsVisible(), tokenWidget->tokenIconVisibilityAction()->isChecked()).toBool();
     tokenWidget->tokenIconVisibilityAction()->setChecked(!tokenIconVisibility);
     tokenWidget->tokenIconVisibilityAction()->trigger();
 }
@@ -495,7 +495,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     // Save UI state
-    cfg::settings()->setValue(cfg::keyGeometryMainWindow(), saveGeometry());
+    gcfg::settings()->setValue(gcfg::keyGeometryMainWindow(), saveGeometry());
     QList<int> columns;
     for (auto i = 0; i < tokenWidget->tokens()->columnCount() - 1; i++)
     {
@@ -507,10 +507,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
         tokenColumnWidth = 120;
     }
     columns.append(tokenColumnWidth);
-    cfg::settings()->setValue(cfg::keyTokenWidgetColumns(), QVariant::fromValue(columns));
-    cfg::settings()->setValue(cfg::keyTokensVisible(), tokenWidget->tokenVisibilityAction()->isChecked());
-    cfg::settings()->setValue(cfg::keyTokenIconsVisible(), tokenWidget->tokenIconVisibilityAction()->isChecked());
-    cfg::settings()->sync();
+    gcfg::settings()->setValue(gcfg::keyTokenWidgetColumns(), QVariant::fromValue(columns));
+    gcfg::settings()->setValue(gcfg::keyTokensVisible(), tokenWidget->tokenVisibilityAction()->isChecked());
+    gcfg::settings()->setValue(gcfg::keyTokenIconsVisible(), tokenWidget->tokenIconVisibilityAction()->isChecked());
+    gcfg::settings()->sync();
 
     qApp->quit();
     event->accept();

@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>app-icon.svgz</file>
+        <file>add.svgz</file>
+        <file>clock.svgz</file>
+        <file>close.svgz</file>
+        <file>copy-content.svgz</file>
+        <file>export.svgz</file>
+        <file>import.svgz</file>
+        <file>info.svgz</file>
+        <file>maximize.svgz</file>
+        <file>minimize.svgz</file>
+        <file>pencil-edit-button.svgz</file>
+        <file>qr-code.svgz</file>
+        <file>remove.svgz</file>
+        <file>restore.svgz</file>
+        <file>save.svgz</file>
+        <file>tray-icon.png</file>
+        <file>logos/andotp.svgz</file>
+        <file>logos/authy.svgz</file>
+        <file>logos/steam.svgz</file>
+    </qresource>
+</RCC>

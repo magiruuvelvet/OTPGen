@@ -1,35 +1,35 @@
 #include "GuiHelpers.hpp"
 
-#include <Config/AppConfig.hpp>
+#include "GuiConfig.hpp"
 
-#include <Core/Tools/zlibTool.hpp>
-#include <Gui/Tools/SvgTool.hpp>
+#include <Tools/zlibTool.hpp>
+#include <Tools/SvgTool.hpp>
 
 GuiHelpers::GuiHelpers()
 {
-    _app_icon = QIcon(":/GuiAssets/app-icon.svgz");
-    _tray_icon = QIcon(":/GuiAssets/tray-icon.png");
+    _app_icon = QIcon(":/app-icon.svgz");
+    _tray_icon = QIcon(":/tray-icon.png");
 
-    _close_icon = loadIcon(":/GuiAssets/close.svgz");
-    _minimize_icon = loadIcon(":/GuiAssets/minimize.svgz");
-    _maximize_icon = loadIcon(":/GuiAssets/maximize.svgz");
-    _restore_icon = loadIcon(":/GuiAssets/restore.svgz");
+    _close_icon = loadIcon(":/close.svgz");
+    _minimize_icon = loadIcon(":/minimize.svgz");
+    _maximize_icon = loadIcon(":/maximize.svgz");
+    _restore_icon = loadIcon(":/restore.svgz");
 
-    _add_icon = loadIcon(":/GuiAssets/add.svgz");
-    _remove_icon = loadIcon(":/GuiAssets/remove.svgz");
-    _delete_icon = QIcon(":/GuiAssets/close.svgz");
-    _save_icon = loadIcon(":/GuiAssets/save.svgz");
-    _import_icon = loadIcon(":/GuiAssets/import.svgz");
-    _export_icon = loadIcon(":/GuiAssets/export.svgz");
-    _qr_code_icon = QIcon(":/GuiAssets/qr-code.svgz");
-    _copy_content_icon = QIcon(":/GuiAssets/copy-content.svgz");
-    _edit_icon = loadIcon(":/GuiAssets/pencil-edit-button.svgz");
-    _info_icon = loadIcon(":/GuiAssets/info.svgz");
+    _add_icon = loadIcon(":/add.svgz");
+    _remove_icon = loadIcon(":/remove.svgz");
+    _delete_icon = QIcon(":/close.svgz");
+    _save_icon = loadIcon(":/save.svgz");
+    _import_icon = loadIcon(":/import.svgz");
+    _export_icon = loadIcon(":/export.svgz");
+    _qr_code_icon = QIcon(":/qr-code.svgz");
+    _copy_content_icon = QIcon(":/copy-content.svgz");
+    _edit_icon = loadIcon(":/pencil-edit-button.svgz");
+    _info_icon = loadIcon(":/info.svgz");
 }
 
 const QIcon GuiHelpers::loadIcon(const QString &path)
 {
-    const auto color = cfg::iconColor();
+    const auto color = gcfg::iconColor();
     if (color.compare("default", Qt::CaseInsensitive) == 0)
     {
         return QIcon(path);
@@ -102,11 +102,11 @@ std::shared_ptr<QPushButton> GuiHelpers::make_toolbtn(const QIcon &icon, const Q
     btn->setIcon(icon);
     btn->setToolTip(tooltip);
 
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         auto palette = btn->palette();
-        palette.setColor(QPalette::Active, QPalette::Button, QColor(cfg::titleBarButtonBackground()));
-        palette.setColor(QPalette::Active, QPalette::ButtonText, QColor(cfg::titleBarButtonForeground()));
+        palette.setColor(QPalette::Active, QPalette::Button, QColor(gcfg::titleBarButtonBackground()));
+        palette.setColor(QPalette::Active, QPalette::ButtonText, QColor(gcfg::titleBarButtonForeground()));
         // TODO: Inactive, Disabled
         btn->setPalette(palette);
     }
@@ -212,11 +212,11 @@ void GuiHelpers::default_closeCallback(WidgetBase *receiver)
 
 const QPalette GuiHelpers::make_theme(const QPalette &base)
 {
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         auto palette = base;
-        palette.setColor(QPalette::All, QPalette::Background, QColor(cfg::titleBarBackground()));
-        palette.setColor(QPalette::All, QPalette::Foreground, QColor(cfg::titleBarForeground()));
+        palette.setColor(QPalette::All, QPalette::Background, QColor(gcfg::titleBarBackground()));
+        palette.setColor(QPalette::All, QPalette::Foreground, QColor(gcfg::titleBarForeground()));
         return palette;
     }
     return base;
@@ -224,7 +224,7 @@ const QPalette GuiHelpers::make_theme(const QPalette &base)
 
 const QPalette GuiHelpers::make_cb_theme(const QPalette &base)
 {
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         auto palette = base;
         palette.setColor(QPalette::Active, QPalette::Text, QColor("#000000"));

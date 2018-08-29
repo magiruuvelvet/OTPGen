@@ -64,6 +64,13 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 ## Building the application
 
+#### Requirements
+
+ - CMake 3.8+
+ - Qt build tools (qmake, moc, rcc)
+
+#### Build Steps
+
 ```sh
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..

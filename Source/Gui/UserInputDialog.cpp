@@ -2,7 +2,7 @@
 
 #include <QEventLoop>
 
-#include <Config/AppConfig.hpp>
+#include "GuiConfig.hpp"
 
 UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
     : WidgetBase(parent)
@@ -37,11 +37,11 @@ UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
     dialogNotice->setAutoFillBackground(true);
     dialogNotice->setReadOnly(true);
     dialogNotice->setMinimumHeight(50);
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         dialogNotice->setStyleSheet(QString("background-color: %1; color: %2").arg(
-                                        cfg::titleBarBackground(),
-                                        cfg::titleBarForeground()));
+                                        gcfg::titleBarBackground(),
+                                        gcfg::titleBarForeground()));
     }
     dialogNotice->setWordWrapMode(QTextOption::WordWrap);
     innerVBox->addWidget(dialogNotice.get());
@@ -57,7 +57,7 @@ UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
 
     buttons.append(GuiHelpers::make_toolbtn(QIcon(), QString()));
     buttons.last()->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         buttons.last()->setStyleSheet("background-color: #777");
     }

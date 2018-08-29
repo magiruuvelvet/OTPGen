@@ -1,8 +1,8 @@
 #ifndef AUTHY_HPP
 #define AUTHY_HPP
 
-#include <Core/Tokens/TOTPToken.hpp>
-#include <Core/Tokens/AuthyToken.hpp>
+#include <Tokens/TOTPToken.hpp>
+#include <Tokens/AuthyToken.hpp>
 
 #include <vector>
 

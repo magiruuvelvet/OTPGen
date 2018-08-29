@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <Core/TokenDatabase.hpp>
+#include <TokenDatabase.hpp>
 
 #include <cereal/external/rapidjson/document.h>
 #include <cereal/external/rapidjson/memorystream.h>

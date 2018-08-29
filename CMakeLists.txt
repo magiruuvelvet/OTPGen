@@ -7,6 +7,12 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 # Use project folders in IDE's
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Meta and Helper Modules
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
+    "${CMAKE_SOURCE_DIR}/CMake/Modules")
+
+include(SetCppStandard)
+
 # Folder where generated files go
 set(GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/Generated)
 include_directories(${GENERATED_DIR})
@@ -37,12 +43,6 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     add_definitions(-DOTPGEN_DEBUG)
 endif()
 
-# Unit testing
-set(UNIT_TESTING OFF CACHE BOOLEAN "Build unit tests")
-if (UNIT_TESTING)
-    message(STATUS "Building with unit tests.")
-endif()
-
 # Generic flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
@@ -50,23 +50,19 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-switch")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas -Wno-switch")
 
-# Add module paths
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
-    "${CMAKE_SOURCE_DIR}/CMake/Modules")     # Meta and Helper Modules
-
 # Install Configuration
 include(GNUInstallDirs)
 
-# Application Mode Flag
-set(MODE "GUI" CACHE STRING "Application mode (GUI, CLI)")
-if (MODE STREQUAL "GUI")
-    message(STATUS "Building GUI...")
-    add_definitions(-DOTPGEN_GUI)
-elseif (MODE STREQUAL "CLI")
-    message(STATUS "Building CLI...")
-    add_definitions(-DOTPGEN_CLI)
-else()
-    message(FATAL_ERROR "Unknown application mode!")
+# Unit testing
+set(UNIT_TESTING OFF CACHE BOOLEAN "Build unit tests")
+if (UNIT_TESTING)
+    message(STATUS "Building with unit tests.")
+endif()
+
+# Build with GUI support?
+set(DISABLE_GUI OFF CACHE BOOLEAN "Build without GUI support")
+if (DISABLE_GUI)
+    message(STATUS "Building without GUI...")
 endif()
 
 # Use QR Code feature?
@@ -76,266 +72,46 @@ if (WITH_QR_CODES)
     add_definitions(-DOTPGEN_WITH_QR_CODES)
 endif()
 
-# Find runtime dependencies
-find_package(PkgConfig)
-
-if (MODE STREQUAL "GUI")
-    message(STATUS "Finding Qt...")
-    find_package(Qt5Core REQUIRED)
-    find_package(Qt5Gui REQUIRED)
-    find_package(Qt5Network REQUIRED)
-    find_package(Qt5Widgets REQUIRED)
-    find_package(Qt5Xml REQUIRED)
-
-    # Qt deprecated warnings
-    add_definitions(-DQT_DEPRECATED_WARNINGS)
-    add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)
-
-    # Qt automoc
-    message(STATUS "Enabling Qt automoc...")
-    set(CMAKE_INCLUDE_CURRENT_DIR ON)
-    set(CMAKE_AUTOMOC ON)
-
-    # Handle Qt qrc files automatically
-    message(STATUS "Enabling Qt autorcc...")
-    set(CMAKE_AUTORCC ON)
-endif()
-
-find_package(Gcrypt REQUIRED)
-include_directories(${GCRYPT_INCLUDE_DIR})
-
-find_package(ZLIB REQUIRED)
-include_directories("${ZLIB_INCLUDE_DIRS}")
-
-pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
-include_directories("${CRYPTOPP_INCLUDEDIR}")
-
-#######################################################################################################################
-# Generate source lists
-#######################################################################################################################
-
-# Core library
-file(GLOB_RECURSE SourceListCore
-    "${CMAKE_SOURCE_DIR}/Source/Core/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Core/*.hpp"
-    "${CMAKE_SOURCE_DIR}/Source/Core/*.c"      "${CMAKE_SOURCE_DIR}/Source/Core/*.h"
-
-    "${CMAKE_SOURCE_DIR}/Libs/cereal/*.hpp"
-)
-
-# Core library support (libcotp)
-file(GLOB_RECURSE SourceListCoreSupport
-    "${CMAKE_SOURCE_DIR}/Libs/libbaseencode/*.c"
-    "${CMAKE_SOURCE_DIR}/Libs/libbaseencode/*.h"
-
-    "${CMAKE_SOURCE_DIR}/Libs/libcotp/*.c"
-    "${CMAKE_SOURCE_DIR}/Libs/libcotp/*.h"
-)
-
-# App launcher and config
-file(GLOB_RECURSE SourceListApp
-    "${CMAKE_SOURCE_DIR}/Source/main.cpp"
-
-    "${CMAKE_SOURCE_DIR}/Source/Config/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Config/*.hpp"
-    "${CMAKE_SOURCE_DIR}/Source/Config/*.c"      "${CMAKE_SOURCE_DIR}/Source/Config/*.h"
-)
-
-# QR Code Support - depends on libzxing
-if (WITH_QR_CODES)
-    file(GLOB_RECURSE SourceListQRCodeSupport
-        "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader/*.cpp"
-        "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader/*.h"
-
-        "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.cpp"
-        "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.hpp"
-    )
-endif()
-
-# Unit test sources
-if (UNIT_TESTING)
-    file(GLOB_RECURSE SourceListUnitTests
-        "${CMAKE_SOURCE_DIR}/Libs/bandit/*.h"
-        "${CMAKE_SOURCE_DIR}/Libs/bandit/*.hpp"
-        "${CMAKE_SOURCE_DIR}/Tests/main.cpp"
-        "${CMAKE_SOURCE_DIR}/Tests/*.hpp"
-    )
-endif()
-
-# Graphical User Interface - depends on Qt
-file(GLOB_RECURSE SourceListGui
-    "${CMAKE_SOURCE_DIR}/Source/Gui/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Gui/*.hpp"
-    "${CMAKE_SOURCE_DIR}/Source/Gui/*.c"      "${CMAKE_SOURCE_DIR}/Source/Gui/*.h"
-)
-
-# GUI Support Library
-file(GLOB_RECURSE SourceListGuiSupport
-    "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication/*.cpp"
-    "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication/*.h"
-
-    "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.cpp"
-    "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.h"
-)
-
-# Platform-specific sources for the GUI
-if (WIN32)
-    file(GLOB_RECURSE SourceListGuiPlatformSupport
-        "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_win.cpp"
-    )
-else()
-    file(GLOB_RECURSE SourceListGuiPlatformSupport
-        "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_unix.cpp"
-    )
-endif()
-set(SourceListGuiSupport ${SourceListGuiSupport} ${SourceListGuiPlatformSupport})
-
-# Cli mode sources
-file(GLOB_RECURSE SourceListCli
-    "${CMAKE_SOURCE_DIR}/Source/Cli/*.cpp"    "${CMAKE_SOURCE_DIR}/Source/Cli/*.hpp"
-    "${CMAKE_SOURCE_DIR}/Source/Cli/*.c"      "${CMAKE_SOURCE_DIR}/Source/Cli/*.h"
-
-    "${CMAKE_SOURCE_DIR}/Libs/PlatformFolders/sago/*.cpp"
-    "${CMAKE_SOURCE_DIR}/Libs/PlatformFolders/sago/*.h"
-)
-
-# Add source directory to include paths
-include_directories("${CMAKE_SOURCE_DIR}/Source")
-include_directories("${CMAKE_SOURCE_DIR}/Libs")
-include_directories("${CMAKE_SOURCE_DIR}/Libs/libbaseencode")
-include_directories("${CMAKE_SOURCE_DIR}/Libs/libcotp")
-include_directories("${CMAKE_SOURCE_DIR}/Libs/cereal")
-include_directories("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader")
-include_directories("${CMAKE_SOURCE_DIR}/Libs/PlatformFolders")
-include_directories("${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication")
-include_directories("${CMAKE_SOURCE_DIR}/Libs/qtlockedfile")
-
-if (MODE STREQUAL "GUI")
-    # Configure QtKeychain
-    message(STATUS "=== Configuring QtKeychain...")
-    set(BUILD_TEST_APPLICATION OFF CACHE BOOLEAN "")
-    set(BUILD_TRANSLATIONS OFF CACHE BOOLEAN "")
-    set(QTKEYCHAIN_STATIC ON CACHE BOOLEAN "")
-    set(LIBSECRET_SUPPORT ON CACHE BOOLEAN "")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/qtkeychain")
-    include_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/qtkeychain")
-    link_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/qtkeychain")
-    message(STATUS "=== Configured QtKeychain.")
-endif()
-
-if (WITH_QR_CODES)
-    message(STATUS "=== Configuring zxing-cpp...")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp")
-    include_directories("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/core/src")
-    link_directories("${CMAKE_CURRENT_BINARY_DIR}/Libs/zxing-cpp")
-    message(STATUS "=== Configured zxing-cpp.")
-endif()
-
 #######################################################################################################################
 # Targets
 #######################################################################################################################
 
-# Core Library Support
-add_library(CoreLibSupport ${SourceListCoreSupport})
-target_link_libraries(CoreLibSupport ${GCRYPT_LIBRARIES})
+# Set target destination for built targets
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Core library
-add_library(CoreLib ${SourceListCore})
-target_link_libraries(CoreLib CoreLibSupport
-    ${GCRYPT_LIBRARIES}
-    ${CRYPTOPP_LDFLAGS}
-    ${ZLIB_LIBRARIES}
-)
-if (WITH_QR_CODES)
-    target_link_libraries(CoreLib
-        QRCodeSupportLib
-        libzxing
-    )
+message(STATUS "==> Configuring target \"Core\"...")
+add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Core")
+include_directories("${CORELIB_INCLUDE_DIR}")
+
+# Shared library
+message(STATUS "==> Configuring target \"Shared\"...")
+add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Shared")
+include_directories("${SHAREDLIB_INCLUDE_DIR}")
+
+# CLI
+message(STATUS "==> Configuring target \"CLI\"...")
+add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Cli")
+
+# GUI
+if (NOT DISABLE_GUI)
+    message(STATUS "==> Configuring target \"GUI\"...")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Gui")
 endif()
 
-# QR Code Support
-if (WITH_QR_CODES)
-    add_library(QRCodeSupportLib ${SourceListQRCodeSupport})
-endif()
-
-if (MODE STREQUAL "GUI")
-    add_library(GuiLibSupport STATIC ${SourceListGuiSupport})
-    target_link_libraries(GuiLibSupport
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
-        Qt5::Network
-    )
-
-    qt5_add_resources(RCC_SOURCES "${CMAKE_SOURCE_DIR}/EmbeddedAssets.qrc")
-    add_library(GuiLib STATIC ${SourceListGui} ${RCC_SOURCES})
-    target_link_libraries(GuiLib
-        CoreLib
-        GuiLibSupport
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
-        Qt5::Xml
-    )
-
-    if (WITH_QR_CODES)
-        target_link_libraries(GuiLib
-            QRCodeSupportLib
-            libzxing
-        )
-    endif()
-endif()
-
-if (MODE STREQUAL "GUI")
-    add_executable(${PROJECT_NAME} ${SourceListApp})
-    target_link_libraries(${PROJECT_NAME}
-        CoreLib
-        GuiLib
-        ${RCC_SOURCES}
-        qt5keychain
-    )
-elseif(MODE STREQUAL "CLI")
-    add_executable("${PROJECT_NAME}Cli" ${SourceListApp} ${SourceListCli})
-    target_link_libraries("${PROJECT_NAME}Cli"
-        CoreLib
-    )
-endif()
-
-# Link additional external dependencies
-if (MODE STREQUAL "GUI")
-    target_link_libraries(${PROJECT_NAME}
-        ${GCRYPT_LIBRARIES}
-        ${CRYPTOPP_LDFLAGS}
-        ${ZLIB_LIBRARIES}
-    )
-else()
-    target_link_libraries("${PROJECT_NAME}Cli"
-        ${GCRYPT_LIBRARIES}
-        ${CRYPTOPP_LDFLAGS}
-        ${ZLIB_LIBRARIES}
-    )
-endif()
-
-# Link to bundled ZXing library when QR Code support was enabled
-if (WITH_QR_CODES)
-    if (MODE STREQUAL "GUI")
-        target_link_libraries(${PROJECT_NAME} QRCodeSupportLib libzxing)
-    else()
-        target_link_libraries("${PROJECT_NAME}Cli" QRCodeSupportLib libzxing)
-    endif()
-endif()
-
-
-# Unit tests
+# Unit test sources
 if (UNIT_TESTING)
-    add_executable("${PROJECT_NAME}Tests" ${SourceListUnitTests})
-    target_link_libraries("${PROJECT_NAME}Tests" CoreLib)
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Tests")
 endif()
-
 
 #######################################################################################################################
 # Install rules
 #######################################################################################################################
 
-if (MODE STREQUAL "GUI")
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OTPGen
+if (NOT DISABLE_GUI)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/OTPGen
             DESTINATION ${CMAKE_INSTALL_BINDIR}
             PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
             RENAME otpgen)
@@ -343,9 +119,9 @@ if (MODE STREQUAL "GUI")
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/Desktop/applications
                       ${CMAKE_SOURCE_DIR}/Desktop/icons
             DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
-elseif(MODE STREQUAL "CLI")
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OTPGenCli
-            DESTINATION ${CMAKE_INSTALL_BINDIR}
-            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-            RENAME otpgen-cli)
 endif()
+
+install(FILES ${CMAKE_BINARY_DIR}/bin/OTPGenCli
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        RENAME otpgen-cli)

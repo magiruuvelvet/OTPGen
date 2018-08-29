@@ -1,6 +1,6 @@
 #include "OTPWidget.hpp"
 
-#include <Config/AppConfig.hpp>
+#include "GuiConfig.hpp"
 
 #include <QIntValidator>
 
@@ -187,7 +187,7 @@ QComboBox *OTPWidget::make_typeCb(int row, const QObject *receiver, const std::f
     cb->setFrame(false);
     cb->setAutoFillBackground(true);
     cb->setPalette(GuiHelpers::make_cb_theme(cb->palette()));
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         cb->setStyleSheet("color: black");
     }
@@ -208,7 +208,7 @@ QComboBox *OTPWidget::make_algoCb()
     cb->setFrame(false);
     cb->setAutoFillBackground(true);
     cb->setPalette(GuiHelpers::make_cb_theme(cb->palette()));
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         cb->setStyleSheet("color: black");
     }
@@ -341,7 +341,7 @@ QWidget *OTPWidget::make_steamInput()
     en->setFrame(false);
     en->setAutoFillBackground(true);
     en->setPalette(GuiHelpers::make_cb_theme(en->palette()));
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         en->setStyleSheet("color: black");
     }
@@ -370,9 +370,9 @@ QWidget *OTPWidget::make_typeDisplay(const OTPToken *token)
     icon->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     switch (token->type())
     {
-        case OTPToken::TOTP:  icon->setPixmap(QPixmap(":/GuiAssets/clock.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
-        case OTPToken::Authy: icon->setPixmap(QPixmap(":/GuiAssets/logos/authy.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
-        case OTPToken::Steam: icon->setPixmap(QPixmap(":/GuiAssets/logos/steam.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
+        case OTPToken::TOTP:  icon->setPixmap(QPixmap(":/clock.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
+        case OTPToken::Authy: icon->setPixmap(QPixmap(":/logos/authy.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
+        case OTPToken::Steam: icon->setPixmap(QPixmap(":/logos/steam.svgz").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation)); break;
     }
     hbox->addWidget(icon);
 
@@ -442,7 +442,7 @@ QWidget *OTPWidget::make_tokenGenDisplay(const unsigned int &to, const OTPToken:
     timeout->setTextVisible(false);
     const QString stylesheetBase = "QProgressBar { background-color: transparent; border: 0; outline: 0; } ";
     QString stylesheetExtra;
-    if (cfg::useTheming())
+    if (gcfg::useTheming())
     {
         stylesheetExtra = "QProgressBar::chunk { background-color: lightgray; border: 0; outline: 0; }";
     }

@@ -1,7 +1,7 @@
 #ifndef ANDOTP_HPP
 #define ANDOTP_HPP
 
-#include <Core/Tokens.hpp>
+#include <Tokens.hpp>
 
 #include <vector>
 

@@ -3,6 +3,7 @@
 ## bandit
 
  - URL: [https://github.com/banditcpp/bandit](https://github.com/banditcpp/bandit)
+ - Status: clean
  - Portable header-only Unit Testing Framework
  - Required to run the unit tests of this application
 
@@ -36,7 +37,7 @@
 ## qtkeychain
 
  - URL: [https://github.com/frankosterfeld/qtkeychain](https://github.com/frankosterfeld/qtkeychain)
- - Status: clean, except cmake files
+ - Status: includes custom patches
  - Native OS Keychain Integration (store/receive token database password from keychain)
 
 ## zxing-cpp

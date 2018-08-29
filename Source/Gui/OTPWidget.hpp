@@ -9,8 +9,8 @@
 #include "GuiHelpers.hpp"
 #include "TokenTableWidget.hpp"
 
-#include <Core/Tokens/OTPToken.hpp>
-#include <Core/TokenStore.hpp>
+#include <Tokens/OTPToken.hpp>
+#include <TokenStore.hpp>
 
 class OTPWidget : public QWidget
 {

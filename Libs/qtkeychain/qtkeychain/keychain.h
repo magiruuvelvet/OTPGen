@@ -9,11 +9,7 @@
 #ifndef KEYCHAIN_H
 #define KEYCHAIN_H
 
-#if !defined(QTKEYCHAIN_NO_EXPORT)
-#include "qkeychain_export.h"
-#else
 #define QKEYCHAIN_EXPORT
-#endif
 
 #include <QtCore/QObject>
 #include <QtCore/QString>

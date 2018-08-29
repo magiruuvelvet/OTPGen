@@ -4,84 +4,19 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include <Config/AppConfig.hpp>
+#include <AppConfig.hpp>
+#include "GuiConfig.hpp"
+#include <CommandLineOperation.hpp>
 
-#include <Core/TokenDatabase.hpp>
-#include <Core/TokenStore.hpp>
-
-void exec_commandline_operation(const std::vector<std::string> &args)
-{
-    if (args.size() > 1)
-    {
-        if (args.at(1) == "--swap")
-        {
-            if (args.size() != 4)
-            {
-                std::cerr << "Swap operation requires 2 labels!" << std::endl;
-                std::exit(2);
-            }
-
-            const auto res = TokenStore::i()->swapTokens(args.at(2), args.at(3));
-            if (res)
-            {
-                std::printf("Swapped \"%s\" with \"%s\".\n", args.at(2).c_str(), args.at(3).c_str());
-                TokenDatabase::saveTokens();
-                std::exit(0);
-            }
-            else
-            {
-                std::fprintf(stderr, "Swapping of \"%s\" and \"%s\" failed.\n", args.at(2).c_str(), args.at(3).c_str());
-                std::exit(3);
-            }
-        }
-        else if (args.at(1) == "--move")
-        {
-            if (args.size() != 4)
-            {
-                std::cerr << "Swap operation requires 1 label and a new position or a label (below)!" << std::endl;
-                std::exit(2);
-            }
-
-            unsigned long newPos = 0;
-            bool ok = false, res;
-            try {
-                newPos = std::stoul(args.at(3));
-                ok = true;
-            } catch (...) {
-                ok = false;
-            }
-            if (!ok)
-            {
-                res = TokenStore::i()->moveTokenBelow(args.at(2).c_str(), args.at(3).c_str());
-            }
-            else
-            {
-                res = TokenStore::i()->moveToken(args.at(2).c_str(), newPos);
-            }
-
-            if (res)
-            {
-                std::cout << "Move operation successful." << std::endl;
-                TokenDatabase::saveTokens();
-                std::exit(0);
-            }
-            else
-            {
-                std::cerr << "Move operation failed." << std::endl;
-                std::exit(3);
-            }
-        }
-    }
-}
-
-#ifdef OTPGEN_GUI
+#include <TokenDatabase.hpp>
+#include <TokenStore.hpp>
 
 #include <QApplication>
 #include <QMessageBox>
 #include <QFileInfo>
 
-#include <Gui/MainWindow.hpp>
-#include <Gui/UserInputDialog.hpp>
+#include <MainWindow.hpp>
+#include <UserInputDialog.hpp>
 
 #include <qtsingleapplication.h>
 #include <qtkeychain/keychain.h>
@@ -131,7 +66,7 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
     std::string password;
 
     // token database exists, ask for decryption and load tokens
-    if (QFileInfo(QString::fromUtf8(cfg::database().c_str())).exists())
+    if (QFileInfo(QString::fromUtf8(gcfg::database().c_str())).exists())
     {
         // Release Build
 #ifndef OTPGEN_DEBUG
@@ -217,7 +152,7 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
     mainWindow = std::make_shared<MainWindow>();
     mainWindowContainer = std::make_shared<FramelessContainer>(mainWindow.get());
 
-    if (!cfg::startMinimizedToTray())
+    if (!gcfg::startMinimizedToTray())
     {
         mainWindow->show();
         mainWindow->activateWindow();
@@ -253,14 +188,14 @@ int main(int argc, char **argv)
 {
     // QApplication::setDesktopSettingsAware(false);
 #ifdef OTPGEN_DEBUG
-    QtSingleApplication a(cfg::q(cfg::Name) + "_DEBUG", argc, argv);
+    QtSingleApplication a(gcfg::q(cfg::Name) + "_DEBUG", argc, argv);
 #else
-    QtSingleApplication a(cfg::q(cfg::Name), argc, argv);
+    QtSingleApplication a(gcfg::q(cfg::Name), argc, argv);
 #endif
-    a.setOrganizationName(cfg::q(cfg::Developer));
-    a.setApplicationName(cfg::q(cfg::Name));
-    a.setApplicationDisplayName(cfg::q(cfg::Name));
-    a.setApplicationVersion(cfg::q(cfg::Version));
+    a.setOrganizationName(gcfg::q(cfg::Developer));
+    a.setApplicationName(gcfg::q(cfg::Name));
+    a.setApplicationDisplayName(gcfg::q(cfg::Name));
+    a.setApplicationVersion(gcfg::q(cfg::Version));
     a.setUserData(0, new AppIcon());
 
     // don't allow multiple running instances, but send signals to main instance
@@ -284,12 +219,12 @@ int main(int argc, char **argv)
     }
 
     // initialize application settings
-    std::printf("path: %s\n", cfg::path().toUtf8().constData());
-    std::printf("settings: %s\n", cfg::settings()->fileName().toUtf8().constData());
-    cfg::initDefaultSettings();
+    std::printf("path: %s\n", gcfg::path().toUtf8().constData());
+    std::printf("settings: %s\n", gcfg::settings()->fileName().toUtf8().constData());
+    gcfg::initDefaultSettings();
 
     // set token database path
-    TokenDatabase::setTokenFile(cfg::database());
+    TokenDatabase::setTokenFile(gcfg::database());
 
 #ifdef OTPGEN_DEBUG
     const auto keychain_service_name = a.applicationDisplayName() + "_d";
@@ -356,70 +291,3 @@ int main(int argc, char **argv)
 
     return a.exec();
 }
-
-#endif // OTPGEN_GUI
-
-#ifdef OTPGEN_CLI
-
-#include <Cli/StdinEchoMode.hpp>
-
-#include <sago/platform_folders.h>
-
-int main(int argc, char **argv)
-{
-    std::printf("%s CLI\n\n", cfg::Name.c_str());
-
-#ifdef OTPGEN_DEBUG
-    TokenDatabase::setPassword("pwd123");
-#else
-    std::string password;
-    std::cout << "Enter your token database password: ";
-
-    SetStdinEcho(false);
-    std::cin >> password;
-    SetStdinEcho(true);
-
-    if (!TokenDatabase::setPassword(password))
-    {
-        std::cerr << "Password may not be empty!" << std::endl;
-        return 1;
-    }
-
-    password.clear();
-
-    std::cout << std::endl;
-#endif
-
-    const auto config_home = sago::getConfigHome();
-    const auto app_cfg = config_home + "/" + cfg::Developer + "/" + cfg::Name;
-
-#ifdef OTPGEN_DEBUG
-    TokenDatabase::setTokenFile(app_cfg + "/database.debug");
-#else
-    TokenDatabase::setTokenFile(app_cfg + "/database");
-#endif
-
-    auto status = TokenDatabase::loadTokens();
-    if (status == TokenDatabase::FileReadFailure)
-    {
-        status = TokenDatabase::saveTokens();
-        if (status != TokenDatabase::Success)
-        {
-            std::cerr << "Unable to initialize the token database!" << std::endl;
-            return 1;
-        }
-    }
-    if (status != TokenDatabase::Success)
-    {
-        std::cerr << "Unable to load the token database! Is the password correct?" << std::endl;
-        return 1;
-    }
-
-    // run command line operation if any
-    const std::vector<std::string> args(argv, argv + argc);
-    exec_commandline_operation(args);
-
-    return 0;
-}
-
-#endif // OTPGEN_CLI
