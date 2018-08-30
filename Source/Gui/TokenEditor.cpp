@@ -23,8 +23,6 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     : WidgetBase(parent),
       _mode(mode)
 {
-    this->setWindowFlag(Qt::FramelessWindowHint, true);
-    this->setPalette(GuiHelpers::make_theme(this->palette()));
     if (mode == OTPWidget::Mode::Edit)
     {
         this->setWindowTitle(GuiHelpers::make_windowTitle("Add Tokens"));
@@ -43,8 +41,6 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     this->resize(gcfg::defaultGeometryTokenEditor());
 
     GuiHelpers::centerWindow(this);
-
-    vbox = GuiHelpers::make_vbox();
 
     if (mode == OTPWidget::Mode::Edit) {
 
@@ -362,8 +358,8 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     vbox->addWidget(titleBar.get());
 
     tokenEditWidget = std::make_shared<OTPWidget>(OTPWidget::Mode::Edit);
-    tokenEditWidget->setContentsMargins(3,3,3,3);
-    vbox->addWidget(tokenEditWidget.get());
+    tokenEditWidget->setContentsMargins(0,0,0,0);
+    innerVBox->addWidget(tokenEditWidget.get());
 
     btnMenu = std::make_shared<QMenu>();
     btnDeleteIcon = std::make_shared<QAction>();
@@ -374,6 +370,8 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
         removeTokenIcon(row);
     });
     btnMenu->addAction(btnDeleteIcon.get());
+
+    vbox->addLayout(innerVBox.get());
 
     this->setLayout(vbox.get());
 

@@ -52,11 +52,6 @@ private:
     void filterTokens(const QString &searchTerm);
 
 private:
-    std::shared_ptr<TitleBar> titleBar;
-
-    std::shared_ptr<QVBoxLayout> vbox;
-    std::shared_ptr<QVBoxLayout> innerVBox;
-
     QList<std::shared_ptr<QPushButton>> buttons;
     QList<std::shared_ptr<QPushButton>> windowControls;
 

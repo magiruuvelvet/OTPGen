@@ -57,7 +57,7 @@ public:
     static const QSize defaultGeometryMainWindow()
     { return QSize(461, 490); }
     static const QSize defaultGeometryTokenEditor()
-    { return QSize(957, 290); }
+    { return QSize(960, 290); }
 
     static void initDefaultSettings();
 

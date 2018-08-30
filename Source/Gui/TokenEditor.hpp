@@ -47,10 +47,6 @@ private:
     OTPWidget::Mode _mode;
     std::vector<OTPToken*> _linkedTokens;
 
-    std::shared_ptr<TitleBar> titleBar;
-
-    std::shared_ptr<QVBoxLayout> vbox;
-
     std::shared_ptr<QMenu> btnMenu;
     std::shared_ptr<QAction> btnDeleteIcon;
 

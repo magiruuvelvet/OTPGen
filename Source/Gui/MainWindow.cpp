@@ -9,18 +9,10 @@
 MainWindow::MainWindow(QWidget *parent)
     : WidgetBase(parent)
 {
-    this->setWindowFlag(Qt::FramelessWindowHint, true);
-    this->setPalette(GuiHelpers::make_theme(this->palette()));
-    this->setWindowTitle(qApp->applicationDisplayName());
-    this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
-
     // initial window size
     this->resize(gcfg::defaultGeometryMainWindow());
 
     GuiHelpers::centerWindow(this);
-
-    vbox = GuiHelpers::make_vbox();
-    innerVBox = GuiHelpers::make_vbox(0, 2, QMargins(4,1,4,4));
 
     buttons = GuiHelpers::make_tokenControls(this,
         true, "Add tokens", [&]{ addNewTokens(); },

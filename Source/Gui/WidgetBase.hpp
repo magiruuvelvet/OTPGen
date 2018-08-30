@@ -5,6 +5,11 @@
 #include <QResizeEvent>
 #include <QCloseEvent>
 #include <QPushButton>
+#include <QBoxLayout>
+
+#include "TitleBar.hpp"
+
+#include <memory>
 
 class WidgetBase : public QWidget
 {
@@ -27,6 +32,11 @@ signals:
 protected:
     void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent *event);
+
+    std::shared_ptr<TitleBar> titleBar;
+
+    std::shared_ptr<QVBoxLayout> vbox;
+    std::shared_ptr<QVBoxLayout> innerVBox;
 
 private:
     mutable QPushButton *_maxRestoreButton = nullptr;

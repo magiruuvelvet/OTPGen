@@ -34,10 +34,6 @@ private:
     void sendText();
 
 private:
-    std::shared_ptr<TitleBar> titleBar;
-
-    std::shared_ptr<QVBoxLayout> vbox;
-    std::shared_ptr<QVBoxLayout> innerVBox;
     std::shared_ptr<QHBoxLayout> buttonHBox;
 
     QList<std::shared_ptr<QPushButton>> buttons;

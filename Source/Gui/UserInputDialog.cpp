@@ -7,18 +7,11 @@
 UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
     : WidgetBase(parent)
 {
-    this->setWindowFlag(Qt::FramelessWindowHint, true);
-    this->setPalette(GuiHelpers::make_theme(this->palette()));
-    this->setWindowTitle(qApp->applicationDisplayName());
-    this->setWindowIcon(static_cast<AppIcon*>(qApp->userData(0))->icon);
-
     // initial window size
     this->resize(400, 160);
 
     GuiHelpers::centerWindow(this);
 
-    vbox = GuiHelpers::make_vbox();
-    innerVBox = GuiHelpers::make_vbox(0, 2, QMargins(4,1,4,4));
     buttonHBox = GuiHelpers::make_hbox(0, 4);
 
     windowControls = GuiHelpers::make_windowControls(this,
