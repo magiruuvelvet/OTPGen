@@ -37,7 +37,7 @@
 ## boost
 
  - URL: https://www.boost.org/
- - Status: clean, only the `filesystem` librayr and required header files
+ - Status: clean, only the `filesystem` library and required header files
  - Only used in the **CLI** version
  - Create the config directory on first start
 
