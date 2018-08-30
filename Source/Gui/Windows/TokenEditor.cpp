@@ -544,6 +544,7 @@ void TokenEditor::addNewToken(OTPToken *token)
             tokens->tokenEditType(row)->setCurrentIndex(1);
             tokens->tokenDigits(row)->setText(QString::number(token->digits()));
             tokens->tokenPeriod(row)->setText(QString::number(token->period()));
+            tokens->tokenCounter(row)->setText(QString::number(token->counter()));
             setAlgorithmCbIndex(tokens->tokenAlgorithm(row), token->algorithm());
             break;
         case OTPToken::Steam:
@@ -840,9 +841,9 @@ void TokenEditor::updateRow(int row)
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
 
             tokens->tokenDigits(row)->setEnabled(true);
-            tokens->tokenDigits(row)->setText("6");
+            tokens->tokenDigits(row)->setText(QString::number(TOTPToken::DEFAULT_DIGIT_LENGTH));
             tokens->tokenPeriod(row)->setEnabled(true);
-            tokens->tokenPeriod(row)->setText("30");
+            tokens->tokenPeriod(row)->setText(QString::number(TOTPToken::DEFAULT_PERIOD));
             tokens->tokenCounter(row)->setEnabled(false);
             tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
             tokens->tokenAlgorithm(row)->setEnabled(true);
@@ -854,10 +855,11 @@ void TokenEditor::updateRow(int row)
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
 
             tokens->tokenDigits(row)->setEnabled(true);
-            tokens->tokenDigits(row)->setText("6");
+            tokens->tokenDigits(row)->setText(QString::number(HOTPToken::DEFAULT_DIGIT_LENGTH));
             tokens->tokenPeriod(row)->setEnabled(false);
             tokens->tokenPeriod(row)->setText("");
             tokens->tokenCounter(row)->setEnabled(true);
+            tokens->tokenCounter(row)->setText("0");
             tokens->setCellWidget(row, 6, OTPWidget::make_algoCb());
             tokens->tokenAlgorithm(row)->setEnabled(true);
             tokens->tokenAlgorithm(row)->setCurrentIndex(0);
@@ -868,9 +870,9 @@ void TokenEditor::updateRow(int row)
             tokens->setCellWidget(row, 2, OTPWidget::make_steamInput());
 
             tokens->tokenDigits(row)->setEnabled(false);
-            tokens->tokenDigits(row)->setText("5");
+            tokens->tokenDigits(row)->setText(QString::number(SteamToken::DEFAULT_DIGIT_LENGTH));
             tokens->tokenPeriod(row)->setEnabled(false);
-            tokens->tokenPeriod(row)->setText("30");
+            tokens->tokenPeriod(row)->setText(QString::number(SteamToken::DEFAULT_PERIOD));
             tokens->tokenCounter(row)->setEnabled(false);
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForSteam());
             tokens->cellWidget(row, 6)->setEnabled(false);
@@ -881,9 +883,9 @@ void TokenEditor::updateRow(int row)
             tokens->setCellWidget(row, 2, OTPWidget::make_secretInput());
 
             tokens->tokenDigits(row)->setEnabled(true);
-            tokens->tokenDigits(row)->setText("7");
+            tokens->tokenDigits(row)->setText(QString::number(AuthyToken::DEFAULT_DIGIT_LENGTH));
             tokens->tokenPeriod(row)->setEnabled(true);
-            tokens->tokenPeriod(row)->setText("10");
+            tokens->tokenPeriod(row)->setText(QString::number(AuthyToken::DEFAULT_PERIOD));
             tokens->tokenCounter(row)->setEnabled(false);
             tokens->setCellWidget(row, 6, OTPWidget::make_algoForAuthy());
             tokens->cellWidget(row, 6)->setEnabled(true);
