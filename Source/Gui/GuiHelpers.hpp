@@ -18,6 +18,7 @@
 
 #include <WidgetHelpers/FramelessContainer.hpp>
 #include <WidgetHelpers/WidgetBase.hpp>
+#include <WidgetHelpers/DialogBase.hpp>
 #include <WidgetHelpers/TitleBar.hpp>
 
 #include <memory>
@@ -48,12 +49,12 @@ public:
                                                    const QList<std::shared_ptr<QPushButton>> &leftBtns = QList<std::shared_ptr<QPushButton>>(),
                                                    const QList<std::shared_ptr<QPushButton>> &rightBtns = QList<std::shared_ptr<QPushButton>>());
 
-    static QList<std::shared_ptr<QPushButton>> make_windowControls(const WidgetBase *receiver,
+    static QList<std::shared_ptr<QPushButton>> make_windowControls(const QWidget *receiver,
                                                                    bool minimize, const std::function<void()> &minimizeCallback,
                                                                    bool maximizeRestore, const std::function<void()> &maximizeRestoreCallback,
                                                                    bool close, const std::function<void()> &closeCallback);
 
-    static QList<std::shared_ptr<QPushButton>> make_tokenControls(const WidgetBase *receiver,
+    static QList<std::shared_ptr<QPushButton>> make_tokenControls(const QWidget *receiver,
                                                                   bool add, const QString &tooltip1, const std::function<void()> &addCallback,
                                                                   bool remove, const QString &tooltip2, const std::function<void()> &removeCallback);
 
@@ -61,9 +62,9 @@ public:
     static std::shared_ptr<QAction> make_menuAction(const QString &name, const QIcon &icon,
                                                     const QObject *receiver, const std::function<void()> &callback);
 
-    static void default_minimizeCallback(WidgetBase *receiver);
-    static void default_maximizeRestoreCallback(WidgetBase *receiver);
-    static void default_closeCallback(WidgetBase *receiver);
+    static void default_minimizeCallback(QWidget *receiver);
+    static void default_maximizeRestoreCallback(QWidget *receiver);
+    static void default_closeCallback(QWidget *receiver);
 
     static const QPalette make_theme(const QPalette &base);
     static const QPalette make_cb_theme(const QPalette &base);

@@ -3,7 +3,7 @@
 
 #include "GuiHelpers.hpp"
 
-class UserInputDialog : public WidgetBase
+class UserInputDialog : public DialogBase
 {
     Q_OBJECT
 
@@ -14,7 +14,7 @@ public:
     };
 
     explicit UserInputDialog(EchoMode mode = Default, QWidget *parent = nullptr);
-    ~UserInputDialog();
+    ~UserInputDialog() override;
 
     void setEchoMode(EchoMode mode);
     void setDialogNotice(const QString &notice);
@@ -22,7 +22,7 @@ public:
 
     // blocking execution, application modal
     // use textEntered() to receive the entered text
-    void exec();
+    //void exec();
 
 signals:
     void textEntered(const QString &password);

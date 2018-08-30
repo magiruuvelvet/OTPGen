@@ -1,11 +1,9 @@
 #include "UserInputDialog.hpp"
 
-#include <QEventLoop>
-
 #include "GuiConfig.hpp"
 
 UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
-    : WidgetBase(parent)
+    : DialogBase(parent)
 {
     // initial window size
     this->resize(400, 160);
@@ -100,18 +98,18 @@ const QString UserInputDialog::text() const
     return textInput->text();
 }
 
-void UserInputDialog::exec()
-{
-    this->setWindowModality(Qt::ApplicationModal);
-    this->show();
-    this->activateWindow();
+//void UserInputDialog::exec()
+//{
+//    this->setWindowModality(Qt::ApplicationModal);
+//    this->show();
+//    this->activateWindow();
 
-    QEventLoop block;
-    QObject::connect(this, &UserInputDialog::closed, &block, &QEventLoop::quit);
-    block.exec();
+//    QEventLoop block;
+//    QObject::connect(this, &UserInputDialog::closed, &block, &QEventLoop::quit);
+//    block.exec();
 
-    this->setWindowModality(Qt::NonModal);
-}
+//    this->setWindowModality(Qt::NonModal);
+//}
 
 void UserInputDialog::sendText()
 {
