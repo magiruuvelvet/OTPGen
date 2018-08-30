@@ -2,7 +2,7 @@
 #define TOKENEDITOR_HPP
 
 #include "GuiHelpers.hpp"
-#include "OTPWidget.hpp"
+#include <Widgets/OTPWidget.hpp>
 
 class TokenEditor : public WidgetBase
 {

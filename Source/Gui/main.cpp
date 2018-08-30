@@ -15,8 +15,8 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
-#include <MainWindow.hpp>
-#include <UserInputDialog.hpp>
+#include <Windows/MainWindow.hpp>
+#include <Windows/UserInputDialog.hpp>
 
 #include <qtsingleapplication.h>
 #include <qtkeychain/keychain.h>

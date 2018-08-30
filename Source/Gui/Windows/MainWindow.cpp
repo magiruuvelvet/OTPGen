@@ -1,8 +1,7 @@
 #include "MainWindow.hpp"
+#include "GuiConfig.hpp"
 
 #include <TokenDatabase.hpp>
-
-#include "GuiConfig.hpp"
 
 #include <QMessageBox>
 
