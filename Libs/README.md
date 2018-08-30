@@ -34,6 +34,19 @@
  - Only used in the **CLI** version
  - Alternative to `QStandardPaths` to determine OS standard paths
 
+## boost
+
+ - URL: https://www.boost.org/
+ - Status: clean, only the `filesystem` librayr and required header files
+ - Only used in the **CLI** version
+ - Create the config directory on first start
+
+## replxx
+
+ - URL: https://github.com/AmokHuginnsson/replxx
+ - Status: clean
+ - *Planned to use for the CLI version*
+
 ## qtkeychain
 
  - URL: [https://github.com/frankosterfeld/qtkeychain](https://github.com/frankosterfeld/qtkeychain)
