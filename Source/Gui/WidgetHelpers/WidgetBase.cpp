@@ -11,6 +11,8 @@ WidgetBase::WidgetBase(QWidget *parent)
 
     vbox = GuiHelpers::make_vbox();
     innerVBox = GuiHelpers::make_vbox(0, 2, QMargins(4,1,4,4));
+
+    framelessContainer = std::make_shared<FramelessContainer>(this);
 }
 
 WidgetBase::~WidgetBase()

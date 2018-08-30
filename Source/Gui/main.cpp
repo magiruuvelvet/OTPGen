@@ -22,7 +22,6 @@
 #include <qtkeychain/keychain.h>
 
 std::shared_ptr<MainWindow> mainWindow;
-std::shared_ptr<FramelessContainer> mainWindowContainer;
 
 // QKeychain already handles raw pointers and deletes them
 QKeychain::ReadPasswordJob *receivePassword = nullptr;
@@ -150,7 +149,6 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
     exec_commandline_operation(qtargs_to_strvec(args));
 
     mainWindow = std::make_shared<MainWindow>();
-    mainWindowContainer = std::make_shared<FramelessContainer>(mainWindow.get());
 
     if (!gcfg::startMinimizedToTray())
     {

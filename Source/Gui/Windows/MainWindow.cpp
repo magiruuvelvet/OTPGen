@@ -290,10 +290,8 @@ void MainWindow::addNewTokens()
     else
     {
         tokenEditor = std::make_shared<TokenEditor>();
-        tokenEditorHelper = std::make_shared<FramelessContainer>(tokenEditor.get());
         QObject::connect(tokenEditor.get(), &WidgetBase::closed, this, [&]{
             tokenEditor.reset();
-            tokenEditorHelper.reset();
         });
         QObject::connect(tokenEditor.get(), &TokenEditor::tokensSaved, this, &MainWindow::updateTokenList);
         tokenEditor->show();
@@ -337,10 +335,8 @@ void MainWindow::editSelectedTokens()
     else
     {
         tokenEditor = std::make_shared<TokenEditor>(OTPWidget::Mode::Override);
-        tokenEditorHelper = std::make_shared<FramelessContainer>(tokenEditor.get());
         QObject::connect(tokenEditor.get(), &WidgetBase::closed, this, [&]{
             tokenEditor.reset();
-            tokenEditorHelper.reset();
         });
         QObject::connect(tokenEditor.get(), &TokenEditor::tokensSaved, this, &MainWindow::updateTokenList);
 
@@ -369,10 +365,8 @@ void MainWindow::exportAllTokens()
     else
     {
         tokenExporter = std::make_shared<TokenEditor>(OTPWidget::Mode::Export);
-        tokenExporterHelper = std::make_shared<FramelessContainer>(tokenExporter.get());
         QObject::connect(tokenExporter.get(), &WidgetBase::closed, this, [&]{
             tokenExporter.reset();
-            tokenExporterHelper.reset();
         });
 
         std::vector<OTPToken*> tokens;

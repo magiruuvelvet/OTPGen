@@ -59,8 +59,6 @@ private:
     std::shared_ptr<OTPWidget> tokenWidget;
     std::shared_ptr<TokenEditor> tokenEditor;
     std::shared_ptr<TokenEditor> tokenExporter;
-    std::shared_ptr<FramelessContainer> tokenEditorHelper;
-    std::shared_ptr<FramelessContainer> tokenExporterHelper;
 
     std::shared_ptr<QSystemTrayIcon> trayIcon;
     std::shared_ptr<QMenu> trayMenu;

@@ -8,6 +8,7 @@
 #include <QBoxLayout>
 
 #include "TitleBar.hpp"
+#include "FramelessContainer.hpp"
 
 #include <memory>
 
@@ -34,6 +35,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
     std::shared_ptr<TitleBar> titleBar;
+    std::shared_ptr<FramelessContainer> framelessContainer;
 
     std::shared_ptr<QVBoxLayout> vbox;
     std::shared_ptr<QVBoxLayout> innerVBox;
