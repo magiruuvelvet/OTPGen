@@ -59,10 +59,12 @@ ImageReaderSource::ImageReaderSource(ArrayRef<char> image_, int width, int heigh
 Ref<LuminanceSource> ImageReaderSource::create(string const& filename) {
   string extension = filename.substr(filename.find_last_of(".") + 1);
   std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-  int width, height;
+  int width = 0, height = 0;
   int comps = 0;
   zxing::ArrayRef<char> image;
-  if (extension == "png" || extension == "PNG") {
+
+  // PNG (lodepng)
+  if (extension == "png") {
     std::vector<unsigned char> out;
 
     { unsigned w, h;
@@ -79,14 +81,18 @@ Ref<LuminanceSource> ImageReaderSource::create(string const& filename) {
     comps = 4;
     image = zxing::ArrayRef<char>(4 * width * height);
     memcpy(&image[0], &out[0], image->size());
-  } else if (extension == "jpg" || extension == "JPG" ||
-             extension == "jpe" || extension == "JPE" ||
-             extension == "jpeg" || extension == "JPEG") {
+
+  // JPEG (jpgd)
+  } else if (extension == "jpg" ||
+             extension == "jpe" ||
+             extension == "jpeg") {
     char *buffer = reinterpret_cast<char*>(jpgd::decompress_jpeg_image_from_file(
         filename.c_str(), &width, &height, &comps, 4));
     image = zxing::ArrayRef<char>(buffer, 4 * width * height);
     free(buffer);
-  } else if (extension == "svg" || extension == "SVG") {
+
+  // SVG (nanosvg)
+  } else if (extension == "svg") {
       auto svgimage = nsvgParseFromFile(filename.c_str(), "px", 96);
       if (svgimage)
       {
@@ -101,6 +107,7 @@ Ref<LuminanceSource> ImageReaderSource::create(string const& filename) {
           std::free(buffer);
       }
   }
+
   if (!image) {
     ostringstream msg;
     msg << "Loading \"" << filename << "\" failed.";
