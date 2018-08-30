@@ -1,10 +1,7 @@
 #ifndef USERINPUTDIALOG_HPP
 #define USERINPUTDIALOG_HPP
 
-#include "WidgetBase.hpp"
 #include "GuiHelpers.hpp"
-
-#include <QTextEdit>
 
 class UserInputDialog : public WidgetBase
 {

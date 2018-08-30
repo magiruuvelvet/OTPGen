@@ -2,15 +2,11 @@
 #define MAINWINDOW_HPP
 
 #include <QSystemTrayIcon>
-#include <QMenu>
-#include <QAction>
 #include <QEvent>
 #include <QTimer>
 
 #include <QShortcut>
 #include <QClipboard>
-
-#include "FramelessContainer.hpp"
 
 #include "GuiHelpers.hpp"
 #include "TokenEditor.hpp"

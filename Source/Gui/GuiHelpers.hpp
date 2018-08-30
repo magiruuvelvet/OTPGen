@@ -9,14 +9,16 @@
 
 #include <QPushButton>
 #include <QLineEdit>
+#include <QTextEdit>
 #include <QLabel>
 #include <QMenu>
 #include <QAction>
 
 #include <QList>
 
-#include "WidgetBase.hpp"
-#include "TitleBar.hpp"
+#include <WidgetHelpers/FramelessContainer.hpp>
+#include <WidgetHelpers/WidgetBase.hpp>
+#include <WidgetHelpers/TitleBar.hpp>
 
 #include <memory>
 #include <functional>
