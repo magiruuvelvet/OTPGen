@@ -13,9 +13,27 @@
 
 #include <sago/platform_folders.h>
 
+#include <boost/filesystem.hpp>
+
 int main(int argc, char **argv)
 {
     std::printf("%s CLI\n\n", cfg::Name.c_str());
+
+    const auto config_home = sago::getConfigHome();
+    const auto app_cfg = config_home + "/" + cfg::Developer + "/" + cfg::Name;
+
+    boost::system::error_code fs_error;
+    if (!boost::filesystem::exists(app_cfg, fs_error))
+    {
+        std::cout << "[info] first start! creating config directory: " << app_cfg << std::endl << std::endl;
+
+        auto fs_res = boost::filesystem::create_directories(app_cfg, fs_error);
+        if (!fs_res)
+        {
+            std::fprintf(stderr, "Failed to create directory: %s\n boost::filesystem: %s\n", app_cfg.c_str(), fs_error.message().c_str());
+            return 1;
+        }
+    }
 
 #ifdef OTPGEN_DEBUG
     TokenDatabase::setPassword("pwd123");
@@ -37,9 +55,6 @@ int main(int argc, char **argv)
 
     std::cout << std::endl;
 #endif
-
-    const auto config_home = sago::getConfigHome();
-    const auto app_cfg = config_home + "/" + cfg::Developer + "/" + cfg::Name;
 
 #ifdef OTPGEN_DEBUG
     TokenDatabase::setTokenFile(app_cfg + "/database.debug");
