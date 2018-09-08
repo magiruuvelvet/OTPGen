@@ -2,6 +2,10 @@
 
 #include "Internal/libcotpsupport.hpp"
 
+#include <cryptopp/base64.h>
+#include <cryptopp/base32.h>
+#include <cryptopp/filters.h>
+
 const OTPToken::DigitType SteamToken::DEFAULT_DIGIT_LENGTH = 5U;
 const OTPToken::PeriodType SteamToken::DEFAULT_PERIOD = 30U;
 const OTPToken::ShaAlgorithm SteamToken::DEFAULT_ALGORITHM = OTPToken::SHA1;
@@ -32,28 +36,32 @@ bool SteamToken::importBase64Secret(const std::string &base64_str)
         return false;
     }
 
-    // decode base-64 data
-    baseencode_error_t err = baseencode_error_t::SUCCESS;
-    auto data = base64_decode(base64_str.c_str(), base64_str.size(), &err);
+    try {
 
-    if (err != baseencode_error_t::SUCCESS)
-    {
-        // data is NULL here
+        // create an RFC 4648 base-32 encoder
+        // crypto++ uses DUDE by default which isn't TOTP compatible
+        auto encoder = new CryptoPP::Base32Encoder();
+        static const CryptoPP::byte ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        static const CryptoPP::AlgorithmParameters params = CryptoPP::MakeParameters(
+                                                            CryptoPP::Name::EncodingLookupArray(),
+                                                            static_cast<const CryptoPP::byte*>(ALPHABET));
+        encoder->IsolatedInitialize(params);
+
+        encoder->Attach(new CryptoPP::StringSink(_secret));
+
+        // decode and reencode base-64 data into base-32
+        CryptoPP::StringSource src(base64_str, true,
+            new CryptoPP::Base64Decoder(encoder));
+
+    } catch (...) {
+        _secret.clear();
         return false;
     }
 
-    // encode data to base-32
-    auto str = base32_encode(data, strlen( (const char*) data ), &err);
-    std::free(data);
-
-    if (err != baseencode_error_t::SUCCESS)
+    if (_secret.empty())
     {
-        // str is NULL HERE
         return false;
     }
-
-    _secret = std::string(str);
-    std::free(str);
 
     return true;
 }

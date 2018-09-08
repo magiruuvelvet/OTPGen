@@ -1,7 +1,6 @@
 
 extern "C" {
     #include <libcotp/cotp.h>
-    #include <libbaseencode/baseencode.h>
 }
 
 // undefine conflicting macros
