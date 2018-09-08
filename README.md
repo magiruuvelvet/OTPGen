@@ -26,6 +26,8 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
    - SteamGuard
  - Import tokens from QR Code images
    - Supported formats are: PNG, JPG and SVG (experimental)
+ - Export your tokens to other applications
+   - andOTP (supports both: plaintext and encrypted backups)
  - Search your tokens with regular expressions in the search bar and never lose
    time because of a huge token database
  - Copy tokens to clipboard without revealing them in the UI
@@ -38,7 +40,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
  - Export
    - `otpauth:` uri
    - QR Code
-   - andOTP (encrypted)
 
  - Refactor/Rewrite GUI
  - Use Model/View instead of a tedious hard-to-manage Widget
