@@ -279,23 +279,14 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
 
     exportMenu = std::make_shared<QMenu>();
     exportActions = {
-        GuiHelpers::make_menuAction("andOTP", QIcon(":/logos/andotp.svgz"), this, [&]{
-
-            const auto answer = QMessageBox::question(this, "andOTP",
-                "<b>WARNING!</b><br><br>Currently only plain text exports of andOTP json files are supported!<br>"
-                "Continue at your own risk. Click \"Yes\" to continue the export.");
-            if (answer != QMessageBox::Yes)
-            {
-                return;
-            }
-
-            auto file = QFileDialog::getSaveFileName(this, "Save andOTP json");
+        GuiHelpers::make_menuAction("andOTP (plaintext)", QIcon(":/logos/andotp.svgz"), this, [&]{
+            auto file = QFileDialog::getSaveFileName(this, "Save andOTP json (plaintext)");
             if (file.isEmpty() || file.isNull())
             {
                 return;
             }
 
-            const auto res = AppSupport::andOTP::exportTokens(file.toUtf8().constData(), this->availableTokens());
+            const auto res = AppSupport::andOTP::exportTokens(file.toUtf8().constData(), this->availableTokens(), AppSupport::andOTP::PlainText);
             if (res)
             {
                 QMessageBox::information(this, "andOTP", "Successfully exported an andOTP json file!");
@@ -303,6 +294,40 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
             else
             {
                 QMessageBox::critical(this, "andOTP", "Unable to export an andOTP json file!");
+            }
+        }),
+        GuiHelpers::make_menuAction("andOTP (encrypted)", QIcon(":/logos/andotp.svgz"), this, [&]{
+            auto file = QFileDialog::getSaveFileName(this, "Save andOTP json (encrypted)");
+            if (file.isEmpty() || file.isNull())
+            {
+                return;
+            }
+
+            auto passwordDialog = std::make_shared<UserInputDialog>(UserInputDialog::Password);
+            std::string password;
+            bool hasPassword = false;
+            passwordDialog->setDialogNotice("Please enter a password for the new andOTP token database.");
+            QObject::connect(passwordDialog.get(), &UserInputDialog::textEntered, this, [&](const QString &pwd){
+                password = pwd.toUtf8().constData();
+                hasPassword = true;
+            });
+            passwordDialog->exec();
+
+            if (password.empty() || !hasPassword)
+            {
+                password.clear();
+                QMessageBox::critical(this, "Password missing", "You didn't entered a password. Export process will be aborted.");
+                return;
+            }
+
+            const auto res = AppSupport::andOTP::exportTokens(file.toUtf8().constData(), this->availableTokens(), AppSupport::andOTP::Encrypted, password);
+            if (res)
+            {
+                QMessageBox::information(this, "andOTP", "Successfully exported an encrypted andOTP json file!");
+            }
+            else
+            {
+                QMessageBox::critical(this, "andOTP", "Unable to export an andOTP json file! Perhaps the encryption failed!");
             }
         }),
         GuiHelpers::make_menuSeparator(),
