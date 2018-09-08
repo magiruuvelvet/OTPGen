@@ -47,7 +47,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
  - User Settings
 
- - Get rid of gcrypt in andOTP import, replace with crypto++
  - Encrypted andOTP export with crypto++
 
 <br>
