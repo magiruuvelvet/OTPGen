@@ -12,9 +12,8 @@
 #include <cryptopp/sha.h>
 #include <cryptopp/filters.h>
 
-extern "C" {
-    #include <gcrypt.h>
-}
+#include <cryptopp/aes.h>
+#include <cryptopp/gcm.h>
 
 // andOTP token entry schema
 // JSON array
@@ -37,18 +36,6 @@ namespace AppSupport {
 
 const uint8_t andOTP::ANDOTP_IV_SIZE = 12U;
 const uint8_t andOTP::ANDOTP_TAG_SIZE = 16U;
-
-void andOTP::gcrypt_init()
-{
-    static bool initialized = false;
-    if (!initialized)
-    {
-        gcry_check_version(GCRYPT_VERSION);
-        gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
-        gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-        initialized = true;
-    }
-}
 
 bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &target, const Type &type, const std::string &password)
 {
@@ -239,45 +226,20 @@ bool andOTP::decrypt(const std::string &password, const std::string &buffer, std
     }
 
     try {
-        const auto stream_size = buffer.size();
+        // extract IV and encrypted message from the andOTP database
         const auto iv = buffer.substr(0, ANDOTP_IV_SIZE);
-        const auto tag = buffer.substr(stream_size - ANDOTP_TAG_SIZE);
+        const auto enc_buf = buffer.substr(ANDOTP_IV_SIZE);
 
-        const auto enc_buf_size = stream_size - ANDOTP_IV_SIZE - ANDOTP_TAG_SIZE;
-        const auto enc_buf = buffer.substr(ANDOTP_IV_SIZE, enc_buf_size);
-
-        // does crypto++ support GCM?
-
-        gcrypt_init();
-
-        gcry_cipher_hd_t hd;
-        gcry_cipher_open(&hd, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, GCRY_CIPHER_SECURE);
-        gcry_cipher_setkey(hd, sha256_password(password).c_str(), gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES256));
-        gcry_cipher_setiv(hd, iv.c_str(), ANDOTP_IV_SIZE);
-        auto decrypted_json = gcry_calloc_secure(enc_buf_size, 1);
-        gcry_cipher_decrypt(hd, decrypted_json, enc_buf_size, enc_buf.c_str(), enc_buf_size);
-        if (gcry_err_code(gcry_cipher_checktag(hd, tag.c_str(), ANDOTP_TAG_SIZE)) == GPG_ERR_CHECKSUM)
-        {
-            gcry_cipher_close(hd);
-            return false;
-        }
-
-        gcry_cipher_close(hd);
-
-        decrypted = std::string(static_cast<char*>(decrypted_json),
-                                static_cast<char*>(decrypted_json) + std::strlen(static_cast<char*>(decrypted_json)));
-        std::free(decrypted_json);
-
-        // clean up stream, remove possible garbage data from end
-        auto json_end = decrypted.find_last_of(']');
-        if (json_end == std::string::npos)
-        {
-            decrypted.clear();
-            return false;
-        }
-
-        decrypted.resize(json_end + 1);
+        CryptoPP::GCM<CryptoPP::AES>::Decryption d;
+        const auto pwd = sha256_password(password);
+        d.SetKeyWithIV(reinterpret_cast<const unsigned char*>(pwd.c_str()), pwd.size(),
+                       reinterpret_cast<const unsigned char*>(iv.c_str()), ANDOTP_IV_SIZE);
+        CryptoPP::AuthenticatedDecryptionFilter df(d, new CryptoPP::StringSink(decrypted),
+                                                   CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_END,
+                                                   ANDOTP_TAG_SIZE);
+        CryptoPP::StringSource(enc_buf, true, new CryptoPP::Redirector(df));
     } catch (...) {
+        decrypted.clear();
         return false;
     }
 
