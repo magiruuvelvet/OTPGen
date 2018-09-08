@@ -22,11 +22,12 @@ public:
     };
 
     static bool importTokens(const std::string &file, std::vector<OTPToken*> &target, const Type &type = PlainText, const std::string &password = std::string());
-    static bool exportTokens(const std::string &target, const std::vector<OTPToken*> &tokens);
+    static bool exportTokens(const std::string &target, const std::vector<OTPToken*> &tokens, const Type &type = PlainText, const std::string &password = std::string());
 
 private:
     static const std::string sha256_password(const std::string &password);
     static bool decrypt(const std::string &password, const std::string &buffer, std::string &decrypted);
+    static bool encrypt(const std::string &password, const std::string &buffer, std::string &encrypted);
 };
 
 }

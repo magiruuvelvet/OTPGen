@@ -11,6 +11,8 @@
 
 #include <cryptopp/sha.h>
 #include <cryptopp/filters.h>
+#include <cryptopp/randpool.h>
+#include <cryptopp/osrng.h>
 
 #include <cryptopp/aes.h>
 #include <cryptopp/gcm.h>
@@ -142,7 +144,7 @@ bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &targe
     return true;
 }
 
-bool andOTP::exportTokens(const std::string &target, const std::vector<OTPToken*> &tokens)
+bool andOTP::exportTokens(const std::string &target, const std::vector<OTPToken*> &tokens, const Type &type, const std::string &password)
 {
     try {
         rapidjson::Document json(rapidjson::kArrayType);
@@ -188,12 +190,28 @@ bool andOTP::exportTokens(const std::string &target, const std::vector<OTPToken*
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
         json.Accept(writer);
 
-        const auto res = TokenDatabase::writeFile(target, buffer.GetString());
-        if (res != TokenDatabase::Success)
+        if (type == PlainText)
         {
-            return false;
+            const auto res = TokenDatabase::writeFile(target, buffer.GetString());
+            if (res != TokenDatabase::Success)
+            {
+                return false;
+            }
         }
-
+        else
+        {
+            std::string encrypted;
+            auto res = encrypt(password, buffer.GetString(), encrypted);
+            if (!res)
+            {
+                return false;
+            }
+            res = TokenDatabase::writeFile(target, encrypted);
+            if (res != TokenDatabase::Success)
+            {
+                return false;
+            }
+        }
     } catch (...) {
         return false;
     }
@@ -243,6 +261,44 @@ bool andOTP::decrypt(const std::string &password, const std::string &buffer, std
         return false;
     }
 
+    return true;
+}
+
+bool andOTP::encrypt(const std::string &password, const std::string &buffer, std::string &encrypted)
+{
+    // stream is empty
+    if (buffer.empty())
+    {
+        return false;
+    }
+
+    // generate random IV
+    CryptoPP::AutoSeededRandomPool prng;
+    CryptoPP::byte *iv = static_cast<CryptoPP::byte*>(std::malloc(ANDOTP_IV_SIZE));
+    prng.GenerateBlock(iv, ANDOTP_IV_SIZE);
+
+    try {
+        std::string enc_buf;
+
+        CryptoPP::GCM<CryptoPP::AES>::Encryption e;
+        const auto pwd = sha256_password(password);
+        e.SetKeyWithIV(reinterpret_cast<const unsigned char*>(pwd.c_str()), pwd.size(),
+                       iv, ANDOTP_IV_SIZE);
+        CryptoPP::StringSource ss(buffer, true,
+                                    new CryptoPP::AuthenticatedEncryptionFilter(e,
+                                      new CryptoPP::StringSink(enc_buf), false, ANDOTP_TAG_SIZE));
+
+        // andOTP requires the IV to be stored before the message
+        encrypted.clear();
+        encrypted.append(std::string(iv, iv + ANDOTP_IV_SIZE));
+        encrypted.append(enc_buf);
+    } catch (...) {
+        std::free(iv);
+        encrypted.clear();
+        return false;
+    }
+
+    std::free(iv);
     return true;
 }
 
