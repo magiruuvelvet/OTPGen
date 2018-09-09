@@ -43,9 +43,11 @@ target_link_libraries("CoreLibSupport" ${GCRYPT_LIBRARIES})
 
 # QRCodeSupportLib
 if (WITH_QR_CODES)
-    add_library("QRCodeSupportLib" STATIC ${SourceListQRCodeSupport})
+    add_library("QRCodeSupportLib" SHARED ${SourceListQRCodeSupport})
     SetCppStandard("QRCodeSupportLib" 17)
     target_link_libraries("QRCodeSupportLib" libzxing)
+    set_target_properties("QRCodeSupportLib" PROPERTIES PREFIX "")
+    set_target_properties("QRCodeSupportLib" PROPERTIES OUTPUT_NAME "libotpgen-qrcodesupport")
 
     target_include_directories("QRCodeSupportLib" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/core/src")
     target_include_directories("QRCodeSupportLib" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/zxing-cpp/imagereader")
