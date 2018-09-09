@@ -51,12 +51,21 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 ## Requirements
 
- - Qt 5
- - Qt 5 D-Bus (only when using Qt Keychain with KWallet)
  - zlib
  - [libgcrypt](https://gnupg.org/software/libgcrypt/) (for the bundled OTP generation library written in C)
- - [libsecret](https://wiki.gnome.org/Projects/Libsecret) (for the bundled Qt Keychain library)
  - [crypto++](https://cryptopp.com/) (for the database encryption)
+
+<br>
+
+**Optimal Requirements based on features**
+
+ - Graphical User Interface
+   - Qt 5 (Core, Gui, Widgets, Xml, Network)
+
+ - Qt Keychain Integration
+   - *Graphical User Interface*
+   - Qt 5 D-Bus (only when using Qt Keychain with KWallet)
+   - [libsecret](https://wiki.gnome.org/Projects/Libsecret) (for the bundled Qt Keychain library)
 
 
 ## Building the application
@@ -77,6 +86,20 @@ make
 Make sure to build a **Release** build!! The Debug build uses a hardcoded test password
 to avoid entering a password all the time during development. Never use real token secrets
 during development.
+
+#### Build options
+
+ - `-DDISABLE_GUI=ON` (default *OFF*): disables building of the graphical user interface.
+   Note that the CLI isn't functional yet.
+
+ - `-DDISABLE_QTKEYCHAIN=ON` (default *OFF*): disables the Qt Keychain integration.
+
+ - `-DUNIT_TESTING=ON` (default *OFF*): enables building of the unit tests. (*recommended*)
+
+ - `-DWITH_QR_CODES=ON` (default *ON*): enables support for decoding and encoding QR Code images.
+   Note that webcam scanning isn't supported and not planned.
+
+<br>
 
 ### Building the unit tests
 
