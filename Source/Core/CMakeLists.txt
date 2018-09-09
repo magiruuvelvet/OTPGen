@@ -31,9 +31,9 @@ if (WITH_QR_CODES)
         "${CMAKE_SOURCE_DIR}/Libs/QRCodeGenerator/*.hpp"
     )
 
-    message(STATUS "=== Configuring zxing-cpp...")
+    message(STATUS "   -> Configuring zxing-cpp...")
     add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp" "${CMAKE_CURRENT_BINARY_DIR}/libzxing")
-    message(STATUS "=== Configured zxing-cpp.")
+    message(STATUS "   -> Configured zxing-cpp.")
 endif()
 
 # CoreLibSupport
