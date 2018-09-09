@@ -63,13 +63,20 @@ target_link_libraries("GuiLibSupport"
 )
 
 # Configure QtKeychain
-message(STATUS "=== Configuring QtKeychain...")
-set(BUILD_TEST_APPLICATION OFF CACHE BOOLEAN "" FORCE)
-set(BUILD_TRANSLATIONS OFF CACHE BOOLEAN "" FORCE)
-set(QTKEYCHAIN_STATIC ON CACHE BOOLEAN "" FORCE)
-set(LIBSECRET_SUPPORT ON CACHE BOOLEAN "" FORCE)
-add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/qtkeychain/qtkeychain" "${CMAKE_CURRENT_BINARY_DIR}/qt5keychain")
-message(STATUS "=== Configured QtKeychain.")
+set(DISABLE_QTKEYCHAIN OFF CACHE BOOLEAN "Build without Qt Keychain support")
+if (NOT DISABLE_QTKEYCHAIN)
+    message(STATUS "Building with Qt Keychain support.")
+    message(STATUS "   -> Configuring QtKeychain...")
+    add_definitions(-DQTKEYCHAIN_SUPPORT)
+    set(BUILD_TEST_APPLICATION OFF CACHE BOOLEAN "" FORCE)
+    set(BUILD_TRANSLATIONS OFF CACHE BOOLEAN "" FORCE)
+    set(QTKEYCHAIN_STATIC ON CACHE BOOLEAN "" FORCE)
+    set(LIBSECRET_SUPPORT ON CACHE BOOLEAN "" FORCE)
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/qtkeychain/qtkeychain" "${CMAKE_CURRENT_BINARY_DIR}/qt5keychain")
+    message(STATUS "   -> Configured QtKeychain.")
+else()
+    message(STATUS "Building without Qt Keychain support.")
+endif()
 
 qt5_add_resources(RCC_SOURCES "${CMAKE_SOURCE_DIR}/GuiAssets/EmbeddedAssets.qrc")
 add_custom_target(GenerateEmbeddedAssets DEPENDS ${RCC_SOURCES})
@@ -78,17 +85,21 @@ add_executable("${TARGET_NAME}" ${SourceListGui} ${RCC_SOURCES})
 SetCppStandard("${TARGET_NAME}" 17)
 target_link_libraries("${TARGET_NAME}"
     "CoreLib" "GuiLibSupport" "SharedLib"
-    qt5keychain
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
     Qt5::Xml
 )
+if (NOT DISABLE_QTKEYCHAIN)
+    target_link_libraries("${TARGET_NAME}" qt5keychain)
+endif()
 add_dependencies("${TARGET_NAME}" GenerateEmbeddedAssets)
 
 target_include_directories("GuiLibSupport" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication")
 target_include_directories("GuiLibSupport" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile")
 
-target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtkeychain")
+if (NOT DISABLE_QTKEYCHAIN)
+    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtkeychain")
+endif()
 target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Gui/qt5keychain")
 target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication")

@@ -19,13 +19,18 @@
 #include <Windows/UserInputDialog.hpp>
 
 #include <qtsingleapplication.h>
+
+#ifdef QTKEYCHAIN_SUPPORT
 #include <qtkeychain/keychain.h>
+#endif
 
 std::shared_ptr<MainWindow> mainWindow;
 
+#ifdef QTKEYCHAIN_SUPPORT
 // QKeychain already handles raw pointers and deletes them
 QKeychain::ReadPasswordJob *receivePassword = nullptr;
 QKeychain::WritePasswordJob *storePassword = nullptr;
+#endif
 
 const std::vector<std::string> qtargs_to_strvec(const QStringList &args)
 {
@@ -123,6 +128,7 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
         TokenDatabase::saveTokens();
     }
 
+#ifdef QTKEYCHAIN_SUPPORT
     if (create)
     {
         storePassword->setTextData(QString::fromUtf8(password.c_str()));
@@ -141,6 +147,7 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
         // not automatically deleted when not used
         delete storePassword;
     }
+#endif
 
     password.clear();
 
@@ -224,6 +231,7 @@ int main(int argc, char **argv)
     // set token database path
     TokenDatabase::setTokenFile(gcfg::database());
 
+#ifdef QTKEYCHAIN_SUPPORT
 #ifdef OTPGEN_DEBUG
     const auto keychain_service_name = a.applicationDisplayName() + "_d";
 #else
@@ -286,6 +294,13 @@ int main(int argc, char **argv)
         }
     });
     receivePassword->start();
+#else // QTKEYCHAIN_SUPPORT
+    auto res = start(&a, "");
+    if (res != 0)
+    {
+        return res;
+    }
+#endif
 
     return a.exec();
 }
