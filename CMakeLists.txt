@@ -22,6 +22,13 @@ set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Set the CMake configuration type to u
 message(STATUS "Using configuration type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE})
 
+# Position Independent Code
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Shared Libraries Configuration
+set(CMAKE_INSTALL_RPATH "${ORIGIN}")
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
 # Enable (strict) C++17 features
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -77,7 +84,7 @@ endif()
 #######################################################################################################################
 
 # Set target destination for built targets
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib-static)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -110,6 +117,7 @@ endif()
 # Install rules
 #######################################################################################################################
 
+# install GUI and desktop files
 if (NOT DISABLE_GUI)
     install(FILES ${CMAKE_BINARY_DIR}/bin/OTPGen
             DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -121,6 +129,22 @@ if (NOT DISABLE_GUI)
             DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
 endif()
 
+# install libraries
+install(DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        PATTERN *
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+# header files for libraries
+install(DIRECTORY ${CORELIB_INCLUDE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/otpgen
+        PATTERN *.hpp
+        PATTERN *.cpp EXCLUDE
+        PATTERN *.txt EXCLUDE
+        PATTERN Internal EXCLUDE
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
+# install CLI
 install(FILES ${CMAKE_BINARY_DIR}/bin/OTPGenCli
         DESTINATION ${CMAKE_INSTALL_BINDIR}
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE

@@ -53,9 +53,11 @@ if (WITH_QR_CODES)
 endif()
 
 # CoreLib
-add_library("CoreLib" STATIC ${SourceListCore})
+add_library("CoreLib" SHARED ${SourceListCore})
 SetCppStandard("CoreLib" 17)
 target_link_libraries("CoreLib" "CoreLibSupport")
+set_target_properties("CoreLib" PROPERTIES PREFIX "")
+set_target_properties("CoreLib" PROPERTIES OUTPUT_NAME "libotpgen")
 
 if (WITH_QR_CODES)
     target_link_libraries("CoreLib" "QRCodeSupportLib")
