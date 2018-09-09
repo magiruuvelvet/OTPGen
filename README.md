@@ -87,6 +87,9 @@ Make sure to build a **Release** build!! The Debug build uses a hardcoded test p
 to avoid entering a password all the time during development. Never use real token secrets
 during development.
 
+This application uses shared libraries. Make sure to add `${CMAKE_BINARY_DIR}/lib` to the
+library path. Most IDEs have a CMake run configurations to do that on a per project basis.
+
 #### Build options
 
  - `-DDISABLE_GUI=ON` (default *OFF*): disables building of the graphical user interface.
