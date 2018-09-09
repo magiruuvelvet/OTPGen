@@ -44,7 +44,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
  - Refactor/Rewrite GUI
  - Use Model/View instead of a tedious hard-to-manage Widget
    - Most problematic by now is getting the correct/current row
- - Make QtKeychain optimal, but enabled by default (CMake build option)
 
  - User Settings
 
