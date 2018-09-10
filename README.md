@@ -52,7 +52,7 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 ## Requirements
 
  - [crypto++](https://cryptopp.com/)
- - zlib
+ - zlib (semi-optimal, *see CMake build options*)
 
 <br>
 
@@ -100,6 +100,9 @@ library path. Most IDEs have a CMake run configurations to do that on a per proj
 
  - `-DWITH_QR_CODES=ON` (default *ON*): enables support for decoding and encoding QR Code images.
    Note that webcam scanning isn't supported and not planned.
+
+ - `-DBUNDLED_ZLIB=ON` (default *OFF*): use the bundled zlib library instead of the system-installed
+   one.
 
 <br>
 
