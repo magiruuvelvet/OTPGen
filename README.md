@@ -51,9 +51,8 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 ## Requirements
 
- - zlib
- - [libgcrypt](https://gnupg.org/software/libgcrypt/) (for the bundled OTP generation library written in C)
  - [crypto++](https://cryptopp.com/) (for the database encryption)
+ - zlib
 
 <br>
 
