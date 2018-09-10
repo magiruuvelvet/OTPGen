@@ -4,7 +4,7 @@
 /**
  * Code is based on https://github.com/paolostivanin/libcotp
  *
- * Significat changes are:
+ * Significant changes are:
  *  -> use std::string instead of C char pointers
  *  -> automatic memory management, no manual std::free() needed
  *  -> use crypto++ instead of gcrypt
