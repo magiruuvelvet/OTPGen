@@ -23,10 +23,16 @@
 
 ## boost
 
- - URL: https://www.boost.org/
+ - URL: [https://www.boost.org/](https://www.boost.org/)
  - Status: clean, only the `filesystem` library and required header files
  - Only used in the **CLI** version
  - Create the config directory on first start
+
+## zlib
+
+ - URL: [https://github.com/madler/zlib](https://github.com/madler/zlib)
+ - Status: clean, except CMake; removed unneeded files
+ - Optimal bundled zlib using CMake switch
 
 ## replxx
 
