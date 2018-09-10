@@ -52,7 +52,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 ## Requirements
 
  - [crypto++](https://cryptopp.com/)
- - zlib (semi-optimal, *see CMake build options*)
 
 <br>
 
@@ -60,6 +59,7 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
  - Graphical User Interface
    - Qt 5 (Core, Gui, Widgets, Xml, Network)
+   - zlib (semi-optimal, *see CMake build options*)
 
  - Qt Keychain Integration
    - *Graphical User Interface*
