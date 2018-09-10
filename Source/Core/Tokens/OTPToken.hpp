@@ -144,8 +144,6 @@ public:
     std::uint32_t remainingTokenValidity() const;
 
 protected:
-    int sha_enum_to_gcrypt() const;
-
     // returns true when secret empty
     static bool check_empty(const TokenString &secret, OTPGenErrorCode *error = nullptr);
 

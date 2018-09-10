@@ -3,11 +3,7 @@
 #include <algorithm>
 #include <chrono>
 
-extern "C" {
-    #include <gcrypt.h>
-}
-
-// limits of libcotp
+// limits of otp gen
 const int OTPToken::min_digits = 3;
 const int OTPToken::max_digits = 10;
 const int OTPToken::min_period = 1;
@@ -147,20 +143,6 @@ std::uint32_t OTPToken::remainingTokenValidity() const
     }
 
     return static_cast<std::uint32_t>(token_validity);
-}
-
-int OTPToken::sha_enum_to_gcrypt() const
-{
-    switch (_algorithm)
-    {
-        case SHA1:    return GCRY_MD_SHA1;
-        case SHA256:  return GCRY_MD_SHA256;
-        case SHA512:  return GCRY_MD_SHA512;
-
-        case Invalid: return GCRY_MD_NONE;
-    }
-
-    return GCRY_MD_NONE;
 }
 
 bool OTPToken::check_empty(const TokenString &secret, OTPGenErrorCode *error)
