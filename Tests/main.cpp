@@ -13,6 +13,7 @@ using namespace bandit;
 
 #include "otpauth-tests.hpp"
 #include "steam-base-test.hpp"
+#include "otpgen-tests.hpp"
 
 int main(int argc, char **argv)
 {
