@@ -1,4 +1,3 @@
-#ifdef OTPGEN_WITH_QR_CODES
 #include "QRCode.hpp"
 
 #include <ImageReaderSource.h>
@@ -131,5 +130,3 @@ bool QRCode::encode(const std::string &input, std::string &out)
     out = qr.toSvgString(3);
     return true;
 }
-
-#endif

@@ -93,6 +93,13 @@ message(STATUS "==> Configuring target \"Core\"...")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Core")
 include_directories("${CORELIB_INCLUDE_DIR}")
 
+# QR Code Support library
+if (WITH_QR_CODES)
+    message(STATUS "==> Configuring target \"QRCodeSupportLib\"...")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Source/QRCodeSupport" "${CMAKE_CURRENT_BINARY_DIR}/qrcodesupport")
+    message(STATUS "==> Configured target \"QRCodeSupportLib\".")
+endif()
+
 # Shared library
 message(STATUS "==> Configuring target \"Shared\"...")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Shared")
@@ -143,6 +150,15 @@ install(DIRECTORY ${CORELIB_INCLUDE_DIR}/
         PATTERN *.txt EXCLUDE
         PATTERN Internal EXCLUDE
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
+if (WITH_QR_CODES)
+    install(DIRECTORY ${QRCODESUPPORTLIB_INCLUDE_DIR}/
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/otpgen
+            PATTERN *.hpp
+            PATTERN *.cpp EXCLUDE
+            PATTERN *.txt EXCLUDE
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+endif()
 
 # install CLI
 install(FILES ${CMAKE_BINARY_DIR}/bin/OTPGenCli

@@ -7,7 +7,7 @@
 #include <cereal/external/rapidjson/document.h>
 #include <cereal/external/rapidjson/memorystream.h>
 
-#include <Tools/otpauthURI.hpp>
+#include <otpauthURI.hpp>
 
 // SteamGuard JSON schema
 //

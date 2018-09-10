@@ -14,10 +14,10 @@
 #include "GuiConfig.hpp"
 
 #ifdef OTPGEN_WITH_QR_CODES
-#include <Tools/QRCode.hpp>
+#include <QRCode.hpp>
 #endif
 
-#include <Tools/otpauthURI.hpp>
+#include <otpauthURI.hpp>
 
 TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     : WidgetBase(parent),

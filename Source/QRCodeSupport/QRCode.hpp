@@ -1,4 +1,3 @@
-#ifdef OTPGEN_WITH_QR_CODES
 #ifndef QRCODE_HPP
 #define QRCODE_HPP
 
@@ -17,4 +16,3 @@ public:
 };
 
 #endif // QRCODE_HPP
-#endif

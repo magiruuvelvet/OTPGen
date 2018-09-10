@@ -113,6 +113,7 @@ target_link_libraries("${TARGET_NAME}"
     Qt5::Widgets
     Qt5::Xml
 )
+
 if (NOT DISABLE_QTKEYCHAIN)
     target_link_libraries("${TARGET_NAME}" qt5keychain)
 endif()
@@ -123,6 +124,12 @@ if (BUNDLED_ZLIB)
 else()
     target_link_libraries("${TARGET_NAME}" ${ZLIB_LIBRARIES})
     target_include_directories("${TARGET_NAME}" PRIVATE "${ZLIB_INCLUDE_DIRS}")
+endif()
+
+# QR Code Support
+if (WITH_QR_CODES)
+    target_link_libraries("${TARGET_NAME}" "QRCodeSupportLib")
+    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Source/QRCodeSupport")
 endif()
 
 add_dependencies("${TARGET_NAME}" GenerateEmbeddedAssets)
