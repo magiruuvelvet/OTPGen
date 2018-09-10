@@ -14,19 +14,6 @@
  - Binary serialization
  - Used to save/load the token database
 
-## libbaseencode
-
- - URL: [https://github.com/paolostivanin/libbaseencode](https://github.com/paolostivanin/libbaseencode)
- - Status: clean
- - Dependency of **libcotp**
- - Base-32/Base-64 encoding and decoding
-
-## libcotp
-
- - URL: [https://github.com/magiruuvelvet/libcotp](https://github.com/magiruuvelvet/libcotp)
- - Status: includes custom patches
- - Generates OTP codes
-
 ## PlatformFolders
 
  - URL: [https://github.com/sago007/PlatformFolders](https://github.com/sago007/PlatformFolders)
