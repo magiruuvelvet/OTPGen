@@ -118,9 +118,9 @@ const std::string OTPToken::debug() const
 
 bool OTPToken::valid() const
 {
-    Error error = VALID;
+    OTPGenErrorCode error = OTPGenErrorCode::Valid;
     const auto &token = this->generateToken(&error);
-    return !(token.empty() || error != VALID);
+    return !(token.empty() || error != OTPGenErrorCode::Valid);
 }
 
 std::uint32_t OTPToken::remainingTokenValidity() const
@@ -163,13 +163,13 @@ int OTPToken::sha_enum_to_gcrypt() const
     return GCRY_MD_NONE;
 }
 
-bool OTPToken::check_empty(const TokenString &secret, Error *error)
+bool OTPToken::check_empty(const TokenString &secret, OTPGenErrorCode *error)
 {
     if (secret.empty())
     {
         if (error)
         {
-            (*error) = INVALID_B32_INPUT;
+            (*error) = OTPGenErrorCode::InvalidBase32Input;
         }
         return true;
     }

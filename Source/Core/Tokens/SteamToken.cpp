@@ -1,6 +1,6 @@
 #include "SteamToken.hpp"
 
-#include "Internal/libcotpsupport.hpp"
+#include <OTPGen.hpp>
 
 #include <cryptopp/base64.h>
 #include <cryptopp/base32.h>
@@ -73,11 +73,11 @@ const SteamToken::TokenString SteamToken::convertBase64Secret(const std::string 
     return token.secret();
 }
 
-const SteamToken::TokenString SteamToken::generateToken(Error *error) const
+const SteamToken::TokenString SteamToken::generateToken(OTPGenErrorCode *error) const
 {
     if (error)
     {
-        (*error) = VALID;
+        (*error) = OTPGenErrorCode::Valid;
     }
 
     // secret must not be empty
@@ -86,23 +86,20 @@ const SteamToken::TokenString SteamToken::generateToken(Error *error) const
         return TokenString();
     }
 
-    cotp_error_t cotp_err = cotp_error_t::VALID;
+    OTPGenErrorCode err = OTPGenErrorCode::Valid;
 
     // Steam secret must be in base-32
-    auto token = get_steam_totp(_secret.c_str(),
-                                DEFAULT_DIGIT_LENGTH,
-                                &cotp_err);
+    auto token = OTPGen::computeSteam(_secret,
+                                      &err);
 
-    if (token && cotp_err == cotp_error_t::VALID)
+    if (!token.empty() && err == OTPGenErrorCode::Valid)
     {
-        const TokenString str(token);
-        std::free(token);
-        return str;
+        return token;
     }
 
     if (error)
     {
-        (*error) = static_cast<Error>(cotp_err);
+        (*error) = err;
     }
 
     return TokenString();

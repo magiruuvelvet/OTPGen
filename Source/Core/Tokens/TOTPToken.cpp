@@ -1,6 +1,6 @@
 #include "TOTPToken.hpp"
 
-#include "Internal/libcotpsupport.hpp"
+#include <OTPGen.hpp>
 
 const OTPToken::DigitType TOTPToken::DEFAULT_DIGIT_LENGTH = 6U;
 const OTPToken::PeriodType TOTPToken::DEFAULT_PERIOD = 30U;
@@ -24,11 +24,11 @@ TOTPToken::TOTPToken(const Label &label)
     _label = label;
 }
 
-const TOTPToken::TokenString TOTPToken::generateToken(Error *error) const
+const TOTPToken::TokenString TOTPToken::generateToken(OTPGenErrorCode *error) const
 {
     if (error)
     {
-        (*error) = VALID;
+        (*error) = OTPGenErrorCode::Valid;
     }
 
     // secret must not be empty
@@ -37,24 +37,22 @@ const TOTPToken::TokenString TOTPToken::generateToken(Error *error) const
         return TokenString();
     }
 
-    cotp_error_t cotp_err = cotp_error_t::VALID;
+    OTPGenErrorCode err = OTPGenErrorCode::Valid;
 
-    auto token = get_totp(_secret.c_str(),
-                          static_cast<int>(_digits),
-                          static_cast<int>(_period),
-                          sha_enum_to_gcrypt(),
-                          &cotp_err);
+    auto token = OTPGen::computeTOTP(_secret,
+                                     _digits,
+                                     _period,
+                                     _algorithm,
+                                     &err);
 
-    if (token && cotp_err == cotp_error_t::VALID)
+    if (!token.empty() && err == OTPGenErrorCode::Valid)
     {
-        TokenString str(token);
-        std::free(token);
-        return str;
+        return token;
     }
 
     if (error)
     {
-        (*error) = static_cast<Error>(cotp_err);
+        (*error) = err;
     }
 
     return TokenString();

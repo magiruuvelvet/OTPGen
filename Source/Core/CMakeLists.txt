@@ -12,15 +12,6 @@ file(GLOB_RECURSE SourceListCore
     "*.hpp"
 )
 
-# Core library support (libcotp)
-file(GLOB_RECURSE SourceListCoreSupport
-    "${CMAKE_SOURCE_DIR}/Libs/libbaseencode/*.c"
-    "${CMAKE_SOURCE_DIR}/Libs/libbaseencode/*.h"
-
-    "${CMAKE_SOURCE_DIR}/Libs/libcotp/*.c"
-    "${CMAKE_SOURCE_DIR}/Libs/libcotp/*.h"
-)
-
 # QR Code Support - depends on libzxing
 if (WITH_QR_CODES)
     file(GLOB_RECURSE SourceListQRCodeSupport
@@ -35,11 +26,6 @@ if (WITH_QR_CODES)
     add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/zxing-cpp" "${CMAKE_CURRENT_BINARY_DIR}/libzxing")
     message(STATUS "   -> Configured zxing-cpp.")
 endif()
-
-# CoreLibSupport
-add_library("CoreLibSupport" STATIC ${SourceListCoreSupport})
-SetCppStandard("CoreLibSupport" 17)
-target_link_libraries("CoreLibSupport" ${GCRYPT_LIBRARIES})
 
 # QRCodeSupportLib
 if (WITH_QR_CODES)
@@ -57,7 +43,6 @@ endif()
 # CoreLib
 add_library("CoreLib" SHARED ${SourceListCore})
 SetCppStandard("CoreLib" 17)
-target_link_libraries("CoreLib" "CoreLibSupport")
 set_target_properties("CoreLib" PROPERTIES PREFIX "")
 set_target_properties("CoreLib" PROPERTIES OUTPUT_NAME "libotpgen")
 
@@ -71,10 +56,6 @@ endif()
 # Dependencies
 find_package(PkgConfig)
 
-find_package(Gcrypt REQUIRED)
-target_include_directories("CoreLib" PRIVATE ${GCRYPT_INCLUDE_DIR})
-target_include_directories("CoreLibSupport" PRIVATE ${GCRYPT_INCLUDE_DIR})
-
 find_package(ZLIB REQUIRED)
 target_include_directories("CoreLib" PRIVATE "${ZLIB_INCLUDE_DIRS}")
 
@@ -82,16 +63,11 @@ pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
 target_include_directories("CoreLib" PRIVATE "${CRYPTOPP_INCLUDEDIR}")
 
 target_link_libraries("CoreLib"
-    ${GCRYPT_LIBRARIES}
     ${CRYPTOPP_LDFLAGS}
     ${ZLIB_LIBRARIES}
 )
 
 target_include_directories("CoreLib" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/cereal")
-target_include_directories("CoreLib" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/libbaseencode")
-target_include_directories("CoreLib" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/libcotp")
-
-target_include_directories("CoreLibSupport" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/libbaseencode/libbaseencode")
 
 target_include_directories("CoreLib" PRIVATE "${CMAKE_SOURCE_DIR}/Source/Core")
 set(CORELIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/Source/Core" PARENT_SCOPE)

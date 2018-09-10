@@ -4,6 +4,8 @@
 #include <string>
 #include <cstdint>
 
+#include "OTPGenErrorCodes.hpp"
+
 class OTPToken
 {
 public:
@@ -43,16 +45,6 @@ public:
         SHA1    = 1,
         SHA256  = 2,
         SHA512  = 3,
-    };
-
-    enum Error {
-        VALID = 0,
-        GCRYPT_VERSION_MISMATCH = 1,
-        INVALID_B32_INPUT       = 2,
-        INVALID_ALGO            = 3,
-        INVALID_OTP             = 4,
-        INVALID_DIGITS          = 5,
-        INVALID_PERIOD          = 6,
     };
 
     // token type
@@ -146,7 +138,7 @@ public:
     bool valid() const;
 
     // token generation method, implemented in sub classes
-    virtual const TokenString generateToken(Error *error = nullptr) const = 0;
+    virtual const TokenString generateToken(OTPGenErrorCode *error = nullptr) const = 0;
 
     // calculate the remaining token validity from the period and current system time
     std::uint32_t remainingTokenValidity() const;
@@ -155,7 +147,7 @@ protected:
     int sha_enum_to_gcrypt() const;
 
     // returns true when secret empty
-    static bool check_empty(const TokenString &secret, Error *error = nullptr);
+    static bool check_empty(const TokenString &secret, OTPGenErrorCode *error = nullptr);
 
     TokenType _type = None;
     std::string _typeName = "None";

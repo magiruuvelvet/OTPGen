@@ -42,7 +42,7 @@ public:
     // On error an empty string is returned.
     static const TokenString convertBase64Secret(const std::string &base64_str);
 
-    const TokenString generateToken(Error *error = nullptr) const override;
+    const TokenString generateToken(OTPGenErrorCode *error = nullptr) const override;
 
 public:
     friend struct TokenData;

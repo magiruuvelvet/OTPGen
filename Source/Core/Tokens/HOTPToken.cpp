@@ -1,6 +1,6 @@
 #include "HOTPToken.hpp"
 
-#include "Internal/libcotpsupport.hpp"
+#include <OTPGen.hpp>
 
 const OTPToken::DigitType HOTPToken::DEFAULT_DIGIT_LENGTH = 6U;
 const OTPToken::ShaAlgorithm HOTPToken::DEFAULT_ALGORITHM = OTPToken::SHA1;
@@ -23,11 +23,11 @@ HOTPToken::HOTPToken(const Label &label)
     _label = label;
 }
 
-const HOTPToken::TokenString HOTPToken::generateToken(Error *error) const
+const HOTPToken::TokenString HOTPToken::generateToken(OTPGenErrorCode *error) const
 {
     if (error)
     {
-        (*error) = VALID;
+        (*error) = OTPGenErrorCode::Valid;
     }
 
     // secret must not be empty
@@ -36,24 +36,22 @@ const HOTPToken::TokenString HOTPToken::generateToken(Error *error) const
         return TokenString();
     }
 
-    cotp_error_t cotp_err = cotp_error_t::VALID;
+    OTPGenErrorCode err = OTPGenErrorCode::Valid;
 
-    auto token = get_hotp(_secret.c_str(),
-                          static_cast<int>(_counter),
-                          static_cast<int>(_digits),
-                          sha_enum_to_gcrypt(),
-                          &cotp_err);
+    auto token = OTPGen::computeHOTP(_secret,
+                                     _counter,
+                                     _digits,
+                                     _algorithm,
+                                     &err);
 
-    if (token && cotp_err == cotp_error_t::VALID)
+    if (!token.empty() && err == OTPGenErrorCode::Valid)
     {
-        TokenString str(token);
-        std::free(token);
-        return str;
+        return token;
     }
 
     if (error)
     {
-        (*error) = static_cast<Error>(cotp_err);
+        (*error) = err;
     }
 
     return TokenString();

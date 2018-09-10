@@ -17,7 +17,7 @@ public:
     inline void setCounter(const CounterType &)
     { this->_counter = 0U; }
 
-    const TokenString generateToken(Error *error = nullptr) const override;
+    const TokenString generateToken(OTPGenErrorCode *error = nullptr) const override;
 
 public:
     friend struct TokenData;
