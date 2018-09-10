@@ -4,12 +4,12 @@
 #include <chrono>
 
 // limits of otp gen
-const int OTPToken::min_digits = 3;
-const int OTPToken::max_digits = 10;
-const int OTPToken::min_period = 1;
-const int OTPToken::max_period = 120;
-const int OTPToken::min_counter = 0;
-const int OTPToken::max_counter = 0x7FFFFFFF;
+const OTPToken::DigitType OTPToken::min_digits = 3;
+const OTPToken::DigitType OTPToken::max_digits = 10;
+const OTPToken::PeriodType OTPToken::min_period = 1;
+const OTPToken::PeriodType OTPToken::max_period = 120;
+const OTPToken::CounterType OTPToken::min_counter = 0;
+const OTPToken::CounterType OTPToken::max_counter = 0x7FFFFFFF;
 
 OTPToken::OTPToken()
 {

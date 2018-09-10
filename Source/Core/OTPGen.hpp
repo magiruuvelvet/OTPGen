@@ -49,15 +49,6 @@ public:
                                                    const OTPToken::ShaAlgorithm &sha_algo,
                                                    OTPGenErrorCode *error = nullptr);
 
-private:
-    static const OTPToken::TokenString hotp_helper(const OTPToken::SecretType &base32_secret,
-                                                   const std::time_t &counter,
-                                                   const OTPToken::DigitType &digits,
-                                                   const OTPToken::ShaAlgorithm &sha_algo,
-                                                   OTPGenErrorCode *error = nullptr);
-
-public:
-
     // compute steam token at current time
     static const OTPToken::TokenString computeSteam(const OTPToken::SecretType &base32_secret,
                                                     OTPGenErrorCode *error = nullptr);
@@ -66,20 +57,6 @@ public:
     static const OTPToken::TokenString computeSteam(const std::time_t &time,
                                                     const OTPToken::SecretType &base32_secret,
                                                     OTPGenErrorCode *error = nullptr);
-
-private:
-    static const std::string computeHMAC(const std::string &key, long C, const OTPToken::ShaAlgorithm &algo);
-    static const std::string base32_rfc4648_decode(const std::string &key);
-    static const std::string normalizeSecret(const std::string &secret);
-    static const std::string finalize(const OTPToken::DigitType &digits_length, int tk);
-
-    static int truncate(const std::string &hmac,
-                        const OTPToken::DigitType &digits_length,
-                        const OTPToken::ShaAlgorithm algo);
-
-    static bool checkPeriod(const OTPToken::PeriodType &period);
-    static bool checkOTPLength(const OTPToken::DigitType &digits_length);
-    static bool checkAlgo(const OTPToken::ShaAlgorithm &algo);
 };
 
 #endif // OTPGEN_HPP

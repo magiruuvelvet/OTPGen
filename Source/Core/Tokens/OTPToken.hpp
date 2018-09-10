@@ -18,12 +18,12 @@ public:
     using CounterType = std::uint32_t;
 
     // Token limits
-    static const int min_digits;
-    static const int max_digits;
-    static const int min_period;
-    static const int max_period;
-    static const int min_counter;
-    static const int max_counter;
+    static const DigitType min_digits;
+    static const DigitType max_digits;
+    static const PeriodType min_period;
+    static const PeriodType max_period;
+    static const CounterType min_counter;
+    static const CounterType max_counter;
 
     OTPToken();
     OTPToken(const OTPToken *other);
