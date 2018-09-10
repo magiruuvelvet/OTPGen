@@ -51,7 +51,7 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 ## Requirements
 
- - [crypto++](https://cryptopp.com/) (for the database encryption)
+ - [crypto++](https://cryptopp.com/)
  - zlib
 
 <br>
