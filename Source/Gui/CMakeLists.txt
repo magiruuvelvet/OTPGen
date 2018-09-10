@@ -80,6 +80,27 @@ else()
     message(STATUS "Building without Qt Keychain support.")
 endif()
 
+# zlib
+set(BUNDLED_ZLIB OFF CACHE BOOLEAN "Use the bundled zlib.")
+set(BUNDLED_ZLIB_ASM686 OFF CACHE BOOLEAN "Use optimized x86-32 asm.")
+set(BUNDLED_ZLIB_AMD64 OFF CACHE BOOLEAN "Use optimized x86-64 asm.")
+if (BUNDLED_ZLIB)
+    message(STATUS "   -> Configuring bundled zlib...")
+    if (BUNDLED_ZLIB_ASM686)
+        set(ASM686 ON CACHE BOOLEAN "" FORCE)
+    endif()
+    if (BUNDLED_ZLIB_AMD64)
+        set(AMD64 ON CACHE BOOLEAN "" FORCE)
+    endif()
+    set(BUILD_SHARED_LIBS OFF CACHE BOOLEAN "" FORCE)
+    set(SKIP_INSTALL_ALL ON CACHE BOOLEAN "" FORCE)
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/zlib" "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+    message(STATUS "   -> Configured bundled zlib.")
+else()
+    message(STATUS "Using shared zlib.")
+    find_package(ZLIB REQUIRED)
+endif()
+
 qt5_add_resources(RCC_SOURCES "${CMAKE_SOURCE_DIR}/GuiAssets/EmbeddedAssets.qrc")
 add_custom_target(GenerateEmbeddedAssets DEPENDS ${RCC_SOURCES})
 
@@ -95,6 +116,15 @@ target_link_libraries("${TARGET_NAME}"
 if (NOT DISABLE_QTKEYCHAIN)
     target_link_libraries("${TARGET_NAME}" qt5keychain)
 endif()
+
+if (BUNDLED_ZLIB)
+    target_link_libraries("${TARGET_NAME}" zlibstatic)
+    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/zlib")
+else()
+    target_link_libraries("${TARGET_NAME}" ${ZLIB_LIBRARIES})
+    target_include_directories("${TARGET_NAME}" PRIVATE "${ZLIB_INCLUDE_DIRS}")
+endif()
+
 add_dependencies("${TARGET_NAME}" GenerateEmbeddedAssets)
 
 target_include_directories("GuiLibSupport" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication")
