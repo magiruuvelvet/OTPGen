@@ -6,7 +6,7 @@
 using namespace snowhouse;
 using namespace bandit;
 
-#include <Tools/otpauthURI.hpp>
+#include <otpauthURI.hpp>
 
 #include <Tokens/TOTPToken.hpp>
 #include <Tokens/HOTPToken.hpp>

@@ -6,7 +6,7 @@
 using namespace snowhouse;
 using namespace bandit;
 
-#include <Tools/QRCode.hpp>
+#include <QRCode.hpp>
 
 go_bandit([]{
     describe("QRCode Test", []{
