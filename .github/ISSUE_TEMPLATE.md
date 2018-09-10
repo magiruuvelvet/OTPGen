@@ -1,0 +1,1 @@
+../.gitlab/issue_templates/Bug.md
