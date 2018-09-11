@@ -28,7 +28,6 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif ()
 
-include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 
 #============================================================================
@@ -729,100 +728,7 @@ if (BUILD_SHARED)
   target_link_libraries(cryptopp-shared ${CMAKE_THREAD_LIBS_INIT})
 endif ()
 
-#============================================================================
-# Tests
-#============================================================================
 
-enable_testing()
-if (BUILD_TESTING)
-  add_executable(cryptest ${cryptopp_SOURCES_TEST} ${cryptopp_SOURCES_TEMPLATE})
-  target_link_libraries(cryptest cryptopp-static)
-
-  # Setting "cryptest" binary name to "cryptest.exe"
-  if (NOT (WIN32 OR CYGWIN))
-    set_target_properties(cryptest PROPERTIES OUTPUT_NAME cryptest.exe)
-  endif ()
-  if (NOT TARGET cryptest.exe)
-    add_custom_target(cryptest.exe)
-    add_dependencies(cryptest.exe cryptest)
-  endif ()
-
-  file(COPY ${SRC_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
-  file(COPY ${SRC_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
-
-  add_test(NAME build_cryptest COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target cryptest)
-  add_test(NAME cryptest COMMAND $<TARGET_FILE:cryptest> v)
-  set_tests_properties(cryptest PROPERTIES DEPENDS build_cryptest)
-endif ()
-
-#============================================================================
-# Doxygen documentation
-#============================================================================
-
-if (BUILD_DOCUMENTATION)
-  find_package(Doxygen REQUIRED)
-
-  set(in_source_DOCS_DIR "${SRC_DIR}/html-docs")
-  set(out_source_DOCS_DIR "${PROJECT_BINARY_DIR}/html-docs")
-
-  add_custom_target(docs ALL
-      COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
-      WORKING_DIRECTORY ${SRC_DIR}
-      SOURCES ${SRC_DIR}/Doxyfile
-      )
-
-  if (NOT ${in_source_DOCS_DIR} STREQUAL ${out_source_DOCS_DIR})
-    add_custom_command(
-        TARGET docs POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${in_source_DOCS_DIR}" "${out_source_DOCS_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "${in_source_DOCS_DIR}"
-    )
-  endif ()
-endif ()
-
-#============================================================================
-# Install
-#============================================================================
-
-set(export_name "cryptopp-targets")
-
-# Runtime package
-if (BUILD_SHARED)
-  install(
-      TARGETS cryptopp-shared
-      EXPORT ${export_name}
-      DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
-endif ()
-
-# Development package
-if (BUILD_STATIC)
-  install(TARGETS cryptopp-static EXPORT ${export_name} DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif ()
-install(FILES ${cryptopp_HEADERS} DESTINATION include/cryptopp)
-
-# CMake Package
-if (NOT CMAKE_VERSION VERSION_LESS 2.8.8)
-  include(CMakePackageConfigHelpers)
-  write_basic_package_version_file("${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake" VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR}.${cryptopp_VERSION_PATCH} COMPATIBILITY SameMajorVersion)
-  install(FILES cryptopp-config.cmake ${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake DESTINATION "lib/cmake/cryptopp")
-  install(EXPORT ${export_name} DESTINATION "lib/cmake/cryptopp")
-endif ()
-
-# Tests
-if (BUILD_TESTING)
-  install(TARGETS cryptest DESTINATION ${CMAKE_INSTALL_BINDIR})
-  install(DIRECTORY ${SRC_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
-  install(DIRECTORY ${SRC_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
-endif ()
-
-# Documentation
-if (BUILD_DOCUMENTATION)
-  install(DIRECTORY "${out_source_DOCS_DIR}" DESTINATION ${CMAKE_INSTALL_DOCDIR})
-endif ()
 
 # Print a configuration summary. We want CXX and CXXFLAGS, but they are not includd in ALL.
 if (CRYPTOPP_I386)
