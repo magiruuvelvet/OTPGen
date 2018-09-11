@@ -32,6 +32,12 @@ add_executable("${TARGET_NAME}" ${SourceListCli})
 SetCppStandard("${TARGET_NAME}" 17)
 target_link_libraries("${TARGET_NAME}" "CoreLib" "SharedLib" "CliDependencies" "BoostLib")
 
+# QR Code Support
+if (WITH_QR_CODES)
+    target_link_libraries("${TARGET_NAME}" "QRCodeSupportLib")
+    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Source/QRCodeSupport")
+endif()
+
 target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/PlatformFolders")
 target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/boost")
 

@@ -18,16 +18,22 @@ SetCppStandard("CoreLib" 17)
 set_target_properties("CoreLib" PROPERTIES PREFIX "")
 set_target_properties("CoreLib" PROPERTIES OUTPUT_NAME "libotpgen")
 
-# Dependencies
-find_package(PkgConfig)
-
 # crypto++
-pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
-target_include_directories("CoreLib" PRIVATE "${CRYPTOPP_INCLUDEDIR}")
+set(BUNDLED_CRYPTOPP OFF CACHE BOOLEAN "Use the bundled crypto++ library.")
+if (BUNDLED_CRYPTOPP)
+    message(STATUS "Building with bundled crypto++")
+    message(STATUS "   -> Configuring bundled crypto++ library...")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/cryptopp" "${CMAKE_CURRENT_BINARY_DIR}/cryptopp")
+    target_include_directories("CoreLib" PRIVATE "${CRYPTOPP_INCLUDEDIR}")
+    target_link_libraries("CoreLib" cryptopp-static)
+    message(STATUS "   -> Configured bundled crypto++ library.")
+else()
+    find_package(PkgConfig)
 
-target_link_libraries("CoreLib"
-    ${CRYPTOPP_LDFLAGS}
-)
+    pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
+    target_include_directories("CoreLib" PRIVATE "${CRYPTOPP_INCLUDEDIR}")
+    target_link_libraries("CoreLib" ${CRYPTOPP_LDFLAGS})
+endif()
 
 target_include_directories("CoreLib" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/cereal")
 
