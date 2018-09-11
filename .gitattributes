@@ -1,0 +1,7 @@
+# GitHub Language Metrics Configuration
+# https://github.com/github/linguist#overrides
+
+Libs/* linguist-vendored
+
+Source/* linguist-detectable=true
+Tests/* linguist-detectable=true
