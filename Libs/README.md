@@ -34,6 +34,13 @@
  - Status: clean, except CMake; removed unneeded files
  - Optimal bundled zlib using CMake switch
 
+## crypto++
+
+ - URL: [https://github.com/weidai11/cryptopp](https://github.com/weidai11/cryptopp)
+ - Status: organized files, removed unneeded files, build system replaced with CMake
+ - Status of Crypto++ CMake: includes custom patches
+ - Optimal bundled crypto++ using CMake switch
+
 ## replxx
 
  - URL: https://github.com/AmokHuginnsson/replxx
