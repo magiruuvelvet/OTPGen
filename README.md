@@ -102,7 +102,10 @@ library path. Most IDEs have a CMake run configurations to do that on a per proj
    Note that webcam scanning isn't supported and not planned.
 
  - `-DBUNDLED_ZLIB=ON` (default *OFF*): use the bundled zlib library instead of the system-installed
-   one.
+   one. recommended for portable builds.
+
+ - `-DBUNDLED_CRYPTOPP=ON` (default *OFF*): use the bundled crypto++ library instead of the system-installed
+   one. recommended for portable builds.
 
 <br>
 
