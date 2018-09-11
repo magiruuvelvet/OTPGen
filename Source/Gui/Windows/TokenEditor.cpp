@@ -403,12 +403,11 @@ TokenEditor::TokenEditor(OTPWidget::Mode mode, QWidget *parent)
     // Restore UI state
     const auto _geometry = saveGeometry();
     restoreGeometry(gcfg::settings()->value(gcfg::keyGeometryTokenEditor(), _geometry).toByteArray());
-    const auto columns = gcfg::settings()->value(gcfg::keyTokenEditWidgetColumns());
-    if (!columns.isNull())
+    const auto columns = gcfg::settings()->value(gcfg::keyTokenEditWidgetColumns()).toList();
+    if (!columns.isEmpty())
     {
-        QSequentialIterable iterable = columns.value<QSequentialIterable>();
         int c = 0;
-        for (auto&& col : iterable)
+        for (auto&& col : columns)
         {
             tokenEditWidget->tokens()->setColumnWidth(c, col.toInt());
             ++c;
@@ -478,7 +477,7 @@ void TokenEditor::closeEvent(QCloseEvent *event)
 {
     // Save UI state
     gcfg::settings()->setValue(gcfg::keyGeometryTokenEditor(), saveGeometry());
-    QList<int> columns;
+    QVariantList columns;
     for (auto i = 0; i < tokenEditWidget->tokens()->columnCount(); i++)
     {
         columns.append(tokenEditWidget->tokens()->columnWidth(i));

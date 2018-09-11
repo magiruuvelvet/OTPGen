@@ -24,6 +24,8 @@
 #include <qtkeychain/keychain.h>
 #endif
 
+Q_DECLARE_METATYPE(QList<int>)
+
 std::shared_ptr<MainWindow> mainWindow;
 
 #ifdef QTKEYCHAIN_SUPPORT
@@ -202,6 +204,8 @@ int main(int argc, char **argv)
     a.setApplicationDisplayName(gcfg::q(cfg::Name));
     a.setApplicationVersion(gcfg::q(cfg::Version));
     a.setUserData(0, new AppIcon());
+
+    qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
 
     // don't allow multiple running instances, but send signals to main instance
     if (a.isRunning())

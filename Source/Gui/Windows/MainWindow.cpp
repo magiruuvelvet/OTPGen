@@ -115,12 +115,11 @@ MainWindow::MainWindow(QWidget *parent)
     // Restore UI state
     const auto _geometry = saveGeometry();
     restoreGeometry(gcfg::settings()->value(gcfg::keyGeometryMainWindow(), _geometry).toByteArray());
-    const auto columns = gcfg::settings()->value(gcfg::keyTokenWidgetColumns());
-    if (!columns.isNull())
+    const auto columns = gcfg::settings()->value(gcfg::keyTokenWidgetColumns()).toList();
+    if (!columns.isEmpty())
     {
-        QSequentialIterable iterable = columns.value<QSequentialIterable>();
         int c = 0;
-        for (auto&& col : iterable)
+        for (auto&& col : columns)
         {
             tokenWidget->tokens()->setColumnWidth(c, col.toInt());
             ++c;
@@ -466,7 +465,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     // Save UI state
     gcfg::settings()->setValue(gcfg::keyGeometryMainWindow(), saveGeometry());
-    QList<int> columns;
+    QVariantList columns;
     for (auto i = 0; i < tokenWidget->tokens()->columnCount() - 1; i++)
     {
         columns.append(tokenWidget->tokens()->columnWidth(i));
@@ -477,7 +476,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         tokenColumnWidth = 120;
     }
     columns.append(tokenColumnWidth);
-    gcfg::settings()->setValue(gcfg::keyTokenWidgetColumns(), QVariant::fromValue(columns));
+    gcfg::settings()->setValue(gcfg::keyTokenWidgetColumns(), columns);
     gcfg::settings()->setValue(gcfg::keyTokensVisible(), tokenWidget->tokenVisibilityAction()->isChecked());
     gcfg::settings()->setValue(gcfg::keyTokenIconsVisible(), tokenWidget->tokenIconVisibilityAction()->isChecked());
     gcfg::settings()->sync();
