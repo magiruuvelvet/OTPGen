@@ -72,6 +72,12 @@ if (DISABLE_GUI)
     message(STATUS "Building without GUI...")
 endif()
 
+# Build the CLI?
+set(DISABLE_CLI OFF CACHE BOOLEAN "Build without the CLI")
+if (DISABLE_CLI)
+    message(STATUS "Building without CLI...")
+endif()
+
 # Use QR Code feature?
 set(WITH_QR_CODES ON CACHE BOOLEAN "Enable support for QR codes")
 if (WITH_QR_CODES)
@@ -106,8 +112,10 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Shared")
 include_directories("${SHAREDLIB_INCLUDE_DIR}")
 
 # CLI
-message(STATUS "==> Configuring target \"CLI\"...")
-add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Cli")
+if (NOT DISABLE_CLI)
+    message(STATUS "==> Configuring target \"CLI\"...")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Cli")
+endif()
 
 # GUI
 if (NOT DISABLE_GUI)

@@ -94,6 +94,8 @@ library path. Most IDEs have a CMake run configurations to do that on a per proj
  - `-DDISABLE_GUI=ON` (default *OFF*): disables building of the graphical user interface.
    Note that the CLI isn't functional yet.
 
+ - `-DDISABLE_CLI=ON` (default *OFF*): disables building of the console application.
+
  - `-DDISABLE_QTKEYCHAIN=ON` (default *OFF*): disables the Qt Keychain integration.
 
  - `-DUNIT_TESTING=ON` (default *OFF*): enables building of the unit tests. (*recommended*)
@@ -106,6 +108,12 @@ library path. Most IDEs have a CMake run configurations to do that on a per proj
 
  - `-DBUNDLED_CRYPTOPP=ON` (default *OFF*): use the bundled crypto++ library instead of the system-installed
    one. recommended for portable builds.
+
+<br>
+
+**Hint**
+
+Disable both, the GUI and CLI to build only the library.
 
 <br>
 
