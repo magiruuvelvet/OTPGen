@@ -50,9 +50,18 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     add_definitions(-DOTPGEN_DEBUG)
 endif()
 
+# Android build
+set(BUILD_ANDROID OFF CACHE BOOLEAN "Optimize build for Android")
+if (BUILD_ANDROID)
+    message(STATUS "NDK root: $ENV{ANDROID_NDK_ROOT}")
+endif()
+
 # Generic flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
+if (NOT BUILD_ANDROID)
+    # Android toolchain doesn't support the native arch flag
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
+endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-switch")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unknown-pragmas -Wno-switch")
@@ -71,11 +80,17 @@ set(DISABLE_GUI OFF CACHE BOOLEAN "Build without GUI support")
 if (DISABLE_GUI)
     message(STATUS "Building without GUI...")
 endif()
+if (BUILD_ANDROID)
+    set(DISABLE_GUI ON CACHE BOOLEAN "" FORCE)
+endif()
 
 # Build the CLI?
 set(DISABLE_CLI OFF CACHE BOOLEAN "Build without the CLI")
 if (DISABLE_CLI)
     message(STATUS "Building without CLI...")
+endif()
+if (BUILD_ANDROID)
+    set(DISABLE_CLI ON CACHE BOOLEAN "" FORCE)
 endif()
 
 # Use QR Code feature?

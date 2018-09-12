@@ -35,6 +35,12 @@ else()
     target_link_libraries("CoreLib" ${CRYPTOPP_LDFLAGS})
 endif()
 
+# Android toolchain specific extensions
+if (BUILD_ANDROID AND BUNDLED_CRYPTOPP)
+    # cpufeatures required for crypto++
+    target_include_directories(cryptopp-static PRIVATE "$ENV{ANDROID_NDK_ROOT}/sources/android/cpufeatures")
+endif()
+
 target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/cereal")
 
 target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Source/Core")
