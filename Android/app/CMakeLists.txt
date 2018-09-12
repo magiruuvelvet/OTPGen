@@ -16,7 +16,11 @@ set(CMAKE_SOURCE_DIR "${CMAKE_SOURCE_DIR_BACKUP}")
 
 # Create libotpgen bindings
 add_library(libotpgen-jni-bindings SHARED
+    "${CMAKE_SOURCE_DIR}/src/main/cpp/jni-helpers.cpp"
+    "${CMAKE_SOURCE_DIR}/src/main/cpp/jni-helpers.hpp"
+
     "${CMAKE_SOURCE_DIR}/src/main/cpp/libotpgen-bindings.cpp"
+    "${CMAKE_SOURCE_DIR}/src/main/cpp/libotpgen-tests.cpp"
 )
 set_target_properties(libotpgen-jni-bindings PROPERTIES PREFIX "")
 set_target_properties(libotpgen-jni-bindings PROPERTIES OUTPUT_NAME "libotpgen-jni-bindings")

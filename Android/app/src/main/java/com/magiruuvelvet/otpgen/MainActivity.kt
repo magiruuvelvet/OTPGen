@@ -19,11 +19,10 @@ class MainActivity : AppCompatActivity()
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+                    .setAction("Action", null).show();
         }
 
-        // Example of a call to a native method
-        sample_text.text = stringFromJNI();
+        sample_text.text = "Welcome to OTPGen";
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean
@@ -42,16 +41,6 @@ class MainActivity : AppCompatActivity()
         {
             R.id.action_settings -> true;
             else -> super.onOptionsItemSelected(item);
-        }
-    }
-
-    external fun stringFromJNI(): String;
-
-    companion object
-    {
-        init
-        {
-            System.loadLibrary("otpgen-jni-bindings");
         }
     }
 }
