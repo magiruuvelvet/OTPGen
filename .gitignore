@@ -3,3 +3,15 @@ CMakeLists.txt.user
 OTPGen.pro.user
 
 *~
+
+
+# Android project
+*.iml
+.gradle
+local.properties
+.idea
+.DS_Store
+Android/build
+Android/app/build
+Android/captures
+.externalNativeBuild

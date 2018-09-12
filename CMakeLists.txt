@@ -113,6 +113,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 message(STATUS "==> Configuring target \"Core\"...")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Source/Core")
 include_directories("${CORELIB_INCLUDE_DIR}")
+set(LIBOTPGEN_INCLUDE_DIR "${CORELIB_INCLUDE_DIR}" PARENT_SCOPE)
 
 # QR Code Support library
 if (WITH_QR_CODES)

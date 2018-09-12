@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name" translatable="false">OTPGen</string>
+    <string name="action_settings">Settings</string>
+</resources>
