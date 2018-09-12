@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(zxing)
 
 # Adjust CMake's module path.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/FindModules)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/FindModules)
 
 # Suppress MSVC CRT warnings.
 if(MSVC)
