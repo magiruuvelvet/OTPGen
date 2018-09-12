@@ -6,7 +6,7 @@ include(SetCppStandard)
 
 # Core library
 file(GLOB_RECURSE SourceListCore
-    "${CMAKE_SOURCE_DIR}/Libs/cereal/*.hpp"
+    "${PROJECT_SOURCE_DIR}/Libs/cereal/*.hpp"
 
     "*.cpp"
     "*.hpp"
@@ -23,7 +23,7 @@ set(BUNDLED_CRYPTOPP OFF CACHE BOOLEAN "Use the bundled crypto++ library.")
 if (BUNDLED_CRYPTOPP)
     message(STATUS "Building with bundled crypto++")
     message(STATUS "   -> Configuring bundled crypto++ library...")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/cryptopp" "${CMAKE_CURRENT_BINARY_DIR}/cryptopp")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Libs/cryptopp" "${CMAKE_CURRENT_BINARY_DIR}/cryptopp")
     target_include_directories("CoreLib" PRIVATE "${CRYPTOPP_INCLUDEDIR}")
     target_link_libraries("CoreLib" cryptopp-static)
     message(STATUS "   -> Configured bundled crypto++ library.")
@@ -35,7 +35,7 @@ else()
     target_link_libraries("CoreLib" ${CRYPTOPP_LDFLAGS})
 endif()
 
-target_include_directories("CoreLib" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/cereal")
+target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/cereal")
 
-target_include_directories("CoreLib" PRIVATE "${CMAKE_SOURCE_DIR}/Source/Core")
-set(CORELIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/Source/Core" PARENT_SCOPE)
+target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Source/Core")
+set(CORELIB_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Source/Core" PARENT_SCOPE)

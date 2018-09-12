@@ -5,8 +5,8 @@
 include(SetCppStandard)
 
 file(GLOB_RECURSE SourceListUnitTests
-    "${CMAKE_SOURCE_DIR}/Libs/bandit/*.h"
-    "${CMAKE_SOURCE_DIR}/Libs/bandit/*.hpp"
+    "${PROJECT_SOURCE_DIR}/Libs/bandit/*.h"
+    "${PROJECT_SOURCE_DIR}/Libs/bandit/*.hpp"
 
     "main.cpp"
     "*.hpp"
@@ -21,7 +21,7 @@ target_link_libraries("${TARGET_NAME}" "CoreLib")
 # QR Code Support
 if (WITH_QR_CODES)
     target_link_libraries("${TARGET_NAME}" "QRCodeSupportLib")
-    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Source/QRCodeSupport")
+    target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Source/QRCodeSupport")
 endif()
 
-target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/bandit")
+target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/bandit")

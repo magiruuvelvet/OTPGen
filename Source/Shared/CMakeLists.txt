@@ -13,5 +13,5 @@ add_library("SharedLib" STATIC ${SourceListShared})
 SetCppStandard("SharedLib" 17)
 target_link_libraries("SharedLib" "CoreLib")
 
-target_include_directories("SharedLib" PRIVATE "${CMAKE_SOURCE_DIR}/Source/Shared")
-set(SHAREDLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/Source/Shared" PARENT_SCOPE)
+target_include_directories("SharedLib" PRIVATE "${PROJECT_SOURCE_DIR}/Source/Shared")
+set(SHAREDLIB_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Source/Shared" PARENT_SCOPE)

@@ -9,7 +9,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Meta and Helper Modules
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
-    "${CMAKE_SOURCE_DIR}/CMake/Modules")
+    "${PROJECT_SOURCE_DIR}/CMake/Modules")
 
 include(SetCppStandard)
 
@@ -96,36 +96,36 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Core library
 message(STATUS "==> Configuring target \"Core\"...")
-add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Core")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Source/Core")
 include_directories("${CORELIB_INCLUDE_DIR}")
 
 # QR Code Support library
 if (WITH_QR_CODES)
     message(STATUS "==> Configuring target \"QRCodeSupportLib\"...")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Source/QRCodeSupport" "${CMAKE_CURRENT_BINARY_DIR}/qrcodesupport")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Source/QRCodeSupport" "${CMAKE_CURRENT_BINARY_DIR}/qrcodesupport")
     message(STATUS "==> Configured target \"QRCodeSupportLib\".")
 endif()
 
 # Shared library
 message(STATUS "==> Configuring target \"Shared\"...")
-add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Shared")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Source/Shared")
 include_directories("${SHAREDLIB_INCLUDE_DIR}")
 
 # CLI
 if (NOT DISABLE_CLI)
     message(STATUS "==> Configuring target \"CLI\"...")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Cli")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Source/Cli")
 endif()
 
 # GUI
 if (NOT DISABLE_GUI)
     message(STATUS "==> Configuring target \"GUI\"...")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Source/Gui")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Source/Gui")
 endif()
 
 # Unit test sources
 if (UNIT_TESTING)
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Tests")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Tests")
 endif()
 
 #######################################################################################################################
@@ -139,8 +139,8 @@ if (NOT DISABLE_GUI)
             PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
             RENAME otpgen)
 
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/Desktop/applications
-                      ${CMAKE_SOURCE_DIR}/Desktop/icons
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/Desktop/applications
+                      ${PROJECT_SOURCE_DIR}/Desktop/icons
             DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
 endif()
 

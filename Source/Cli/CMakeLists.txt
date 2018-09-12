@@ -10,14 +10,14 @@ file(GLOB_RECURSE SourceListCli
 )
 
 file(GLOB_RECURSE SourceListCliDeps
-    "${CMAKE_SOURCE_DIR}/Libs/PlatformFolders/sago/*.cpp"
-    "${CMAKE_SOURCE_DIR}/Libs/PlatformFolders/sago/*.h"
+    "${PROJECT_SOURCE_DIR}/Libs/PlatformFolders/sago/*.cpp"
+    "${PROJECT_SOURCE_DIR}/Libs/PlatformFolders/sago/*.h"
 )
 
 file(GLOB_RECURSE SourceListBoost
-    "${CMAKE_SOURCE_DIR}/Libs/boost/src/*.cpp"
-    "${CMAKE_SOURCE_DIR}/Libs/boost/src/*.hpp"
-    "${CMAKE_SOURCE_DIR}/Libs/boost/src/*.h"
+    "${PROJECT_SOURCE_DIR}/Libs/boost/src/*.cpp"
+    "${PROJECT_SOURCE_DIR}/Libs/boost/src/*.hpp"
+    "${PROJECT_SOURCE_DIR}/Libs/boost/src/*.h"
 )
 
 # define the boost fs no deprecated api macro globally
@@ -35,13 +35,13 @@ target_link_libraries("${TARGET_NAME}" "CoreLib" "SharedLib" "CliDependencies" "
 # QR Code Support
 if (WITH_QR_CODES)
     target_link_libraries("${TARGET_NAME}" "QRCodeSupportLib")
-    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Source/QRCodeSupport")
+    target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Source/QRCodeSupport")
 endif()
 
-target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/PlatformFolders")
-target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/boost")
+target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/PlatformFolders")
+target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/boost")
 
 # add boost headers to global scope to avoid system conflicts
-include_directories("${CMAKE_SOURCE_DIR}/Libs/boost")
+include_directories("${PROJECT_SOURCE_DIR}/Libs/boost")
 
-target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Source/Cli")
+target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Source/Cli")

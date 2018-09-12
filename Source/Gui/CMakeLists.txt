@@ -6,21 +6,21 @@ include(SetCppStandard)
 
 # GUI Support Library
 file(GLOB_RECURSE SourceListGuiSupport
-    "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication/*.cpp"
-    "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication/*.h"
+    "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication/*.cpp"
+    "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication/*.h"
 
-    "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.cpp"
-    "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.h"
+    "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.cpp"
+    "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.h"
 )
 
 # Platform-specific sources for the GUI
 if (WIN32)
     file(GLOB_RECURSE SourceListGuiPlatformSupport
-        "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_win.cpp"
+        "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_win.cpp"
     )
 else()
     file(GLOB_RECURSE SourceListGuiPlatformSupport
-        "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_unix.cpp"
+        "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_unix.cpp"
     )
 endif()
 set(SourceListGuiSupport ${SourceListGuiSupport} ${SourceListGuiPlatformSupport})
@@ -72,7 +72,7 @@ if (NOT DISABLE_QTKEYCHAIN)
     set(BUILD_TRANSLATIONS OFF CACHE BOOLEAN "" FORCE)
     set(QTKEYCHAIN_STATIC OFF CACHE BOOLEAN "" FORCE)
     set(LIBSECRET_SUPPORT ON CACHE BOOLEAN "" FORCE)
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/qtkeychain/qtkeychain" "${CMAKE_CURRENT_BINARY_DIR}/qt5keychain")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Libs/qtkeychain/qtkeychain" "${CMAKE_CURRENT_BINARY_DIR}/qt5keychain")
     set_target_properties(qt5keychain PROPERTIES PREFIX "")
     set_target_properties(qt5keychain PROPERTIES OUTPUT_NAME "libotpgen-keychainsupport")
     message(STATUS "   -> Configured QtKeychain.")
@@ -95,14 +95,14 @@ if (BUNDLED_ZLIB)
     endif()
     set(BUILD_SHARED_LIBS OFF CACHE BOOLEAN "" FORCE)
     set(SKIP_INSTALL_ALL ON CACHE BOOLEAN "" FORCE)
-    add_subdirectory("${CMAKE_SOURCE_DIR}/Libs/zlib" "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Libs/zlib" "${CMAKE_CURRENT_BINARY_DIR}/zlib")
     message(STATUS "   -> Configured bundled zlib.")
 else()
     message(STATUS "Using shared zlib.")
     find_package(ZLIB REQUIRED)
 endif()
 
-qt5_add_resources(RCC_SOURCES "${CMAKE_SOURCE_DIR}/GuiAssets/EmbeddedAssets.qrc")
+qt5_add_resources(RCC_SOURCES "${PROJECT_SOURCE_DIR}/GuiAssets/EmbeddedAssets.qrc")
 add_custom_target(GenerateEmbeddedAssets DEPENDS ${RCC_SOURCES})
 
 add_executable("${TARGET_NAME}" ${SourceListGui} ${RCC_SOURCES})
@@ -121,7 +121,7 @@ endif()
 
 if (BUNDLED_ZLIB)
     target_link_libraries("${TARGET_NAME}" zlibstatic)
-    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/zlib")
+    target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/zlib")
 else()
     target_link_libraries("${TARGET_NAME}" ${ZLIB_LIBRARIES})
     target_include_directories("${TARGET_NAME}" PRIVATE "${ZLIB_INCLUDE_DIRS}")
@@ -130,16 +130,16 @@ endif()
 # QR Code Support
 if (WITH_QR_CODES)
     target_link_libraries("${TARGET_NAME}" "QRCodeSupportLib")
-    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Source/QRCodeSupport")
+    target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Source/QRCodeSupport")
 endif()
 
 add_dependencies("${TARGET_NAME}" GenerateEmbeddedAssets)
 
-target_include_directories("GuiLibSupport" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication")
-target_include_directories("GuiLibSupport" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtlockedfile")
+target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
+target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile")
 
 if (NOT DISABLE_QTKEYCHAIN)
-    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtkeychain")
+    target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtkeychain")
 endif()
 target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Gui/qt5keychain")
-target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_SOURCE_DIR}/Libs/qtsingleapplication")
+target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
