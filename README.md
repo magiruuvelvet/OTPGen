@@ -51,7 +51,9 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 ## Requirements
 
- - [crypto++](https://cryptopp.com/)
+ - [crypto++](https://cryptopp.com/) <br>
+   **Hint:** this library is also bundled and can be statically linked.
+   see CMake build options for more details.
 
 <br>
 
