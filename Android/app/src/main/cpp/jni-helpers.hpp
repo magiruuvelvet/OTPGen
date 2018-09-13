@@ -12,6 +12,9 @@ public:
 
     // convert jstring into UTF-8 encoded std::string
     static const std::string jstring2string(JNIEnv *env, jstring jStr);
+
+    // create java exception and throw it
+    static jint throwException(JNIEnv *env, const std::string &message);
 };
 
 // use C function linkage (jni symbol names)

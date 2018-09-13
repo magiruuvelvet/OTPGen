@@ -23,3 +23,10 @@ const std::string JniHelpers::jstring2string(JNIEnv *env, jstring jStr)
     env->DeleteLocalRef(stringClass);
     return ret;
 }
+
+// create java exception and throw it
+jint JniHelpers::throwException(JNIEnv *env, const std::string &message)
+{
+    jclass exClass = env->FindClass("java/lang/Exception");
+    return env->ThrowNew(exClass, message.c_str());
+}
