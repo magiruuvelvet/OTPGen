@@ -22,19 +22,12 @@ class OTPGen
             SHA512(3),
         }
 
-        private const val EXCEPTION_MESSAGE = "Invalid base-32 secret!";
-
         /**
          * Computes a TOTP token from the given base-32 secret.
          */
         fun computeTOTP(secret: String, digits: Int, period: Int, algo: ShaAlgorithm): String
         {
-            val token = _computeTOTP(secret, digits, period, algo.value);
-            if (token.isEmpty())
-            {
-                throw IllegalArgumentException(EXCEPTION_MESSAGE);
-            }
-            return token;
+            return _computeTOTP(secret, digits, period, algo.value);
         }
 
         /**
@@ -42,12 +35,7 @@ class OTPGen
          */
         fun computeHOTP(secret: String, digits: Int, counter: Int, algo: ShaAlgorithm): String
         {
-            val token = _computeHOTP(secret, digits, counter, algo.value);
-            if (token.isEmpty())
-            {
-                throw IllegalArgumentException(EXCEPTION_MESSAGE);
-            }
-            return token;
+            return _computeHOTP(secret, digits, counter, algo.value);
         }
 
         /**
@@ -55,12 +43,7 @@ class OTPGen
          */
         fun computeSteam(secret: String): String
         {
-            val token = _computeSteam(secret);
-            if (token.isEmpty())
-            {
-                throw IllegalArgumentException(EXCEPTION_MESSAGE);
-            }
-            return token;
+            return _computeSteam(secret);
         }
     }
 }
