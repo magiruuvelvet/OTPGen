@@ -62,4 +62,17 @@ class DeviceUnitTests
         val token = testSteamGeneration("ABC30WAY33X57CCBU3EAXGDDMX35S39M", 1536573862);
         assertEquals(token, "GQTTM");
     }
+
+    @Test
+    fun test_otpgen_exceptions()
+    {
+        try {
+            val token = OTPGen.computeTOTP("", 6, 30, OTPGen.Companion.ShaAlgorithm.SHA1);
+        } catch (e: Exception) {
+            assertEquals(e.message, "OTPGen: Invalid base-32 input!");
+            return;
+        }
+        // exception test failed
+        assertEquals(true, false);
+    }
 }
