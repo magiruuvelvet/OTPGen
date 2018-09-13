@@ -250,7 +250,7 @@ const OTPToken::TokenString OTPGen::computeTOTP(const std::time_t &time,
 {
     if (!check_otp_length(digits))
     {
-        if (error) (*error) = OTPGenErrorCode::InvalidOTP;
+        if (error) (*error) = OTPGenErrorCode::InvalidDigits;
         return {};
     }
 
@@ -280,7 +280,7 @@ const OTPToken::TokenString OTPGen::computeHOTP(const OTPToken::SecretType &base
 
     if (!check_otp_length(digits))
     {
-        if (error) (*error) = OTPGenErrorCode::InvalidOTP;
+        if (error) (*error) = OTPGenErrorCode::InvalidDigits;
         return {};
     }
 

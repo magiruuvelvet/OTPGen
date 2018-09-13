@@ -5,7 +5,6 @@ enum class OTPGenErrorCode {
     Valid = 0,
     InvalidBase32Input,
     InvalidAlgorithm,
-    InvalidOTP,
     InvalidDigits,
     InvalidPeriod,
 };
