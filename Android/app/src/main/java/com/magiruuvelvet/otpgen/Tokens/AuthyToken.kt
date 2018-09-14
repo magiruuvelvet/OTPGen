@@ -9,6 +9,8 @@ class AuthyToken : TOTPToken()
         _algorithm = Companion.ShaAlgorithm.SHA1;
     }
 
+    override val _type: Companion.Type = Companion.Type.Authy;
+
     override fun setCounter(counter: Int) {}
     override fun setPeriod(period: Int) {}
     override fun setDigits(digits: Int) {}

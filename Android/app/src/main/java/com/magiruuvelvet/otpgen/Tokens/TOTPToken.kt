@@ -9,10 +9,10 @@ open class TOTPToken : OTPToken()
         _algorithm = Companion.ShaAlgorithm.SHA1;
     }
 
+    override val _type: Companion.Type = Companion.Type.TOTP;
+
     // remove counter from TOTP
     override fun setCounter(counter: Int) {}
-
-    override val _type: Companion.Type = Companion.Type.TOTP;
 
     override fun generateToken(): String
     {

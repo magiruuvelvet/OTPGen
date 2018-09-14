@@ -9,12 +9,12 @@ class SteamToken : OTPToken()
         _algorithm = Companion.ShaAlgorithm.SHA1;
     }
 
+    override val _type: Companion.Type = Companion.Type.Steam;
+
     override fun setCounter(counter: Int) {}
     override fun setPeriod(period: Int) {}
     override fun setDigits(digits: Int) {}
     override fun setAlgorithm(algo: Companion.ShaAlgorithm) {}
-
-    override val _type: Companion.Type = Companion.Type.Steam;
 
     override fun generateToken(): String
     {

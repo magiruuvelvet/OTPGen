@@ -9,10 +9,10 @@ class HOTPToken : OTPToken()
         _algorithm = Companion.ShaAlgorithm.SHA1;
     }
 
+    override val _type: Companion.Type = Companion.Type.HOTP;
+
     // remove period from HOTP
     override fun setPeriod(period: Int) {}
-
-    override val _type: Companion.Type = Companion.Type.HOTP;
 
     override fun generateToken(): String
     {
