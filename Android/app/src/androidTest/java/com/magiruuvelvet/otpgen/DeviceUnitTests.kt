@@ -1,5 +1,8 @@
 package com.magiruuvelvet.otpgen
 
+import com.magiruuvelvet.otpgen.Tokens.OTPGen
+import com.magiruuvelvet.otpgen.Tokens.OTPToken
+
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 
@@ -67,7 +70,7 @@ class DeviceUnitTests
     fun test_otpgen_exceptions()
     {
         try {
-            val token = OTPGen.computeTOTP("", 6, 30, OTPGen.Companion.ShaAlgorithm.SHA1);
+            val token = OTPGen.computeTOTP("", 6, 30, OTPToken.Companion.ShaAlgorithm.SHA1);
         } catch (e: Exception) {
             assertEquals(e.message, "OTPGen: Invalid base-32 input!");
             return;

@@ -1,6 +1,6 @@
-package com.magiruuvelvet.otpgen
+package com.magiruuvelvet.otpgen.Tokens
 
-class OTPGen
+internal class OTPGen
 {
     companion object
     {
@@ -14,18 +14,10 @@ class OTPGen
         private external fun _computeSteam(secret: String): String;
         //private external fun _computeSteam_AtTime(secret: String, time: Long): String;
 
-        // enum of SHA algorithms, values must match with the C++ header (OTPToken.hpp)
-        enum class ShaAlgorithm(val value: Int)
-        {
-            SHA1(1),
-            SHA256(2),
-            SHA512(3),
-        }
-
         /**
          * Computes a TOTP token from the given base-32 secret.
          */
-        fun computeTOTP(secret: String, digits: Int, period: Int, algo: ShaAlgorithm): String
+        fun computeTOTP(secret: String, digits: Int, period: Int, algo: OTPToken.Companion.ShaAlgorithm): String
         {
             return _computeTOTP(secret, digits, period, algo.value);
         }
@@ -33,7 +25,7 @@ class OTPGen
         /**
          * Computes a HOTP token from the given base-32 secret.
          */
-        fun computeHOTP(secret: String, digits: Int, counter: Int, algo: ShaAlgorithm): String
+        fun computeHOTP(secret: String, digits: Int, counter: Int, algo: OTPToken.Companion.ShaAlgorithm): String
         {
             return _computeHOTP(secret, digits, counter, algo.value);
         }
