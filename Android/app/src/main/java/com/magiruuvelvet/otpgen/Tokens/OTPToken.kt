@@ -64,7 +64,7 @@ abstract class OTPToken
         return _secret;
     }
 
-    fun setDigits(digits: Int)
+    open fun setDigits(digits: Int)
     {
         _digits = digits;
     }
@@ -99,7 +99,7 @@ abstract class OTPToken
         _algorithm = algo;
     }
 
-    fun algorithm(): ShaAlgorithm
+    open fun algorithm(): ShaAlgorithm
     {
         return _algorithm;
     }
