@@ -56,3 +56,8 @@ const HOTPToken::TokenString HOTPToken::generateToken(OTPGenErrorCode *error) co
 
     return TokenString();
 }
+
+std::shared_ptr<OTPToken> HOTPToken::clone() const
+{
+    return std::make_shared<HOTPToken>(_label, _icon, _secret, _digits, _period, _counter, _algorithm);
+}

@@ -104,3 +104,8 @@ const SteamToken::TokenString SteamToken::generateToken(OTPGenErrorCode *error) 
 
     return TokenString();
 }
+
+std::shared_ptr<OTPToken> SteamToken::clone() const
+{
+    return std::make_shared<SteamToken>(_label, _icon, _secret, _digits, _period, _counter, _algorithm);
+}

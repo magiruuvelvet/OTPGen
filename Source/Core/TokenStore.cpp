@@ -78,6 +78,11 @@ TokenStore::Status TokenStore::addToken(const Token &token, bool override)
     }
 }
 
+TokenStore::Status TokenStore::addToken(const OTPToken *token, bool override)
+{
+    return addToken(token->clone(), override);
+}
+
 void TokenStore::addTokenUnsafe(const Token &token)
 {
     // do nothing on nullptr

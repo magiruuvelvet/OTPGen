@@ -23,6 +23,8 @@ public:
     friend struct TokenData;
     friend class TokenStore;
 
+    std::shared_ptr<OTPToken> clone() const override;
+
     AuthyToken(const Label &label,
                const Icon &icon,
                const SecretType &secret,

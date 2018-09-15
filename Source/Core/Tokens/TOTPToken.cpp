@@ -57,3 +57,8 @@ const TOTPToken::TokenString TOTPToken::generateToken(OTPGenErrorCode *error) co
 
     return TokenString();
 }
+
+std::shared_ptr<OTPToken> TOTPToken::clone() const
+{
+    return std::make_shared<TOTPToken>(_label, _icon, _secret, _digits, _period, _counter, _algorithm);
+}

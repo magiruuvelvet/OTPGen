@@ -21,3 +21,8 @@ AuthyToken::AuthyToken(const Label &label)
 {
     _label = label;
 }
+
+std::shared_ptr<OTPToken> AuthyToken::clone() const
+{
+    return std::make_shared<AuthyToken>(_label, _icon, _secret, _digits, _period, _counter, _algorithm);
+}

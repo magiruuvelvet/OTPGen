@@ -27,6 +27,7 @@ public:
     };
 
     Status addToken(const Token &token, bool override = false);
+    Status addToken(const OTPToken *token, bool override = false);
     void removeToken(const OTPToken::Label &label);
     bool renameToken(const OTPToken::Label &oldLabel, const OTPToken::Label &newLabel);
 

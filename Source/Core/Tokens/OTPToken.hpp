@@ -3,6 +3,7 @@
 
 #include <string>
 #include <cstdint>
+#include <memory>
 
 #include "OTPGenErrorCodes.hpp"
 
@@ -162,6 +163,8 @@ protected:
 public:
     friend struct TokenData;
     friend class TokenStore;
+
+    virtual std::shared_ptr<OTPToken> clone() const = 0;
 
     OTPToken(const Label &label,
              const Icon &icon,
