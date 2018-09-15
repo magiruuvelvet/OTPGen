@@ -21,6 +21,10 @@
 
 %include <typemaps.i>
 %include <various.i>
+%include <arrays_java.i>
+
+// custom interfaces
+%include "java_heap.i"
 
 // include libotpgen headers
 %{
@@ -68,8 +72,9 @@ typedef long long time_t;
 %shared_ptr(OTPToken);
 
 // register raw pointers
-%pointer_functions(char, charP);
-%pointer_functions(OTPGenErrorCode, OTPGenErrorCodeP);
+%pointer_class(char, charP);
+%pointer_class(OTPGenErrorCode, OTPGenErrorCodeP);
+%pointer_class(std::shared_ptr<OTPToken>, OTPTokenSharedPtr);
 
 // register vectors and maps
 %template(OTPTokenList) std::vector<OTPToken*>;
