@@ -1,8 +1,9 @@
 package com.magiruuvelvet.otpgen
 
-import com.magiruuvelvet.otpgen.Tokens.TOTPToken
-import com.magiruuvelvet.otpgen.Tokens.SteamToken
-import com.magiruuvelvet.otpgen.Tokens.AuthyToken
+import com.magiruuvelvet.libotpgen.TOTPToken;
+import com.magiruuvelvet.libotpgen.HOTPToken;
+import com.magiruuvelvet.libotpgen.SteamToken;
+import com.magiruuvelvet.libotpgen.AuthyToken;
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
@@ -15,15 +16,23 @@ import org.junit.Assert.*
 @RunWith(AndroidJUnit4::class)
 class TokenTests
 {
+    companion object
+    {
+        init
+        {
+            System.loadLibrary("otpgen-jni-bindings");
+        }
+    }
+
     @Test
     fun test_totp_class()
     {
         val token = TOTPToken();
         token.setSecret("XYZA123456KDDK83D");
         assertEquals(token.secret(), "XYZA123456KDDK83D");
-        assertEquals(token.generateToken().length, token.digits());
-        assertEquals(token.digits(), 6);
-        assertEquals(token.period(), 30);
+        assertTrue(token.generateToken().length == token.digits().toInt());
+        assertTrue(token.digits() == 6.toShort());
+        assertTrue(token.period() == 30.toLong());
     }
 
     @Test
@@ -31,9 +40,9 @@ class TokenTests
     {
         val token = SteamToken();
         token.setSecret("XYZA123456KDDK83D");
-        assertEquals(token.generateToken().length, token.digits());
-        assertEquals(token.digits(), 5);
-        assertEquals(token.period(), 30);
+        assertTrue(token.generateToken().length == token.digits().toInt());
+        assertTrue(token.digits() == 5.toShort());
+        assertTrue(token.period() == 30.toLong());
     }
 
     @Test
@@ -41,8 +50,8 @@ class TokenTests
     {
         val token = AuthyToken();
         token.setSecret("XYZA123456KDDK83D")
-        assertEquals(token.generateToken().length, token.digits());
-        assertEquals(token.digits(), 7);
-        assertEquals(token.period(), 10);
+        assertTrue(token.generateToken().length == token.digits().toInt());
+        assertTrue(token.digits() == 7.toShort());
+        assertTrue(token.period() == 10.toLong());
     }
 }
