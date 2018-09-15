@@ -58,11 +58,22 @@ All dependencies are bundled and statically linked.
 
  - CMake 3.8+
  - Gradle 4.4+
+ - [Swig](https://github.com/swig/swig) 3.0+ (autogenerate JNI binding library)
  - Kotlin Compiler (at least version 1.2.51)
  - Android Studio
  - Android SDK 21 or higher
  - Android NDK (modern version which uses Clang by default and has C++17 support) <br>
    *Library may not compile or work with GNU GCC!!*
+
+#### Swig
+
+Swig is a tool to automatically generate language bindings for several programming languages.
+Since `libotpgen` is a larger C++ library with a lot of custom classes, writing bindings by
+hand is a mayor pita. For this case I decided to make use of this tool.
+
+Note that Android Studio will not autocomplete the generated package and mark everything red.
+The compilation works though and a prober APK is built. Unit tests are working too. In case
+you experience problems with Swig please tell me by opening a bug report.
 
 #### Build Steps
 

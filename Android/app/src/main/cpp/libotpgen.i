@@ -1,0 +1,84 @@
+// libotpgen JNI interface file
+
+// package name
+%module libotpgen
+
+// include required and optimal interfaces
+%include <std_string.i>
+%include <std_vector.i>
+%include <std_array.i>
+%include <std_map.i>
+%include <std_pair.i>
+%include <std_except.i>
+
+%include <inttypes.i>
+%include <carrays.i>
+%include <stl.i>
+
+%include <std_shared_ptr.i>
+%include <shared_ptr.i>
+%include <cpointer.i>
+
+%include <typemaps.i>
+%include <various.i>
+
+// include libotpgen headers
+%{
+#include <OTPGen.hpp>
+#include <OTPGenErrorCodes.hpp>
+#include <Tokens.hpp>
+#include <Tokens/OTPToken.hpp>
+#include <Tokens/TOTPToken.hpp>
+#include <Tokens/HOTPToken.hpp>
+#include <Tokens/SteamToken.hpp>
+#include <Tokens/AuthyToken.hpp>
+#include <AppSupport.hpp>
+#include <AppSupport/andOTP.hpp>
+#include <AppSupport/Authy.hpp>
+#include <AppSupport/Steam.hpp>
+#include <otpauthURI.hpp>
+#include <TokenDatabase.hpp>
+#include <TokenStore.hpp>
+%}
+
+// inline all libotpgen headers for the interface
+%include <OTPGen.hpp>
+%include <OTPGenErrorCodes.hpp>
+%include <Tokens.hpp>
+%include <Tokens/OTPToken.hpp>
+%include <Tokens/TOTPToken.hpp>
+%include <Tokens/HOTPToken.hpp>
+%include <Tokens/SteamToken.hpp>
+%include <Tokens/AuthyToken.hpp>
+%include <AppSupport.hpp>
+%include <AppSupport/andOTP.hpp>
+%include <AppSupport/Authy.hpp>
+%include <AppSupport/Steam.hpp>
+%include <otpauthURI.hpp>
+%include <TokenDatabase.hpp>
+%include <TokenStore.hpp>
+
+// UNIX timestamps
+typedef long long time_t;
+
+// special pointer parameters
+%apply OTPGenErrorCode *OTPGENERRORCODERESULT { OTPGenErrorCode *error };
+
+// register smart pointers
+%shared_ptr(OTPToken);
+
+// register raw pointers
+%pointer_functions(char, charP);
+%pointer_functions(OTPGenErrorCode, OTPGenErrorCodeP);
+
+// register vectors and maps
+%template(OTPTokenList) std::vector<OTPToken*>;
+%template(TOTPTokenList) std::vector<TOTPToken>;
+%template(HOTPTokenList) std::vector<HOTPToken>;
+%template(AuthyTokenList) std::vector<AuthyToken>;
+%template(SteamTokenList) std::vector<SteamToken>;
+%template(StringMap) std::map<std::string, std::string>;
+
+// other templates
+%template(OTPTokenPtr) std::shared_ptr<OTPToken>;
+%template(OTPTokenPtrList) std::vector<std::shared_ptr<OTPToken>>;
