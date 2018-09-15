@@ -69,7 +69,7 @@ All dependencies are bundled and statically linked.
 
 Swig is a tool to automatically generate language bindings for several programming languages.
 Since `libotpgen` is a larger C++ library with a lot of custom classes, writing bindings by
-hand is a mayor pita. For this case I decided to make use of this tool.
+hand is a major pita. For this case I decided to make use of this tool.
 
 Note that Android Studio will not autocomplete the generated package and mark everything red.
 The compilation works though and a prober APK is built. Unit tests are working too. In case
