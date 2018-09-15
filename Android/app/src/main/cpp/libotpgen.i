@@ -86,4 +86,8 @@ typedef long long time_t;
 
 // other templates
 %template(OTPTokenPtr) std::shared_ptr<OTPToken>;
+%template(TOTPTokenPtr) std::shared_ptr<TOTPToken>;
+%template(HOTPTokenPtr) std::shared_ptr<HOTPToken>;
+%template(SteamTokenPtr) std::shared_ptr<SteamToken>;
+%template(AuthyTokenPtr) std::shared_ptr<AuthyToken>;
 %template(OTPTokenPtrList) std::vector<std::shared_ptr<OTPToken>>;
