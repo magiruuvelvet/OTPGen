@@ -119,7 +119,8 @@ set(LIBOTPGEN_INCLUDE_DIR "${CORELIB_INCLUDE_DIR}" PARENT_SCOPE)
 if (WITH_QR_CODES)
     message(STATUS "==> Configuring target \"QRCodeSupportLib\"...")
     add_subdirectory("${PROJECT_SOURCE_DIR}/Source/QRCodeSupport" "${CMAKE_CURRENT_BINARY_DIR}/qrcodesupport")
-    message(STATUS "==> Configured target \"QRCodeSupportLib\".")
+    include_directories("${QRCODESUPPORTLIB_INCLUDE_DIR}")
+    set(LIBOTPGEN_QRCODESUPPORT_INCLUDE_DIR "${QRCODESUPPORTLIB_INCLUDE_DIR}" PARENT_SCOPE)
 endif()
 
 # Shared library
