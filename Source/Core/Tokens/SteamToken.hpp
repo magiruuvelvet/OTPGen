@@ -3,7 +3,7 @@
 
 #include "OTPToken.hpp"
 
-class SteamToken final : public OTPToken
+class SteamToken : public OTPToken
 {
 public:
     SteamToken();

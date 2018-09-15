@@ -3,7 +3,7 @@
 
 #include "OTPToken.hpp"
 
-class HOTPToken final : public OTPToken
+class HOTPToken : public OTPToken
 {
 public:
     HOTPToken();

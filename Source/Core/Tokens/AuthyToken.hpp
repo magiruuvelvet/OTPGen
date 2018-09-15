@@ -3,7 +3,7 @@
 
 #include "TOTPToken.hpp"
 
-class AuthyToken final : public TOTPToken
+class AuthyToken : public TOTPToken
 {
 public:
     AuthyToken();

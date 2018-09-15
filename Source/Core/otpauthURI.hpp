@@ -58,17 +58,17 @@ public:
         HOTP,
     };
 
-    inline const auto &type() const
+    inline const Type &type() const
     { return _type; }
 
-    inline const auto &label() const
+    inline const std::string &label() const
     { return _label; }
 
-    inline const auto &secret() const
+    inline const std::string &secret() const
     { return _params.at("secret"); }
-    inline const auto &algorithm() const
+    inline const std::string &algorithm() const
     { return _params.at("algorithm"); }
-    inline const auto &digits() const
+    inline const std::string &digits() const
     { return _params.at("digits"); }
 
     std::uint8_t digitsNumber() const;
@@ -101,7 +101,7 @@ public:
     }
     std::uint32_t periodNumber() const;
 
-    inline const auto &params() const
+    inline const std::map<std::string, std::string> &params() const
     { return _params; }
 
     inline bool empty() const

@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-class TokenStore final
+class TokenStore
 {
     friend class TokenDatabase;
 
