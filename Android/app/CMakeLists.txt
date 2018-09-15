@@ -7,7 +7,7 @@ include(${SWIG_USE_FILE})
 # Configure libotpgen
 set(BUNDLED_ZLIB ON CACHE BOOLEAN "" FORCE)
 set(BUNDLED_CRYPTOPP ON CACHE BOOLEAN "" FORCE)
-set(WITH_QR_CODES OFF CACHE BOOLEAN "" FORCE)
+set(WITH_QR_CODES ON CACHE BOOLEAN "" FORCE)
 set(DISABLE_GUI ON CACHE BOOLEAN "" FORCE)
 set(DISABLE_CLI ON CACHE BOOLEAN "" FORCE)
 set(BUILD_ANDROID ON CACHE BOOLEAN "" FORCE)
@@ -20,6 +20,7 @@ set(CMAKE_SOURCE_DIR "${CMAKE_SOURCE_DIR_BACKUP}")
 
 # Include directory of libotpgen (required for Swig)
 include_directories("${LIBOTPGEN_INCLUDE_DIR}")
+include_directories("${LIBOTPGEN_QRCODESUPPORT_INCLUDE_DIR}")
 
 #
 # Generate libotpgen JNI bindings
@@ -45,4 +46,4 @@ SWIG_ADD_LIBRARY(libotpgen-jni-bindings
     LANGUAGE c++
     SOURCES "${CMAKE_SOURCE_DIR}/src/main/cpp/libotpgen.i"
 )
-SWIG_LINK_LIBRARIES(libotpgen-jni-bindings CoreLib)
+SWIG_LINK_LIBRARIES(libotpgen-jni-bindings CoreLib QRCodeSupportLib)

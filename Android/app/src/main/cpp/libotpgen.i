@@ -25,6 +25,29 @@
 
 // custom interfaces
 %include "java_heap.i"
+%include "std_string_ref.i"
+
+// UNIX timestamps
+typedef long long time_t;
+
+// forward include enum headers
+%{
+#include <OTPGenErrorCodes.hpp>
+%}
+
+// special pointer parameters
+%apply OTPGenErrorCode *OUTPUT { OTPGenErrorCode *error };
+
+// register raw pointers
+%pointer_class(char, charP);
+%pointer_class(OTPGenErrorCode, OTPGenErrorCodeP);
+
+// string references
+%apply std::string& OUTPUT { std::string &data };
+%apply std::string& OUTPUT { std::string &out };
+
+// register std types
+%template(StringMap) std::map<std::string, std::string>;
 
 // include libotpgen headers
 %{
@@ -43,6 +66,7 @@
 #include <otpauthURI.hpp>
 #include <TokenDatabase.hpp>
 #include <TokenStore.hpp>
+#include <QRCode.hpp>
 %}
 
 // inline all libotpgen headers for the interface
@@ -61,19 +85,12 @@
 %include <otpauthURI.hpp>
 %include <TokenDatabase.hpp>
 %include <TokenStore.hpp>
-
-// UNIX timestamps
-typedef long long time_t;
-
-// special pointer parameters
-%apply OTPGenErrorCode *OTPGENERRORCODERESULT { OTPGenErrorCode *error };
+%include <QRCode.hpp>
 
 // register smart pointers
 %shared_ptr(OTPToken);
 
 // register raw pointers
-%pointer_class(char, charP);
-%pointer_class(OTPGenErrorCode, OTPGenErrorCodeP);
 %pointer_class(std::shared_ptr<OTPToken>, OTPTokenSharedPtr);
 
 // register vectors and maps
@@ -82,7 +99,6 @@ typedef long long time_t;
 %template(HOTPTokenList) std::vector<HOTPToken>;
 %template(AuthyTokenList) std::vector<AuthyToken>;
 %template(SteamTokenList) std::vector<SteamToken>;
-%template(StringMap) std::map<std::string, std::string>;
 
 // other templates
 %template(OTPTokenPtr) std::shared_ptr<OTPToken>;
