@@ -23,6 +23,9 @@
 %include <various.i>
 %include <arrays_java.i>
 
+// unsigned char* binary data
+%include <cdata.i>
+
 // custom interfaces
 %include "java_heap.i"
 %include "std_string_ref.i"
@@ -46,6 +49,11 @@ typedef long long time_t;
 %apply std::string& OUTPUT { std::string &data };
 %apply std::string& OUTPUT { std::string &out };
 
+// binary data
+%apply unsigned char* OUTPUT { unsigned char *data };
+%apply unsigned char* OUTPUT { unsigned char *out };
+%apply unsigned char* OUTPUT { const unsigned char *input_data };
+
 // register std types
 %template(StringMap) std::map<std::string, std::string>;
 
@@ -66,7 +74,6 @@ typedef long long time_t;
 #include <otpauthURI.hpp>
 #include <TokenDatabase.hpp>
 #include <TokenStore.hpp>
-#include <QRCode.hpp>
 %}
 
 // inline all libotpgen headers for the interface
@@ -85,7 +92,6 @@ typedef long long time_t;
 %include <otpauthURI.hpp>
 %include <TokenDatabase.hpp>
 %include <TokenStore.hpp>
-%include <QRCode.hpp>
 
 // register smart pointers
 %shared_ptr(OTPToken);
@@ -107,3 +113,6 @@ typedef long long time_t;
 %template(SteamTokenPtr) std::shared_ptr<SteamToken>;
 %template(AuthyTokenPtr) std::shared_ptr<AuthyToken>;
 %template(OTPTokenPtrList) std::vector<std::shared_ptr<OTPToken>>;
+
+// qr code support
+%include "qrcode.i"
