@@ -59,7 +59,7 @@ All dependencies are bundled and statically linked.
  - CMake 3.8+
  - Gradle 4.4+
  - [Swig](https://github.com/swig/swig) 3.0+ (autogenerate JNI binding library)
- - Kotlin Compiler (at least version 1.2.51)
+ - Kotlin Compiler (at least version 1.2.70)
  - Android Studio
  - Android SDK 21 or higher
  - Android NDK (modern version which uses Clang by default and has C++17 support) <br>
