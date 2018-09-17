@@ -52,6 +52,25 @@ class DeviceUnitTests
     //     assertEquals(res.getData(), "otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example");
     // }
 
+    // FIXME: alternative test for the failing `test_qr_decode` test
+    //   manually copying the files to the device and opening them works
+    //   this test exists for the sole reason to verify that zxing-cpp and the binding code with the
+    //   built-in PNG and JPG decoder is working on ARM and Android
+    //   note: on ARMv8 64-bit the test worked
+    @Test
+    fun test_qr_decode_external()
+    {
+        // png
+        var res = libotpgen.QRCode_decode("/sdcard/Android/data/com.magiruuvelvet.otpgen/tests/valid.png");
+        assertEquals(res.getStatus(), true);
+        assertEquals(res.getData(), "otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example");
+
+        // jpg
+        res = libotpgen.QRCode_decode("/sdcard/Android/data/com.magiruuvelvet.otpgen/tests/valid.jpg");
+        assertEquals(res.getStatus(), true);
+        assertEquals(res.getData(), "otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example");
+    }
+
     @Test
     fun test_totp_generation()
     {
