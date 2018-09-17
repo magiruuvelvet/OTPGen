@@ -71,9 +71,10 @@ Swig is a tool to automatically generate language bindings for several programmi
 Since `libotpgen` is a larger C++ library with a lot of custom classes, writing bindings by
 hand is a major pita. For this case I decided to make use of this tool.
 
-Note that Android Studio will not autocomplete the generated package and mark everything red.
-The compilation works though and a prober APK is built. Unit tests are working too. In case
-you experience problems with Swig please tell me by opening a bug report.
+If Android Studio doesn't recognize the generated package and marks it red, try to manually
+create a package named `com.magiruuvelvet.libotpgen` with an test class in it. Then delete
+the test class and try again. `Build/Make Project` will always regenerate the package. On
+problems, delete the directory and try again.
 
 #### Build Steps
 
