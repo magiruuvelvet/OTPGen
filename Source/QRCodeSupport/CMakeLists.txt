@@ -18,7 +18,7 @@ if (WITH_QR_CODES)
     )
 
     message(STATUS "   -> Configuring zxing-cpp...")
-    add_subdirectory("${PROJECT_SOURCE_DIR}/Libs/zxing-cpp" "${CMAKE_CURRENT_BINARY_DIR}/libzxing")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Libs/zxing-cpp" "${CMAKE_CURRENT_BINARY_DIR}/libzxing" EXCLUDE_FROM_ALL)
     message(STATUS "   -> Configured zxing-cpp.")
 endif()
 
