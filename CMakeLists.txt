@@ -104,6 +104,10 @@ endif()
 # Targets
 #######################################################################################################################
 
+# Determine if this project is the parent or not.
+# Used to export some variables to the parent scope if any.
+get_directory_property(hasParent PARENT_DIRECTORY)
+
 # Set target destination for built targets
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib-static)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -113,14 +117,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 message(STATUS "==> Configuring target \"Core\"...")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Source/Core")
 include_directories("${CORELIB_INCLUDE_DIR}")
-set(LIBOTPGEN_INCLUDE_DIR "${CORELIB_INCLUDE_DIR}" PARENT_SCOPE)
+if (hasParent)
+    set(LIBOTPGEN_INCLUDE_DIR "${CORELIB_INCLUDE_DIR}" PARENT_SCOPE)
+endif()
 
 # QR Code Support library
 if (WITH_QR_CODES)
     message(STATUS "==> Configuring target \"QRCodeSupportLib\"...")
     add_subdirectory("${PROJECT_SOURCE_DIR}/Source/QRCodeSupport" "${CMAKE_CURRENT_BINARY_DIR}/qrcodesupport")
     include_directories("${QRCODESUPPORTLIB_INCLUDE_DIR}")
-    set(LIBOTPGEN_QRCODESUPPORT_INCLUDE_DIR "${QRCODESUPPORTLIB_INCLUDE_DIR}" PARENT_SCOPE)
+    if (hasParent)
+        set(LIBOTPGEN_QRCODESUPPORT_INCLUDE_DIR "${QRCODESUPPORTLIB_INCLUDE_DIR}" PARENT_SCOPE)
+    endif()
 endif()
 
 # Shared library
