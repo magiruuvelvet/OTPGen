@@ -4,6 +4,35 @@ apply plugin: "kotlin-android"
 
 apply plugin: "kotlin-android-extensions"
 
+def hostBuildDir = projectDir.absolutePath + "/.externalNativeBuild/cmake/debug/host"
+def cpuThreads = Runtime.runtime.availableProcessors()
+
+tasks.withType(Test) {
+    systemProperty "java.library.path", hostBuildDir
+}
+
+task createHostBuildDir() {
+    def dir = new File(hostBuildDir)
+    if (!dir.exists()) {
+        dir.mkdirs()
+    }
+}
+
+task runCMake(type: Exec) {
+    dependsOn createHostBuildDir
+    workingDir hostBuildDir
+    commandLine "cmake"
+    args "../../../../"
+}
+
+task runMake(type: Exec) {
+    dependsOn runCMake
+    workingDir hostBuildDir
+    commandLine "make"
+    // use all available cores for building
+    args "-j$cpuThreads"
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -29,8 +58,27 @@ android {
         cmake {
             path "CMakeLists.txt"
             // FIXME: figure out how to ">=" instead of hardcoding the exact version code :thinking:
-            version "3.12.1"
+            // replace with your CMake version, but must be >= 3.8
+            version "3.12.2"
         }
+    }
+}
+
+// code which is executed after the project was evaluated
+project.afterEvaluate {
+
+    // native library and the Swig package MUST be built/generated before any Java code is compiled
+    javaPreCompileDebug.dependsOn externalNativeBuildDebug
+    javaPreCompileRelease.dependsOn externalNativeBuildRelease
+
+    // native library and the Swig package MUST be built/generated before any Kotlin code is compiled
+    compileDebugKotlin.dependsOn externalNativeBuildDebug
+    compileReleaseKotlin.dependsOn externalNativeBuildRelease
+
+    // build the native library for the host system (host tests)
+    if (org.gradle.internal.os.OperatingSystem.current().isUnix() ||
+        org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        javaPreCompileDebugAndroidTest.dependsOn runMake
     }
 }
 

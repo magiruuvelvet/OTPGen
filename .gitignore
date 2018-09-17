@@ -17,4 +17,6 @@ Android/captures
 .externalNativeBuild
 
 # SWIG generated directory
-Android/app/src/main/java/com/magiruuvelvet/libotpgen
+Android/app/src/main/java/com/magiruuvelvet/libotpgen/*.cpp
+Android/app/src/main/java/com/magiruuvelvet/libotpgen/*.cxx
+Android/app/src/main/java/com/magiruuvelvet/libotpgen/*.java

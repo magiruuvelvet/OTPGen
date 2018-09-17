@@ -4,6 +4,14 @@ cmake_minimum_required(VERSION 3.8)
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
+    message(WARNING "WARNING: Building on non-Android system!")
+    find_package(JNI REQUIRED)
+    message(STATUS "JNI_INCLUDE_DIRS=${JNI_INCLUDE_DIRS}")
+    message(STATUS "JNI_LIBRARIES=${JNI_LIBRARIES}")
+    set(HOST_BUILD ON)
+endif()
+
 # Configure libotpgen
 set(BUNDLED_ZLIB ON CACHE BOOLEAN "" FORCE)
 set(BUNDLED_CRYPTOPP ON CACHE BOOLEAN "" FORCE)
@@ -47,3 +55,9 @@ SWIG_ADD_LIBRARY(libotpgen-jni-bindings
     SOURCES "${CMAKE_SOURCE_DIR}/src/main/cpp/libotpgen.i"
 )
 SWIG_LINK_LIBRARIES(libotpgen-jni-bindings CoreLib QRCodeSupportLib)
+
+if (HOST_BUILD)
+    message(STATUS "Finalizing host build configuration.")
+    target_include_directories(libotpgen-jni-bindings PRIVATE "${JNI_INCLUDE_DIRS}")
+    SWIG_LINK_LIBRARIES(libotpgen-jni-bindings ${JNI_LIBRARIES})
+endif()
