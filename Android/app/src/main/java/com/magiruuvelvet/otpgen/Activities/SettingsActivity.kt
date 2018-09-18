@@ -1,4 +1,4 @@
-package com.magiruuvelvet.otpgen
+package com.magiruuvelvet.otpgen.Activities
 
 import android.annotation.TargetApi
 import android.content.Context
@@ -12,6 +12,8 @@ import android.preference.PreferenceActivity
 import android.preference.PreferenceFragment
 import android.preference.PreferenceManager
 import android.view.MenuItem
+import com.magiruuvelvet.otpgen.AppCompatPreferenceActivity
+import com.magiruuvelvet.otpgen.R
 
 /**
  * A [PreferenceActivity] that presents a set of application settings. On
