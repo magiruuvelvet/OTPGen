@@ -14,6 +14,13 @@
  - Binary serialization
  - Used to save/load the token database
 
+## sqlite3
+
+ - URL: [https://sqlite.org](https://sqlite.org)
+ - Status: clean, with some features enabled not existing in binary releases
+ - New token database storage \[`:memory:`\] (**work in progress**) with
+   transparent backwards-compatibility to the current crypto++ implementation.
+
 ## PlatformFolders
 
  - URL: [https://github.com/sago007/PlatformFolders](https://github.com/sago007/PlatformFolders)

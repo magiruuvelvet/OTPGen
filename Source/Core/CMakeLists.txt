@@ -35,6 +35,16 @@ else()
     target_link_libraries("CoreLib" ${CRYPTOPP_LDFLAGS})
 endif()
 
+# sqlite3
+# (must be bundled because custom features are enabled)
+# (not all operating systems have those in their binary releases)
+# see "sqlite3/sqlite/sqlite-config.h" for a list of enabled features
+message(STATUS "   -> Configuring bundled SQLite3 library...")
+add_library(sqlite3_custom STATIC "${PROJECT_SOURCE_DIR}/Libs/sqlite3/sqlite/sqlite3.c")
+target_link_libraries("CoreLib" sqlite3_custom)
+target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/sqlite3")
+message(STATUS "   -> Configured bundled SQLite3 library.")
+
 # Android toolchain specific extensions
 if (BUILD_ANDROID AND BUNDLED_CRYPTOPP)
     # cpufeatures required for crypto++
