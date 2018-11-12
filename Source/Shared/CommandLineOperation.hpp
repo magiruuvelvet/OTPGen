@@ -1,10 +1,10 @@
+#include <iostream>
 #include <string>
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
 
 #include <TokenDatabase.hpp>
-#include <TokenStore.hpp>
 
 void exec_commandline_operation(const std::vector<std::string> &args)
 {
@@ -18,7 +18,7 @@ void exec_commandline_operation(const std::vector<std::string> &args)
                 std::exit(2);
             }
 
-            const auto res = TokenStore::i()->swapTokens(args.at(2), args.at(3));
+            const auto res = 0; // FIXME: TokenStore::i()->swapTokens(args.at(2), args.at(3));
             if (res)
             {
                 std::printf("Swapped \"%s\" with \"%s\".\n", args.at(2).c_str(), args.at(3).c_str());
@@ -49,11 +49,11 @@ void exec_commandline_operation(const std::vector<std::string> &args)
             }
             if (!ok)
             {
-                res = TokenStore::i()->moveTokenBelow(args.at(2).c_str(), args.at(3).c_str());
+                res = 0; // FIXME: TokenStore::i()->moveTokenBelow(args.at(2).c_str(), args.at(3).c_str());
             }
             else
             {
-                res = TokenStore::i()->moveToken(args.at(2).c_str(), newPos);
+                res = 0; // FIXME: TokenStore::i()->moveToken(args.at(2).c_str(), newPos);
             }
 
             if (res)
