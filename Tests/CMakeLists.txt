@@ -17,6 +17,8 @@ set(TARGET_NAME "${PROJECT_NAME}Tests")
 add_executable("${TARGET_NAME}" ${SourceListUnitTests})
 SetCppStandard("${TARGET_NAME}" 17)
 target_link_libraries("${TARGET_NAME}" "CoreLib")
+set_target_properties("${TARGET_NAME}" PROPERTIES PREFIX "")
+set_target_properties("${TARGET_NAME}" PROPERTIES OUTPUT_NAME "otpgen-tests")
 
 # QR Code Support
 if (WITH_QR_CODES)

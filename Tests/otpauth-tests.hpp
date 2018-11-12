@@ -8,8 +8,7 @@ using namespace bandit;
 
 #include <otpauthURI.hpp>
 
-#include <Tokens/TOTPToken.hpp>
-#include <Tokens/HOTPToken.hpp>
+#include <OTPToken.hpp>
 
 go_bandit([]{
     describe("otpauth URI Test", []{
@@ -37,7 +36,7 @@ go_bandit([]{
         });
 
         it("[write totp]", [&]{
-            TOTPToken totp("Label with space");
+            OTPToken totp(OTPToken::TOTP, "Label with space");
             totp.setSecret("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ");
             const auto uri = otpauthURI::fromOtpToken(&totp);
             AssertThat(uri.label(), Equals(std::string("Label with space")));
@@ -45,7 +44,7 @@ go_bandit([]{
         });
 
         it("[write hotp]", [&]{
-            HOTPToken hotp("Label with space");
+            OTPToken hotp(OTPToken::HOTP, "Label with space");
             hotp.setSecret("HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ");
             const auto uri = otpauthURI::fromOtpToken(&hotp);
             AssertThat(uri.label(), Equals(std::string("Label with space")));
