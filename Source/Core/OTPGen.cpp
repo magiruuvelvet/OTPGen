@@ -6,8 +6,6 @@
 #include <cryptopp/hmac.h>
 #include <cryptopp/sha.h>
 
-#include <Tokens/SteamToken.hpp>
-
 namespace {
     static const constexpr auto SHA1_DIGEST_SIZE = 20;
     static const constexpr auto SHA256_DIGEST_SIZE = 32;
@@ -189,7 +187,7 @@ namespace {
         return token;
     }
 
-    static const OTPToken::TokenString hotp_helper(const OTPToken::SecretType &base32_secret,
+    static const OTPToken::TokenString hotp_helper(const OTPToken::TokenSecret &base32_secret,
                                                    const std::time_t &counter,
                                                    const OTPToken::DigitType &digits,
                                                    const OTPToken::ShaAlgorithm &sha_algo,
@@ -208,12 +206,12 @@ namespace {
 
     static bool check_period(const OTPToken::PeriodType &period)
     {
-        return !(period <= OTPToken::min_period || period > OTPToken::max_period);
+        return !(period <= OTPGen::minPeriod() || period > OTPGen::maxPeriod());
     }
 
     static bool check_otp_length(const OTPToken::DigitType &digits_length)
     {
-        return !(digits_length < OTPToken::min_digits || digits_length > OTPToken::max_digits);
+        return !(digits_length < OTPGen::minDigitLength() || digits_length > OTPGen::maxDigitLength());
     }
 
     static bool check_algo(const OTPToken::ShaAlgorithm &algo)
@@ -231,7 +229,7 @@ namespace {
 }
 
 // compute totp at current time
-const OTPToken::TokenString OTPGen::computeTOTP(const OTPToken::SecretType &base32_secret,
+const OTPToken::TokenString OTPGen::computeTOTP(const OTPToken::TokenSecret &base32_secret,
                                                 const OTPToken::DigitType &digits,
                                                 const OTPToken::PeriodType &period,
                                                 const OTPToken::ShaAlgorithm &sha_algo,
@@ -242,7 +240,7 @@ const OTPToken::TokenString OTPGen::computeTOTP(const OTPToken::SecretType &base
 
 // compute totp at a given time
 const OTPToken::TokenString OTPGen::computeTOTP(const std::time_t &time,
-                                                const OTPToken::SecretType &base32_secret,
+                                                const OTPToken::TokenSecret &base32_secret,
                                                 const OTPToken::DigitType &digits,
                                                 const OTPToken::PeriodType &period,
                                                 const OTPToken::ShaAlgorithm &sha_algo,
@@ -266,7 +264,7 @@ const OTPToken::TokenString OTPGen::computeTOTP(const std::time_t &time,
 }
 
 // compute hotp
-const OTPToken::TokenString OTPGen::computeHOTP(const OTPToken::SecretType &base32_secret,
+const OTPToken::TokenString OTPGen::computeHOTP(const OTPToken::TokenSecret &base32_secret,
                                                 const OTPToken::CounterType &counter,
                                                 const OTPToken::DigitType &digits,
                                                 const OTPToken::ShaAlgorithm &sha_algo,
@@ -288,7 +286,7 @@ const OTPToken::TokenString OTPGen::computeHOTP(const OTPToken::SecretType &base
 }
 
 // compute steam token at current time
-const OTPToken::TokenString OTPGen::computeSteam(const OTPToken::SecretType &base32_secret,
+const OTPToken::TokenString OTPGen::computeSteam(const OTPToken::TokenSecret &base32_secret,
                                                  OTPGenErrorCode *error)
 {
     return computeSteam(time(nullptr), base32_secret, error);
@@ -296,12 +294,12 @@ const OTPToken::TokenString OTPGen::computeSteam(const OTPToken::SecretType &bas
 
 // compute steam token at a given time
 const OTPToken::TokenString OTPGen::computeSteam(const std::time_t &time,
-                                                 const OTPToken::SecretType &base32_secret,
+                                                 const OTPToken::TokenSecret &base32_secret,
                                                  OTPGenErrorCode *error)
 {
     static const std::string steam_alphabet = "23456789BCDFGHJKMNPQRTVWXY";
 
-    auto timestamp = time / SteamToken::DEFAULT_PERIOD;
+    auto timestamp = time / OTPToken::defaultPeriod(OTPToken::Steam);
 
     const auto hmac = compute_hmac(base32_secret, timestamp, OTPToken::SHA1);
     if (hmac.empty())

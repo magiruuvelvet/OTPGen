@@ -1,8 +1,7 @@
 #ifndef AUTHY_HPP
 #define AUTHY_HPP
 
-#include <Tokens/TOTPToken.hpp>
-#include <Tokens/AuthyToken.hpp>
+#include <OTPToken.hpp>
 
 #include <vector>
 
@@ -18,8 +17,8 @@ public:
         JSON,
     };
 
-    static bool importTOTP(const std::string &file, std::vector<TOTPToken> &target, const Format &format);
-    static bool importNative(const std::string &file, std::vector<AuthyToken> &target, const Format &format);
+    static bool importTOTP(const std::string &file, std::vector<OTPToken> &target, const Format &format);
+    static bool importNative(const std::string &file, std::vector<OTPToken> &target, const Format &format);
 
 private:
     enum AuthyXMLType {

@@ -43,6 +43,11 @@ message(STATUS "   -> Configuring bundled SQLite3 library...")
 add_library(sqlite3_custom STATIC "${PROJECT_SOURCE_DIR}/Libs/sqlite3/sqlite/sqlite3.c")
 target_link_libraries("CoreLib" sqlite3_custom)
 target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/sqlite3")
+if (UNIX)
+    target_link_libraries("CoreLib" -ldl)
+endif()
+# modern sqlite bindings C++14/17, header-only library
+target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/sqlite_modern_cpp/hdr")
 message(STATUS "   -> Configured bundled SQLite3 library.")
 
 # Android toolchain specific extensions
@@ -55,3 +60,4 @@ target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/cereal"
 
 target_include_directories("CoreLib" PRIVATE "${PROJECT_SOURCE_DIR}/Source/Core")
 set(CORELIB_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Source/Core" PARENT_SCOPE)
+set(CRYPTOPP_INCLUDEDIR "${CRYPTOPP_INCLUDEDIR}" PARENT_SCOPE)

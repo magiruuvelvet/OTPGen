@@ -102,7 +102,7 @@ bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &targe
 
             if (typeStr == "TOTP")
             {
-                auto token = new TOTPToken();
+                auto token = new OTPToken(OTPToken::TOTP);
                 token->setSecret(elem["secret"].GetString());
                 token->setLabel(elem["label"].GetString());
                 token->setPeriod(elem["period"].GetUint());
@@ -112,7 +112,7 @@ bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &targe
             }
             else if (typeStr == "HOTP")
             {
-                auto token = new HOTPToken();
+                auto token = new OTPToken(OTPToken::HOTP);
                 token->setSecret(elem["secret"].GetString());
                 token->setLabel(elem["label"].GetString());
                 token->setCounter(elem["counter"].GetUint());
@@ -122,7 +122,7 @@ bool andOTP::importTokens(const std::string &file, std::vector<OTPToken*> &targe
             }
             else if (typeStr == "STEAM")
             {
-                auto token = new SteamToken();
+                auto token = new OTPToken(OTPToken::Steam);
                 token->setSecret(elem["secret"].GetString());
                 token->setLabel(elem["label"].GetString());
                 target.push_back(token);
@@ -155,7 +155,7 @@ bool andOTP::exportTokens(const std::string &target, const std::vector<OTPToken*
             value.AddMember("secret", rapidjson::Value(token->secret().c_str(), json.GetAllocator()), json.GetAllocator());
             value.AddMember("label", rapidjson::Value(token->label().c_str(), json.GetAllocator()), json.GetAllocator());
             value.AddMember("period", token->period(), json.GetAllocator());
-            value.AddMember("digits", token->digits(), json.GetAllocator());
+            value.AddMember("digits", token->digitLength(), json.GetAllocator());
 
             if (token->type() == OTPToken::HOTP)
             {
@@ -177,7 +177,7 @@ bool andOTP::exportTokens(const std::string &target, const std::vector<OTPToken*
             }
             else
             {
-                value.AddMember("algorithm", rapidjson::Value(token->algorithmString().c_str(), json.GetAllocator()), json.GetAllocator());
+                value.AddMember("algorithm", rapidjson::Value(token->algorithmName().c_str(), json.GetAllocator()), json.GetAllocator());
             }
 
             value.AddMember("thumbnail", "Default", json.GetAllocator());

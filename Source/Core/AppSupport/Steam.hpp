@@ -1,7 +1,7 @@
 #ifndef STEAM_HPP
 #define STEAM_HPP
 
-#include <Tokens/SteamToken.hpp>
+#include <OTPToken.hpp>
 
 namespace AppSupport {
 
@@ -10,7 +10,7 @@ class Steam
     Steam() = delete;
 
 public:
-    static bool importFromSteamGuard(const std::string &file, SteamToken &target);
+    static bool importFromSteamGuard(const std::string &file, OTPToken &target);
 };
 
 }

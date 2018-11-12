@@ -1,6 +1,6 @@
 #include "otpauthURI.hpp"
 
-#include <Tokens/OTPToken.hpp>
+#include <OTPToken.hpp>
 
 #include <cstring>
 #include <vector>
@@ -150,7 +150,6 @@ otpauthURI otpauthURI::fromOtpToken(const OTPToken *token)
     {
         case OTPToken::TOTP:  uri.append("totp/"); break;
         case OTPToken::HOTP:  uri.append("hotp/"); break;
-        case OTPToken::Authy: uri.append("totp/"); break;
         case OTPToken::Steam: uri.append("totp/"); break;
         default: return otpauthURI(); break;
     }
@@ -164,7 +163,7 @@ otpauthURI otpauthURI::fromOtpToken(const OTPToken *token)
     if (t->type() != OTPToken::Steam)
     {
         uri.append("&");
-        uri.append("digits=" + std::to_string(t->digits()));
+        uri.append("digits=" + std::to_string(t->digitLength()));
 
         uri.append("&");
         uri.append("period=" + std::to_string(t->period()));
@@ -176,7 +175,7 @@ otpauthURI otpauthURI::fromOtpToken(const OTPToken *token)
         }
 
         uri.append("&");
-        uri.append("algorithm=" + t->algorithmString());
+        uri.append("algorithm=" + t->algorithmName());
     }
 
     return otpauthURI(uri);

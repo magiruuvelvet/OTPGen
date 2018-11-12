@@ -3,6 +3,7 @@
 
 enum class OTPGenErrorCode {
     Valid = 0,
+    InvalidType,
     InvalidBase32Input,
     InvalidAlgorithm,
     InvalidDigits,

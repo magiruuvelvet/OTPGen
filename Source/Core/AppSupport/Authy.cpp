@@ -72,7 +72,7 @@
 
 namespace AppSupport {
 
-bool Authy::importTOTP(const std::string &file, std::vector<TOTPToken> &target, const Format &format)
+bool Authy::importTOTP(const std::string &file, std::vector<OTPToken> &target, const Format &format)
 {
     std::string json;
     auto status = prepare(file, format, TOTP, json);
@@ -104,7 +104,7 @@ bool Authy::importTOTP(const std::string &file, std::vector<TOTPToken> &target, 
                 continue;
             }
 
-            TOTPToken token;
+            OTPToken token(OTPToken::TOTP);
             token.setSecret(elem["decryptedSecret"].GetString());
             token.setLabel(elem["name"].GetString());
             token.setDigitLength(static_cast<OTPToken::DigitType>(elem["digits"].GetUint()));
@@ -118,7 +118,7 @@ bool Authy::importTOTP(const std::string &file, std::vector<TOTPToken> &target, 
     return true;
 }
 
-bool Authy::importNative(const std::string &file, std::vector<AuthyToken> &target, const Format &format)
+bool Authy::importNative(const std::string &file, std::vector<OTPToken> &target, const Format &format)
 {
     std::string json;
     auto status = prepare(file, format, Native, json);
@@ -150,7 +150,7 @@ bool Authy::importNative(const std::string &file, std::vector<AuthyToken> &targe
                 continue;
             }
 
-            AuthyToken token;
+            OTPToken token(OTPToken::TOTP);
             token.setSecret(hexToBase32Rfc4648(elem["secretSeed"].GetString()));
             token.setLabel(elem["name"].GetString());
             token.setDigitLength(static_cast<OTPToken::DigitType>(elem["digits"].GetUint()));

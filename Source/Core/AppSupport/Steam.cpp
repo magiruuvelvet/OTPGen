@@ -28,7 +28,7 @@
 
 namespace AppSupport {
 
-bool Steam::importFromSteamGuard(const std::string &file, SteamToken &target)
+bool Steam::importFromSteamGuard(const std::string &file, OTPToken &target)
 {
     // read file contents into memory
     std::string out;

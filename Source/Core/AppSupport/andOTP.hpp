@@ -1,7 +1,7 @@
 #ifndef ANDOTP_HPP
 #define ANDOTP_HPP
 
-#include <Tokens.hpp>
+#include <OTPToken.hpp>
 
 #include <vector>
 
