@@ -21,6 +21,12 @@
  - New token database storage \[`:memory:`\] (**work in progress**) with
    transparent backwards-compatibility to the current crypto++ implementation.
 
+## sqlite_modern_cpp
+
+ - URL: [https://github.com/SqliteModernCpp/sqlite_modern_cpp](https://github.com/SqliteModernCpp/sqlite_modern_cpp)
+ - Status: clean, except patched `sqlite3.h` path to use the bundled one
+ - Used for modern C++14 and C++17 bindings for SQLite3
+
 ## PlatformFolders
 
  - URL: [https://github.com/sago007/PlatformFolders](https://github.com/sago007/PlatformFolders)

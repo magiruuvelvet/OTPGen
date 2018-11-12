@@ -11,6 +11,19 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 
 <br>
 
+### Important Notice
+
+> The `master` branch currently doesn't have a working GUI anymore. It was removed due
+> to the new storage format based on SQLite3. The GUI needs a rewrite anyway and since the
+> format and the API changed too much, it is now broken. It is recommended to use the
+> last stable release `v0.9.3` for now for working production builds.
+
+> A migration tool to convert the old format is in the works, as well as a new
+> polished user interface which uses a model instead of coding and managing
+> everything manually.
+
+<br>
+
 ## Features
 
  - Can generate tokens for TOTP, HOTP, Authy and Steam
@@ -41,9 +54,11 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
    - `otpauth:` uri
    - QR Code
 
- - Refactor/Rewrite GUI
- - Use Model/View instead of a tedious hard-to-manage Widget
-   - Most problematic by now is getting the correct/current row
+ - **Refactor/Rewrite GUI !!!**
+ - ~~Use Model/View instead of a tedious hard-to-manage Widget~~
+   - ~~Most problematic by now is getting the correct/current row~~
+ - GUI is now broken due to the new storage format and a rewrite
+   must be done now. Use `v0.9.3` for a stable production release.
 
  - User Settings
 
@@ -74,7 +89,7 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 #### Requirements
 
  - CMake 3.8+
- - Qt build tools (qmake, moc, rcc)
+ - Qt build tools (qmake, moc, rcc) - *only for the GUI module* (see CMake build options)
 
 #### Build Steps
 
@@ -130,7 +145,7 @@ cmake -DCMAKE_BUILD_TYPE=Debug -DUNIT_TESTING=ON ..
 make
 ```
 
-After compilation copy the `OTPGenTests` binary to the `Tests` directory of this repository
+After compilation copy the `otpgen-tests` binary to the `Tests` directory of this repository
 and run it. Alternatively if you are using an IDE, just set the working directory of the
 test binary to the `Tests` directory. This is required for external files to be found.
 
