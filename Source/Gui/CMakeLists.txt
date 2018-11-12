@@ -114,6 +114,8 @@ target_link_libraries("${TARGET_NAME}"
     Qt5::Widgets
     Qt5::Xml
 )
+set_target_properties("${TARGET_NAME}" PROPERTIES PREFIX "")
+set_target_properties("${TARGET_NAME}" PROPERTIES OUTPUT_NAME "otpgen")
 
 if (NOT DISABLE_QTKEYCHAIN)
     target_link_libraries("${TARGET_NAME}" qt5keychain)

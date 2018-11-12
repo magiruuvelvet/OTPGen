@@ -68,9 +68,9 @@ const QString &GuiConfig::path()
 const std::string &GuiConfig::database()
 {
 #ifdef OTPGEN_DEBUG
-    static const std::string db = (path() + "/database.debug").toUtf8().constData();
+    static const std::string db = (path() + "/tokens.db.debug").toUtf8().constData();
 #else
-    static const std::string db = (path() + "/database").toUtf8().constData();
+    static const std::string db = (path() + "/tokens.db").toUtf8().constData();
 #endif
     return db;
 }

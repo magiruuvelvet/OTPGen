@@ -9,13 +9,12 @@
 #include <CommandLineOperation.hpp>
 
 #include <TokenDatabase.hpp>
-#include <TokenStore.hpp>
 
 #include <QApplication>
 #include <QMessageBox>
 #include <QFileInfo>
 
-#include <Windows/MainWindow.hpp>
+//#include <Windows/MainWindow.hpp>
 #include <Windows/UserInputDialog.hpp>
 
 #include <qtsingleapplication.h>
@@ -26,7 +25,7 @@
 
 Q_DECLARE_METATYPE(QList<int>)
 
-std::shared_ptr<MainWindow> mainWindow;
+//std::shared_ptr<MainWindow> mainWindow;
 
 #ifdef QTKEYCHAIN_SUPPORT
 // QKeychain already handles raw pointers and deletes them
@@ -127,7 +126,7 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
         TokenDatabase::setPassword(password);
 
         // save empty database
-        TokenDatabase::saveTokens();
+        TokenDatabase::initializeTokens();
     }
 
 #ifdef QTKEYCHAIN_SUPPORT
@@ -157,12 +156,12 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
     const auto args = a->arguments();
     exec_commandline_operation(qtargs_to_strvec(args));
 
-    mainWindow = std::make_shared<MainWindow>();
+    //mainWindow = std::make_shared<MainWindow>();
 
     if (!gcfg::startMinimizedToTray())
     {
-        mainWindow->show();
-        mainWindow->activateWindow();
+        //mainWindow->show();
+        //mainWindow->activateWindow();
     }
 
     // process messages sent from additional instances
@@ -170,8 +169,8 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
         if (message.isEmpty() || message.compare("activateWindow", Qt::CaseInsensitive) == 0)
         {
             std::printf("Trying to activate window...\n");
-            mainWindow->show();
-            mainWindow->activateWindow();
+            //mainWindow->show();
+            //mainWindow->activateWindow();
         }
         else if (message.compare("reloadTokens", Qt::CaseInsensitive) == 0)
         {
@@ -179,7 +178,7 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
             if (TokenDatabase::loadTokens() == TokenDatabase::Success)
             {
                 std::printf("Updated!\n");
-                mainWindow->updateTokenList();
+                //mainWindow->updateTokenList();
             }
             else
             {
@@ -233,7 +232,7 @@ int main(int argc, char **argv)
     gcfg::initDefaultSettings();
 
     // set token database path
-    TokenDatabase::setTokenFile(gcfg::database());
+    TokenDatabase::setTokenDatabase(gcfg::database());
 
 #ifdef QTKEYCHAIN_SUPPORT
 #ifdef OTPGEN_DEBUG
