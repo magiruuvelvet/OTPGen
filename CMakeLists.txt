@@ -93,6 +93,12 @@ if (BUILD_ANDROID)
     set(DISABLE_CLI ON CACHE BOOLEAN "" FORCE)
 endif()
 
+# Build the migration tool?
+set(BUILD_MIGRATION_TOOL OFF CACHE BOOLEAN "Build the migration tool to upgrade your existing database to the new SQLite-based format")
+if (BUILD_MIGRATION_TOOL)
+    message(STATUS "Building the migration tool...")
+endif()
+
 # Use QR Code feature?
 set(WITH_QR_CODES ON CACHE BOOLEAN "Enable support for QR codes")
 if (WITH_QR_CODES)
@@ -119,6 +125,11 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/Source/Core")
 include_directories("${CORELIB_INCLUDE_DIR}")
 if (hasParent)
     set(LIBOTPGEN_INCLUDE_DIR "${CORELIB_INCLUDE_DIR}" PARENT_SCOPE)
+endif()
+
+# Migration Tool
+if (BUILD_MIGRATION_TOOL)
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Source/MigrationTool")
 endif()
 
 # QR Code Support library
@@ -159,10 +170,9 @@ endif()
 
 # install GUI and desktop files
 if (NOT DISABLE_GUI)
-    install(FILES ${CMAKE_BINARY_DIR}/bin/OTPGen
+    install(FILES ${CMAKE_BINARY_DIR}/bin/otpgen
             DESTINATION ${CMAKE_INSTALL_BINDIR}
-            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-            RENAME otpgen)
+            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/Desktop/applications
                       ${PROJECT_SOURCE_DIR}/Desktop/icons
@@ -194,7 +204,13 @@ if (WITH_QR_CODES)
 endif()
 
 # install CLI
-install(FILES ${CMAKE_BINARY_DIR}/bin/OTPGenCli
+install(FILES ${CMAKE_BINARY_DIR}/bin/otpgen-cli
         DESTINATION ${CMAKE_INSTALL_BINDIR}
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        RENAME otpgen-cli)
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+# install migration tool
+if (BUILD_MIGRATION_TOOL)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/otpgen-migratedb
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
+            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endif()
