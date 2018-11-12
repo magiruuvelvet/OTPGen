@@ -31,6 +31,8 @@ add_library("BoostLib" STATIC ${SourceListBoost})
 add_executable("${TARGET_NAME}" ${SourceListCli})
 SetCppStandard("${TARGET_NAME}" 17)
 target_link_libraries("${TARGET_NAME}" "CoreLib" "SharedLib" "CliDependencies" "BoostLib")
+set_target_properties("${TARGET_NAME}" PROPERTIES PREFIX "")
+set_target_properties("${TARGET_NAME}" PROPERTIES OUTPUT_NAME "otpgen-cli")
 
 # QR Code Support
 if (WITH_QR_CODES)
@@ -45,3 +47,4 @@ target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/
 include_directories("${PROJECT_SOURCE_DIR}/Libs/boost")
 
 target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Source/Cli")
+target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Source/Shared")

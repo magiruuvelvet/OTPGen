@@ -7,9 +7,9 @@
 #include <CommandLineOperation.hpp>
 
 #include <TokenDatabase.hpp>
-#include <TokenStore.hpp>
+//#include <TokenStore.hpp>
 
-#include "StdinEchoMode.hpp"
+#include <StdinEchoMode.hpp>
 
 #include <sago/platform_folders.h>
 
@@ -57,24 +57,26 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef OTPGEN_DEBUG
-    TokenDatabase::setTokenFile(app_cfg + "/database.debug");
+    TokenDatabase::setTokenDatabase(app_cfg + "/tokens.db.debug");
 #else
-    TokenDatabase::setTokenFile(app_cfg + "/database");
+    TokenDatabase::setTokenDatabase(app_cfg + "/tokens.db");
 #endif
 
     auto status = TokenDatabase::loadTokens();
     if (status == TokenDatabase::FileReadFailure)
     {
-        status = TokenDatabase::saveTokens();
+        status = TokenDatabase::initializeTokens();
         if (status != TokenDatabase::Success)
         {
             std::cerr << "Unable to initialize the token database!" << std::endl;
+            std::cerr << "Detailed error: " << TokenDatabase::getErrorMessage(status) << std::endl;
             return 1;
         }
     }
     if (status != TokenDatabase::Success)
     {
         std::cerr << "Unable to load the token database! Is the password correct?" << std::endl;
+        std::cerr << "Detailed error: " << TokenDatabase::getErrorMessage(status) << std::endl;
         return 1;
     }
 
