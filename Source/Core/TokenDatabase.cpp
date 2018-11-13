@@ -257,21 +257,6 @@ const OTPToken TokenDatabase::selectToken(const OTPToken::Label &label)
     return results.at(0);
 }
 
-/** FIXME: make use of this to have this straight inside the SQL statement
- *         and avoid sorting the list manually using the config.order list
- *
-
-ORDER BY
-  CASE ID
-    WHEN 4 THEN 0
-    WHEN 3 THEN 1
-    WHEN 1 THEN 2
-    WHEN 5 THEN 3
-    WHEN 6 THEN 4
-  END
-
-*/
-
 const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::sqliteTypesID &type)
 {
     if (!db_status)
@@ -279,15 +264,23 @@ const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::sq
         return {};
     }
 
-    std::string statement;
+    // prepare query
+    auto statement = sanitizeQuery("select id from %Q ", "tokens");
+    std::string order_by_query;
+    auto ret = displayOrderQuery(order_by_query);
 
-    if (type == OTPToken::None)
+    if (type != OTPToken::None)
     {
-        statement = sanitizeQuery("select id from %Q order by id asc;", "tokens");
+        statement += sanitizeQuery("where type = %u ", type);
+    }
+
+    if (ret)
+    {
+        statement += order_by_query;
     }
     else
     {
-        statement = sanitizeQuery("select id from %Q where type = %u order by id asc;", "tokens", type);
+        statement += "order by id asc;";
     }
 
     std::vector<OTPToken::sqliteLongID> ids;
@@ -321,7 +314,19 @@ const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::La
         return {};
     }
 
-    const auto statement = sanitizeQuery("select * from %Q where label like %Q escape '\\' order by id asc;", "tokens", label_like.c_str());
+    // prepare query
+    auto statement = sanitizeQuery("select * from %Q where label like %Q escape '\\' ", "tokens", label_like.c_str());
+    std::string order_by_query;
+    auto ret = displayOrderQuery(order_by_query);
+
+    if (ret)
+    {
+        statement += order_by_query;
+    }
+    else
+    {
+        statement += "order by id asc;";
+    }
 
     OTPTokenList tokens;
 
@@ -725,6 +730,27 @@ const std::string TokenDatabase::escapeStringLIKE(const std::string &input)
         }
     }
     return str;
+}
+
+bool TokenDatabase::displayOrderQuery(std::string &query)
+{
+    query = sanitizeQuery("order by case %s ", "id");
+
+    DisplayOrder order;
+    if (getDisplayOrder(order) != Success)
+    {
+        return false;
+    }
+
+    auto pos = 0U;
+    for (auto&& id : order)
+    {
+        query += sanitizeQuery("when %u then %u ", id, pos);
+        ++pos;
+    }
+
+    query += "end;";
+    return true;
 }
 
 TokenDatabase::Error TokenDatabase::storeDatabaseVersion()

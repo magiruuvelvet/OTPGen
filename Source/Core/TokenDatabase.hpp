@@ -119,6 +119,7 @@ private:
     static const std::string genInsertQuery(const std::string &table, const std::vector<std::string> &fields);
 
     static const std::string escapeStringLIKE(const std::string &input);
+    static bool displayOrderQuery(std::string &query);
 
     // database config functions
     static Error storeDatabaseVersion();
