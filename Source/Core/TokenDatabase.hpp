@@ -113,6 +113,9 @@ private:
 
     static Error executeGenericTokenStatement(const std::string &statement, const OTPToken &token);
 
+    static const std::string genUpdateQuery(const std::string &table, const std::vector<std::string> &fields, const std::string &condition = {});
+    static const std::string genInsertQuery(const std::string &table, const std::vector<std::string> &fields);
+
     // database config functions
     static Error storeDatabaseVersion();
     static Error getDatabaseVersion(std::uint32_t &version);

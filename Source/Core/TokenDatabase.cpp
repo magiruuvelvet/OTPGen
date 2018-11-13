@@ -340,9 +340,9 @@ TokenDatabase::Error TokenDatabase::insertToken(const OTPToken &token)
         return SqlDatabaseNotOpen;
     }
 
-    const auto statement = sanitizeQuery("insert into %Q (%Q, %Q, %Q, %Q, %Q, %Q, %Q, %Q) values (?, ?, ?, ?, ?, ?, ?, ?);",
-                                         "tokens",
-                                         "type", "label", "icon", "secret", "digits", "period", "counter", "algorithm");
+    // prepare insert query
+    const auto statement = genInsertQuery("tokens",
+        {"type", "label", "icon", "secret", "digits", "period", "counter", "algorithm"});
 
     auto status = executeGenericTokenStatement(statement, token);
     if (status != Success)
@@ -374,10 +374,10 @@ TokenDatabase::Error TokenDatabase::updateToken(const OTPToken::sqliteTokenID &i
         return SqlDatabaseNotOpen;
     }
 
-    const auto statement = sanitizeQuery("update %Q set %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? where id = %u;",
-                                         "tokens",
-                                         "type", "label", "icon", "secret", "digits", "period", "counter", "algorithm",
-                                         id);
+    // prepare update query
+    const auto statement = genUpdateQuery("tokens",
+        {"type", "label", "icon", "secret", "digits", "period", "counter", "algorithm"},
+        sanitizeQuery("id = %u", id));
 
     return executeGenericTokenStatement(statement, token);
 }
@@ -628,6 +628,49 @@ const std::string TokenDatabase::selectStaticValue(const std::string &table, con
     }
 
     return name;
+}
+
+const std::string TokenDatabase::genUpdateQuery(const std::string &table, const std::vector<std::string> &fields, const std::string &condition)
+{
+    auto query = sanitizeQuery("update %Q set ", table.c_str());
+
+    for (auto&& f : fields)
+    {
+        query += sanitizeQuery("%s=?, ", f.c_str());
+    }
+    query.erase(query.find_last_of(','));
+
+    if (!condition.empty())
+    {
+        query += " where " + condition;
+    }
+
+    query += ";";
+
+    return query;
+}
+
+const std::string TokenDatabase::genInsertQuery(const std::string &table, const std::vector<std::string> &fields)
+{
+    auto query = sanitizeQuery("insert into %Q (", table.c_str());
+
+    for (auto&& f : fields)
+    {
+        query += sanitizeQuery("%s, ", f.c_str());
+    }
+    query.erase(query.find_last_of(','));
+
+    query += ") values (";
+
+    for (auto i = 0U; i < fields.size(); ++i)
+    {
+        query += "?, ";
+    }
+    query.erase(query.find_last_of(','));
+
+    query += ");";
+
+    return query;
 }
 
 TokenDatabase::Error TokenDatabase::storeDatabaseVersion()
