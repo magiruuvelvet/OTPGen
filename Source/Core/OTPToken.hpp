@@ -259,6 +259,11 @@ public:
     inline bool operator!= (const OTPToken &other) const
     { return !this->operator== (other); }
 
+    // checks if the token is stored in the database
+    // when the token was received using one of the SELECT queries, the ID can NOT be 0
+    inline bool isInDatabase()
+    { return this->_id != 0; }
+
 private:
     friend class TokenDatabase;
 
