@@ -230,6 +230,24 @@ const OTPToken TokenDatabase::selectToken(const OTPToken::sqliteTokenID &id)
     return token;
 }
 
+const OTPToken TokenDatabase::selectToken(const OTPToken::Label &label)
+{
+    if (!db_status)
+    {
+        return {};
+    }
+
+    // get token which matches the label absolute
+    auto results = selectTokens(escapeStringLIKE(label));
+
+    if (results.empty())
+    {
+        return {};
+    }
+
+    return results.at(0);
+}
+
 /** FIXME: make use of this to have this straight inside the SQL statement
  *         and avoid sorting the list manually using the config.order list
  *
@@ -294,7 +312,7 @@ const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::La
         return {};
     }
 
-    const auto statement = sanitizeQuery("select * from %Q where label like %Q order by id asc;", "tokens", label_like.c_str());
+    const auto statement = sanitizeQuery("select * from %Q where label like %Q escape '\\' order by id asc;", "tokens", label_like.c_str());
 
     OTPTokenList tokens;
 
@@ -671,6 +689,32 @@ const std::string TokenDatabase::genInsertQuery(const std::string &table, const 
     query += ");";
 
     return query;
+}
+
+const std::string TokenDatabase::escapeStringLIKE(const std::string &input)
+{
+    // escape string to match absolute in a SQL LIKE expression
+    // ... LIKE "input" ESCAPE '\';
+    std::string str = input;
+    for (auto i = 0U; i < str.size(); ++i)
+    {
+        if (str.at(i) == '%')
+        {
+            str.replace(i, 1, "\\%");
+            ++i;
+        }
+        else if (str.at(i) == '_')
+        {
+            str.replace(i, 1, "\\_");
+            ++i;
+        }
+        else if (str.at(i) == '\\')
+        {
+            str.replace(i, 1, "\\\\");
+            ++i;
+        }
+    }
+    return str;
 }
 
 TokenDatabase::Error TokenDatabase::storeDatabaseVersion()

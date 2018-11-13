@@ -84,6 +84,7 @@ public:
 
     // sqlite SQL statement wrappers
     static const OTPToken selectToken(const OTPToken::sqliteTokenID &id);
+    static const OTPToken selectToken(const OTPToken::Label &label);
     static const OTPTokenList selectTokens(const OTPToken::sqliteTypesID &type = OTPToken::None);
     static const OTPTokenList selectTokens(const OTPToken::Label &label_like);
     static Error insertToken(const OTPToken &token);
@@ -115,6 +116,8 @@ private:
 
     static const std::string genUpdateQuery(const std::string &table, const std::vector<std::string> &fields, const std::string &condition = {});
     static const std::string genInsertQuery(const std::string &table, const std::vector<std::string> &fields);
+
+    static const std::string escapeStringLIKE(const std::string &input);
 
     // database config functions
     static Error storeDatabaseVersion();
