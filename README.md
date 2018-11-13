@@ -18,10 +18,6 @@ Supports TOTP, HOTP, Authy and Steam and custom digit lengths and periods.
 > format and the API changed too much, it is now broken. It is recommended to use the
 > last stable release `v0.9.3` for now for working production builds.
 
-> A migration tool to convert the old format is in the works, as well as a new
-> polished user interface which uses a model instead of coding and managing
-> everything manually.
-
 <br>
 
 ## Features
@@ -117,6 +113,8 @@ library path. Most IDEs have a CMake run configurations to do that on a per proj
 
  - `-DUNIT_TESTING=ON` (default *OFF*): enables building of the unit tests. (*recommended*)
 
+ - `-DBUILD_MIGRATION_TOOL=ON` (default *OFF*): builds the migration tool (see below)
+
  - `-DWITH_QR_CODES=ON` (default *ON*): enables support for decoding and encoding QR Code images.
    Note that webcam scanning isn't supported and not planned.
 
@@ -160,6 +158,24 @@ Looking for high quality SVG icons? Check out this amazing repository with over 
 
  - [gilbarbara/logos](https://github.com/gilbarbara/logos)
 
+
+<br>
+
+### Migrating your old database
+
+Make sure you enable the build option to compile the migration tool. Once this is done
+you can convert your old token data (`v0.9.3` and below) to the new format (after `v0.9.3`).
+
+> `$ otpgen-migratedb /path/to/your/database tokens.db`
+
+Place the converted database into the same location as the old database and make sure
+the filename is `tokens.db` for the application to recognize it.
+
+You should be able to find your old database in the following directories:
+
+ - [XDG](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) (Linux, BSD): `$XDG_CONFIG_HOME/マギルゥーベルベット/OTPGen`
+ - Mac: `$HOME/Library/Application Support/マギルゥーベルベット/OTPGen`
+ - Windows: `%USERPROFILE%\AppData\Roaming/マギルゥーベルベット/OTPGen`
 
 <br>
 
