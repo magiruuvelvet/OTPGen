@@ -397,6 +397,22 @@ TokenDatabase::Error TokenDatabase::deleteToken(const OTPToken::sqliteTokenID &i
         return SqlExecutionFailed;
     }
 
+    // update display order, remove deleted id
+    DisplayOrder order;
+    auto status = getDisplayOrder(order);
+    if (status != Success)
+    {
+        return status;
+    }
+    std::remove_if(order.begin(), order.end(), [&](const OTPToken::sqliteSortOrder &lid) {
+        return lid == id;
+    });
+    status = updateDisplayOrder(order);
+    if (status != Success)
+    {
+        return status;
+    }
+
     return Success;
 }
 
