@@ -166,6 +166,10 @@ public:
     void setAlgorithm(const std::string &algorithm_name);
     const std::string algorithmName() const;
 
+    // ID
+    inline const sqliteTokenID &id()
+    { return this->_id; }
+
     /**
      * get defaults for the given type
      */
@@ -256,6 +260,8 @@ public:
     { return !this->operator== (other); }
 
 private:
+    friend class TokenDatabase;
+
     TokenType _type = 0U;
     Label _label;
     Icon _icon;
@@ -265,6 +271,7 @@ private:
     CounterType _counter = 0U;
     ShaAlgorithm _algorithm = 0U;
 
+    sqliteTokenID _id = 0U;
     sqliteSortOrder _position = 0U;
 
     static bool validateSecret(const TokenSecret &secret, OTPGenErrorCode *error);

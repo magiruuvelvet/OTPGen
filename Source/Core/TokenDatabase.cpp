@@ -204,7 +204,7 @@ const OTPToken TokenDatabase::selectToken(const OTPToken::sqliteTokenID &id)
 
     try {
         (*db) << statement
-              >> [&](const OTPToken::sqliteLongID &, // "id" is not needed here
+              >> [&](const OTPToken::sqliteLongID &id,
                      const OTPToken::TokenType &type,
                      const OTPToken::Label &label,
                      const OTPToken::Icon &icon,
@@ -214,6 +214,7 @@ const OTPToken TokenDatabase::selectToken(const OTPToken::sqliteTokenID &id)
                      const std::vector<OTPToken::CounterType> &counter,
                      const OTPToken::ShaAlgorithm &algorithm)
         {
+            token._id = id;
             token.setType(type);
             token.setLabel(label);
             token.setIcon(icon);
@@ -323,7 +324,7 @@ const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::La
 
     try {
         (*db) << statement
-              >> [&](const OTPToken::sqliteLongID &, // "id" is not needed here
+              >> [&](const OTPToken::sqliteLongID &id,
                      const OTPToken::TokenType &type,
                      const OTPToken::Label &label,
                      const OTPToken::Icon &icon,
@@ -334,6 +335,7 @@ const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::La
                      const OTPToken::ShaAlgorithm &algorithm)
         {
             OTPToken token;
+            token._id = id;
             token.setType(type);
             token.setLabel(label);
             token.setIcon(icon);
