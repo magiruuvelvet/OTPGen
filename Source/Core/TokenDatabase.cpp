@@ -34,8 +34,6 @@ namespace {
 std::string TokenDatabase::databasePassword;
 std::string TokenDatabase::databasePath;
 
-std::vector<OTPToken::sqliteSortOrder> TokenDatabase::order;
-
 const std::string TokenDatabase::getErrorMessage(const Error &error)
 {
     switch (error)
@@ -62,6 +60,9 @@ const std::string TokenDatabase::getErrorMessage(const Error &error)
         case SqlStatementPrepareFailed:    return "Failed to prepare SQL statement.";
         case SqlBindBinaryDataFailed:      return "Faled to bind binary data to SQL statement.";
         case SqlExecutionFailed:           return "Failed to execute SQL statement.";
+        case SqlDisplayOrderStoreFailed:   return "Failed to store the display order.";
+        case SqlDisplayOrderUpdateFailed:  return "Failed to update the display order.";
+        case SqlDispalyOrderGetFailed:     return "Failed to receive the display order.";
         case SqlEmptyResults:              return "SQL statement returned nothing.";
         case SqlSchemaValidationFailed:    return "Database schema is invalid / was user-modified.";
 
@@ -152,9 +153,47 @@ TokenDatabase::Error TokenDatabase::changePassword(const std::string &newPasswor
     return status;
 }
 
+namespace {
+    // sanitize SQL query and return it as a managed std::string, C pointer from sqlite3_mprintf() is deleted
+    template<class... Args>
+    static inline const std::string sanitizeQuery(const std::string &_template, Args&&... args)
+    {
+        auto statement = sqlite3_mprintf(_template.c_str(), std::forward<Args>(args)...);
+        std::string query(statement);
+        sqlite3_free(statement);
+        return query;
+    }
+}
+
+TokenDatabase::Error TokenDatabase::executeGenericTokenStatement(const std::string &statement, const OTPToken &token)
+{
+    // BLOB == std::vector<T> in this C++ SQL library
+    // requires exactly 8 '?' placeholders
+    try {
+        (*db) << statement
+              << token.type()
+              << token.label()
+              << token.icon() // already a std::vector<>
+              << mangleTokenSecret(token.secret())
+              << std::vector<OTPToken::DigitType>{token.digitLength()}
+              << std::vector<OTPToken::PeriodType>{token.period()}
+              << std::vector<OTPToken::CounterType>{token.counter()}
+              << token.algorithm();
+    } catch (sqlite::sqlite_exception &) {
+        return SqlExecutionFailed;
+    }
+
+    return Success;
+}
+
 const OTPToken TokenDatabase::selectToken(const OTPToken::sqliteTokenID &id)
 {
-    auto statement = sqlite3_mprintf("select * from %Q where id = %u limit 1;", "tokens", id);
+    if (!db_status)
+    {
+        return {};
+    }
+
+    const auto statement = sanitizeQuery("select * from %Q where id = %u limit 1;", "tokens", id);
 
     OTPToken token;
 
@@ -185,11 +224,9 @@ const OTPToken TokenDatabase::selectToken(const OTPToken::sqliteTokenID &id)
             token.setAlgorithm(algorithm);
         };
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
         return {};
     }
 
-    sqlite3_free(statement);
     return token;
 }
 
@@ -210,15 +247,20 @@ ORDER BY
 
 const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::sqliteTypesID &type)
 {
-    char *statement = nullptr;
+    if (!db_status)
+    {
+        return {};
+    }
+
+    std::string statement;
 
     if (type == OTPToken::None)
     {
-        statement = sqlite3_mprintf("select id from %Q order by id asc;", "tokens");
+        statement = sanitizeQuery("select id from %Q order by id asc;", "tokens");
     }
     else
     {
-        statement = sqlite3_mprintf("select id from %Q where type = %u order by id asc;", "tokens", type);
+        statement = sanitizeQuery("select id from %Q where type = %u order by id asc;", "tokens", type);
     }
 
     std::vector<OTPToken::sqliteLongID> ids;
@@ -231,11 +273,8 @@ const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::sq
             ids.emplace_back(id);
         };
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
         return {};
     }
-
-    sqlite3_free(statement);
 
     // fetch all tokens
     OTPTokenList tokens;
@@ -250,7 +289,12 @@ const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::sq
 
 const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::Label &label_like)
 {
-    auto statement = sqlite3_mprintf("select * from %Q where label like %Q order by id asc;", "tokens", label_like.c_str());
+    if (!db_status)
+    {
+        return {};
+    }
+
+    const auto statement = sanitizeQuery("select * from %Q where label like %Q order by id asc;", "tokens", label_like.c_str());
 
     OTPTokenList tokens;
 
@@ -283,51 +327,95 @@ const TokenDatabase::OTPTokenList TokenDatabase::selectTokens(const OTPToken::La
             tokens.emplace_back(token);
         };
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
         return {};
     }
 
-    sqlite3_free(statement);
     return tokens;
 }
 
 TokenDatabase::Error TokenDatabase::insertToken(const OTPToken &token)
 {
-    auto statement = sqlite3_mprintf("insert into %Q (%Q, %Q, %Q, %Q, %Q, %Q, %Q, %Q) values (?, ?, ?, ?, ?, ?, ?, ?);",
-                                     "tokens",
-                                     "type", "label", "icon", "secret", "digits", "period", "counter", "algorithm");
+    if (!db_status)
+    {
+        return SqlDatabaseNotOpen;
+    }
 
-    // BLOB == std::vector<T> in this C++ SQL library
+    const auto statement = sanitizeQuery("insert into %Q (%Q, %Q, %Q, %Q, %Q, %Q, %Q, %Q) values (?, ?, ?, ?, ?, ?, ?, ?);",
+                                         "tokens",
+                                         "type", "label", "icon", "secret", "digits", "period", "counter", "algorithm");
+
+    auto status = executeGenericTokenStatement(statement, token);
+    if (status != Success)
+    {
+        return status;
+    }
+
+    // append last insert id to display order
+    DisplayOrder order;
+    status = getDisplayOrder(order);
+    if (status != Success)
+    {
+        return status;
+    }
+    order.emplace_back(db->last_insert_rowid());
+    status = updateDisplayOrder(order);
+    if (status != Success)
+    {
+        return status;
+    }
+
+    return Success;
+}
+
+TokenDatabase::Error TokenDatabase::updateToken(const OTPToken::sqliteTokenID &id, const OTPToken &token)
+{
+    if (!db_status)
+    {
+        return SqlDatabaseNotOpen;
+    }
+
+    const auto statement = sanitizeQuery("update %Q set %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=?, %s=? where id = %u;",
+                                         "tokens",
+                                         "type", "label", "icon", "secret", "digits", "period", "counter", "algorithm",
+                                         id);
+
+    return executeGenericTokenStatement(statement, token);
+}
+
+TokenDatabase::Error TokenDatabase::deleteToken(const OTPToken::sqliteTokenID &id)
+{
+    if (!db_status)
+    {
+        return SqlDatabaseNotOpen;
+    }
+
+    const auto statement = sanitizeQuery("delete from %Q where id = %u;", "tokens", id);
+
     try {
-        (*db) << statement
-              << token.type()
-              << token.label()
-              << token.icon() // already a std::vector<>
-              << mangleTokenSecret(token.secret())
-              << std::vector<OTPToken::DigitType>{token.digitLength()}
-              << std::vector<OTPToken::PeriodType>{token.period()}
-              << std::vector<OTPToken::CounterType>{token.counter()}
-              << token.algorithm();
+        (*db) << statement;
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
         return SqlExecutionFailed;
     }
 
-    sqlite3_free(statement);
     return Success;
 }
 
 OTPToken::sqliteTokenID TokenDatabase::tokenCount(const OTPToken::sqliteTypesID &type)
 {
-    char *statement = nullptr;
+    if (!db_status)
+    {
+        return SqlDatabaseNotOpen;
+    }
+
+    std::string statement;
 
     if (type == OTPToken::None)
     {
-        statement = sqlite3_mprintf("select count(*) from %Q;", "tokens");
+        statement = sanitizeQuery("select count(*) from %Q;", "tokens");
     }
     else
     {
-        statement = sqlite3_mprintf("select count(*) from %Q where type = %u;", "tokens", type);
+        statement = sanitizeQuery("select count(*) from %Q where type = %u;", "tokens", type);
     }
 
     OTPToken::sqliteTokenID count = 0;
@@ -335,11 +423,9 @@ OTPToken::sqliteTokenID TokenDatabase::tokenCount(const OTPToken::sqliteTypesID 
     try {
         (*db) << statement >> count;
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
         return -1;
     }
 
-    sqlite3_free(statement);
     return count;
 }
 
@@ -449,17 +535,13 @@ TokenDatabase::Error TokenDatabase::createTable(const std::string &table_name, c
     }
 
     // sanitize table name
-    auto table = sqlite3_mprintf("create table %Q ", table_name.c_str());
-    std::string query = std::string(table);
-    sqlite3_free(table);
+    auto query = sanitizeQuery("create table %Q ", table_name.c_str());
 
     // prepare schema
     query += "(";
     for (auto&& s : schema)
     {
-        auto field = sqlite3_mprintf("%Q %s, ", s.name.c_str(), s.datatype.c_str());
-        query += std::string(field);
-        sqlite3_free(field);
+        query += sanitizeQuery("%Q %s, ", s.name.c_str(), s.datatype.c_str());
     }
     query.erase(query.find_last_of(','));
 
@@ -490,17 +572,13 @@ TokenDatabase::Error TokenDatabase::insertStaticValues(const std::string &table_
     }
 
     // sanitize table name
-    auto table = sqlite3_mprintf("insert into %Q ", table_name.c_str());
-    std::string query = std::string(table);
-    sqlite3_free(table);
+    auto query = sanitizeQuery("insert into %Q ", table_name.c_str());
 
     // prepare values
     query += "values ";
     for (auto&& v : values)
     {
-        auto field = sqlite3_mprintf("(%u, %Q), ", v.id, v.value.c_str());
-        query += std::string(field);
-        sqlite3_free(field);
+        query += sanitizeQuery("(%u, %Q), ", v.id, v.value.c_str());
     }
     query.erase(query.find_last_of(','));
 
@@ -524,7 +602,7 @@ const std::string TokenDatabase::selectStaticValue(const std::string &table, con
         return {};
     }
 
-    auto statement = sqlite3_mprintf("select name from %Q where id = %i limit 1;", table.c_str(), id);
+    const auto statement = sanitizeQuery("select name from %Q where id = %i limit 1;", table.c_str(), id);
 
     std::string name;
 
@@ -533,7 +611,6 @@ const std::string TokenDatabase::selectStaticValue(const std::string &table, con
     } catch (sqlite::sqlite_exception &) {
     }
 
-    sqlite3_free(statement);
     return name;
 }
 
@@ -545,17 +622,15 @@ TokenDatabase::Error TokenDatabase::storeDatabaseVersion()
     }
 
     // prepare statement
-    auto statement = sqlite3_mprintf("insert into %Q values (?, ?);",
-                                     "config");
+    const auto statement = sanitizeQuery("insert into %Q values (?, ?);",
+                                         "config");
 
     try {
         (*db) << statement << "database" << std::vector<std::uint32_t>{DATABASE_VERSION};
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
         return SqlExecutionFailed;
     }
 
-    sqlite3_free(statement);
     return Success;
 }
 
@@ -567,19 +642,16 @@ TokenDatabase::Error TokenDatabase::getDatabaseVersion(std::uint32_t &version)
     }
 
     // prepare statement
-    auto statement = sqlite3_mprintf("select %s from %Q where %s = %Q limit 1;",
-                                     "data", "config", "id", "database");
+    const auto statement = sanitizeQuery("select %s from %Q where %s = %Q limit 1;",
+                                         "data", "config", "id", "database");
 
     std::vector<std::uint32_t> data;
 
     try {
         (*db) << statement >> data;
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
         return SqlExecutionFailed;
     }
-
-    sqlite3_free(statement);
 
     if (data.empty())
     {
@@ -594,7 +666,7 @@ TokenDatabase::Error TokenDatabase::getDatabaseVersion(std::uint32_t &version)
     return Success;
 }
 
-TokenDatabase::Error TokenDatabase::storeDisplayOrder(const std::vector<OTPToken::sqliteSortOrder> &order)
+TokenDatabase::Error TokenDatabase::storeDisplayOrder(const DisplayOrder &order)
 {
     if (!db_status)
     {
@@ -602,21 +674,19 @@ TokenDatabase::Error TokenDatabase::storeDisplayOrder(const std::vector<OTPToken
     }
 
     // prepare statement
-    auto statement = sqlite3_mprintf("insert into %Q values (?, ?);",
-                                     "config");
+    const auto statement = sanitizeQuery("insert into %Q values (?, ?);",
+                                         "config");
 
     try {
         (*db) << statement << "order" << order;
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
-        return SqlExecutionFailed;
+        return SqlDisplayOrderStoreFailed;
     }
 
-    sqlite3_free(statement);
     return Success;
 }
 
-TokenDatabase::Error TokenDatabase::getDisplayOrder(std::vector<OTPToken::sqliteSortOrder> &order)
+TokenDatabase::Error TokenDatabase::updateDisplayOrder(const DisplayOrder &order)
 {
     if (!db_status)
     {
@@ -624,17 +694,35 @@ TokenDatabase::Error TokenDatabase::getDisplayOrder(std::vector<OTPToken::sqlite
     }
 
     // prepare statement
-    auto statement = sqlite3_mprintf("select %s from %Q where %s = %Q limit 1;",
-                                     "data", "config", "id", "order");
+    const auto statement = sanitizeQuery("update %Q set %s=? where %s = %Q;",
+                                         "config", "data", "id", "order");
+
+    try {
+        (*db) << statement << order;
+    } catch (sqlite::sqlite_exception &) {
+        return SqlDisplayOrderUpdateFailed;
+    }
+
+    return Success;
+}
+
+TokenDatabase::Error TokenDatabase::getDisplayOrder(DisplayOrder &order)
+{
+    if (!db_status)
+    {
+        return SqlDatabaseNotOpen;
+    }
+
+    // prepare statement
+    const auto statement = sanitizeQuery("select %s from %Q where %s = %Q limit 1;",
+                                         "data", "config", "id", "order");
 
     try {
         (*db) << statement >> order;
     } catch (sqlite::sqlite_exception &) {
-        sqlite3_free(statement);
-        return SqlExecutionFailed;
+        return SqlDispalyOrderGetFailed;
     }
 
-    sqlite3_free(statement);
     return Success;
 }
 
@@ -650,7 +738,7 @@ bool TokenDatabase::serializeDatabase(std::string &out)
         return false;
     }
 
-    out = std::string(reinterpret_cast<const char*>(data), size);
+    out = std::string(reinterpret_cast<const char*>(data), static_cast<std::size_t>(size));
     sqlite3_free(data);
     return true;
 }
@@ -670,7 +758,10 @@ bool TokenDatabase::deserializeDatabase(const std::string &data)
     auto rc = sqlite3_deserialize(db->connection().get(), "main",
                                   const_cast<unsigned char*>(
                                       reinterpret_cast<const unsigned char*>(db_data.data())
-                                  ), db_data.size(), db_data.size(), 0);
+                                  ),
+                                  static_cast<sqlite3_int64>(db_data.size()),
+                                  static_cast<sqlite3_int64>(db_data.size()),
+                                  0);
     if (rc)
     {
         return false;
@@ -697,7 +788,7 @@ TokenDatabase::Error TokenDatabase::validateSchema()
     const bool &pk
 
     const auto verifyStatics = [&](const std::string &table) {
-        auto statement = sqlite3_mprintf(pragma, table.c_str());
+        const auto statement = sanitizeQuery(pragma, table.c_str());
 
         bool validId = false, validName = false;
 
@@ -714,16 +805,14 @@ TokenDatabase::Error TokenDatabase::validateSchema()
                 }
             };
         } catch (sqlite::sqlite_exception &) {
-            sqlite3_free(statement);
             return false;
         }
 
-        sqlite3_free(statement);
         return validId && validName;
     };
 
     const auto verifyConfig = [&] {
-        auto statement = sqlite3_mprintf(pragma, "config");
+        const auto statement = sanitizeQuery(pragma, "config");
 
         bool validId = false, validData = false;
 
@@ -740,16 +829,14 @@ TokenDatabase::Error TokenDatabase::validateSchema()
                 }
             };
         } catch (sqlite::sqlite_exception &) {
-            sqlite3_free(statement);
             return false;
         }
 
-        sqlite3_free(statement);
         return validId && validData;
     };
 
     const auto verifyTokens = [&] {
-        auto statement = sqlite3_mprintf(pragma, "tokens");
+        const auto statement = sanitizeQuery(pragma, "tokens");
 
         bool validId = false,
              validType = false,
@@ -802,11 +889,9 @@ TokenDatabase::Error TokenDatabase::validateSchema()
                 }
             };
         } catch (sqlite::sqlite_exception &) {
-            sqlite3_free(statement);
             return false;
         }
 
-        sqlite3_free(statement);
         return validId &&
                validType &&
                validLabel &&
@@ -943,6 +1028,17 @@ TokenDatabase::Error TokenDatabase::loadTokens()
     return Success;
 }
 
+const TokenDatabase::DisplayOrder TokenDatabase::displayOrder()
+{
+    DisplayOrder order;
+    auto status = getDisplayOrder(order);
+    if (status != Success)
+    {
+        return {};
+    }
+    return order;
+}
+
 const OTPToken::TokenSecret TokenDatabase::mangleTokenSecret(const OTPToken::TokenSecret &secret)
 {
     auto mangled = secret;
@@ -1070,7 +1166,7 @@ TokenDatabase::Error TokenDatabase::readFile(const std::string &file, std::strin
         stream.seekg(0, std::ios::beg);
 
         // reserve memory for file
-        buffer.resize(stream_size);
+        buffer.resize(static_cast<std::size_t>(stream_size));
 
         // read file into buffer
         if (!stream.read(buffer.data(), stream_size))
@@ -1099,7 +1195,7 @@ TokenDatabase::Error TokenDatabase::writeFile(const std::string &location, const
 {
     try {
         std::ofstream stream(location, std::ios_base::out | std::ios_base::binary);
-        if (!stream.write(buffer.data(), buffer.size()))
+        if (!stream.write(buffer.data(), static_cast<std::streamsize>(buffer.size())))
         {
             stream.close();
             return FileWriteFailure;

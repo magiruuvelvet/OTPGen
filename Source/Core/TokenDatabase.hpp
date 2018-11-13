@@ -4,6 +4,7 @@
 #include "AppSupport.hpp"
 #include "OTPToken.hpp"
 
+#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -43,6 +44,9 @@ public:
         SqlStatementPrepareFailed,    // failed to prepare sql statement
         SqlBindBinaryDataFailed,      // failed to bind binary BLOB data
         SqlExecutionFailed,           // failed to execute sql statement
+        SqlDisplayOrderStoreFailed,   // failed to store the display order
+        SqlDisplayOrderUpdateFailed,  // failed to update the display order
+        SqlDispalyOrderGetFailed,     // failed to receive the display order
         SqlEmptyResults,              // got no values back from SELECT statement
         SqlSchemaValidationFailed,    // tables are missing or don't have the correct schema,
                                       // edge-case when the user replaces the file manually
@@ -51,6 +55,7 @@ public:
     };
 
     using OTPTokenList = std::vector<OTPToken>;
+    using DisplayOrder = std::vector<OTPToken::sqliteSortOrder>;
 
     // translate error enum to a human readable message describing the error
     static const std::string getErrorMessage(const Error &error);
@@ -67,6 +72,9 @@ public:
     static Error saveTokens();
     static Error loadTokens();
 
+    // display order
+    static const DisplayOrder displayOrder();
+
     // database configuration
     static bool setPassword(const std::string &password);
     static bool setTokenDatabase(const std::string &file);
@@ -79,6 +87,8 @@ public:
     static const OTPTokenList selectTokens(const OTPToken::sqliteTypesID &type = OTPToken::None);
     static const OTPTokenList selectTokens(const OTPToken::Label &label_like);
     static Error insertToken(const OTPToken &token);
+    static Error updateToken(const OTPToken::sqliteTokenID &id, const OTPToken &token);
+    static Error deleteToken(const OTPToken::sqliteTokenID &id);
     static OTPToken::sqliteTokenID tokenCount(const OTPToken::sqliteTypesID &type = OTPToken::None);
 
     static const std::string selectTokenTypeName(const OTPToken::sqliteTypesID &id);
@@ -101,11 +111,14 @@ private:
     static Error insertStaticValues(const std::string &table_name, const std::vector<StaticValueSet> &values);
     static const std::string selectStaticValue(const std::string &table, const OTPToken::sqliteShortID &id);
 
+    static Error executeGenericTokenStatement(const std::string &statement, const OTPToken &token);
+
     // database config functions
     static Error storeDatabaseVersion();
     static Error getDatabaseVersion(std::uint32_t &version);
-    static Error storeDisplayOrder(const std::vector<OTPToken::sqliteSortOrder> &order);
-    static Error getDisplayOrder(std::vector<OTPToken::sqliteSortOrder> &order);
+    static Error storeDisplayOrder(const DisplayOrder &order);
+    static Error updateDisplayOrder(const DisplayOrder &order);
+    static Error getDisplayOrder(DisplayOrder &order);
 
     // serialization functions
     static bool serializeDatabase(std::string &out);
@@ -133,9 +146,6 @@ private:
     // write I/O APIs
     static Error readFile(const std::string &file, std::string &out);
     static Error writeFile(const std::string &location, const std::string &buffer);
-
-private:
-    static std::vector<OTPToken::sqliteSortOrder> order;
 };
 
 #endif // TOKENDATABASE_HPP
