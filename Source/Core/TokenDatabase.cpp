@@ -742,6 +742,11 @@ bool TokenDatabase::displayOrderQuery(std::string &query)
         return false;
     }
 
+    if (order.empty())
+    {
+        return false;
+    }
+
     auto pos = 0U;
     for (auto&& id : order)
     {
