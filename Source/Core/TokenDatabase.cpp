@@ -60,6 +60,7 @@ const std::string TokenDatabase::getErrorMessage(const Error &error)
         case SqlStatementPrepareFailed:    return "Failed to prepare SQL statement.";
         case SqlBindBinaryDataFailed:      return "Faled to bind binary data to SQL statement.";
         case SqlExecutionFailed:           return "Failed to execute SQL statement.";
+        case SqlConstraintViolation:       return "A SQL constraint violation happened.";
         case SqlDisplayOrderStoreFailed:   return "Failed to store the display order.";
         case SqlDisplayOrderUpdateFailed:  return "Failed to update the display order.";
         case SqlDispalyOrderGetFailed:     return "Failed to receive the display order.";
@@ -179,8 +180,15 @@ TokenDatabase::Error TokenDatabase::executeGenericTokenStatement(const std::stri
               << std::vector<OTPToken::PeriodType>{token.period()}
               << std::vector<OTPToken::CounterType>{token.counter()}
               << token.algorithm();
-    } catch (sqlite::sqlite_exception &) {
-        return SqlExecutionFailed;
+    } catch (sqlite::sqlite_exception &e) {
+        if (e.get_code() == SQLITE_CONSTRAINT)
+        {
+            return SqlConstraintViolation;
+        }
+        else
+        {
+            return SqlExecutionFailed;
+        }
     }
 
     return Success;

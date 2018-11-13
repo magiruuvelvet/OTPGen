@@ -44,6 +44,7 @@ public:
         SqlStatementPrepareFailed,    // failed to prepare sql statement
         SqlBindBinaryDataFailed,      // failed to bind binary BLOB data
         SqlExecutionFailed,           // failed to execute sql statement
+        SqlConstraintViolation,       // a constraint violation happened
         SqlDisplayOrderStoreFailed,   // failed to store the display order
         SqlDisplayOrderUpdateFailed,  // failed to update the display order
         SqlDispalyOrderGetFailed,     // failed to receive the display order
