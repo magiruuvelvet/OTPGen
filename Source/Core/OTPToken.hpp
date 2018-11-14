@@ -232,14 +232,14 @@ public:
     /**
      * position compare operators for sorting
      */
-    inline bool operator< (const OTPToken &other) const
-    { return this->_position < other._position; }
-    inline bool operator<= (const OTPToken &other) const
-    { return this->_position <= other._position; }
-    inline bool operator> (const OTPToken &other) const
-    { return this->_position > other._position; }
-    inline bool operator>= (const OTPToken &other) const
-    { return this->_position >= other._position; }
+//    inline bool operator< (const OTPToken &other) const
+//    { return this->_position < other._position; }
+//    inline bool operator<= (const OTPToken &other) const
+//    { return this->_position <= other._position; }
+//    inline bool operator> (const OTPToken &other) const
+//    { return this->_position > other._position; }
+//    inline bool operator>= (const OTPToken &other) const
+//    { return this->_position >= other._position; }
 
     /**
      * equality check
@@ -278,7 +278,6 @@ private:
     ShaAlgorithm _algorithm = 0U;
 
     sqliteTokenID _id = 0U;
-    sqliteSortOrder _position = 0U;
 
     static bool validateSecret(const TokenSecret &secret, OTPGenErrorCode *error);
 };

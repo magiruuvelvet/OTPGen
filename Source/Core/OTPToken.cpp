@@ -73,7 +73,7 @@ OTPToken::OTPToken(const OTPToken &other)
     this->_algorithm = other._algorithm;
 
     this->_id = other._id;
-    this->_position = other._position;
+//    this->_position = other._position;
 }
 
 OTPToken::~OTPToken()
@@ -88,7 +88,7 @@ OTPToken::~OTPToken()
     this->_algorithm = Invalid;
 
     this->_id = 0U;
-    this->_position = 0U;
+//    this->_position = 0U;
 }
 
 bool OTPToken::importBase64Secret(const std::string &base64_str)
