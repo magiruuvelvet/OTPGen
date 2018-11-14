@@ -175,7 +175,7 @@ You should be able to find your old database in the following directories:
 
  - [XDG](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) (Linux, BSD): `$XDG_CONFIG_HOME/マギルゥーベルベット/OTPGen`
  - Mac: `$HOME/Library/Application Support/マギルゥーベルベット/OTPGen`
- - Windows: `%USERPROFILE%\AppData\Roaming/マギルゥーベルベット/OTPGen`
+ - Windows: `%USERPROFILE%\AppData\Roaming\マギルゥーベルベット\OTPGen`
 
 <br>
 
