@@ -31,6 +31,28 @@ namespace {
     static std::string db_data;
 }
 
+template<typename T, class L = std::vector<T>>
+static bool contains(const L &list, const T &value)
+{
+    return std::find(list.begin(), list.end(), value) != list.end();
+}
+
+template<typename T, class L = std::vector<T>>
+static auto positionOf(const L &list, const T &value)
+{
+    return std::distance(list.begin(), std::find(list.begin(), list.end(), value));
+}
+
+template<typename POSITION = std::size_t, typename LENGTH = std::size_t, typename LIST = TokenDatabase::DisplayOrder>
+static void moveRange(POSITION start, LENGTH length, POSITION dst, LIST &list)
+{
+    const auto final_dst = dst > start ? dst - length : dst;
+
+    LIST tmp(list.begin() + start, list.begin() + start + length);
+    list.erase(list.begin() + start, list.begin() + start + length);
+    list.insert(list.begin() + final_dst, tmp.begin(), tmp.end());
+}
+
 std::string TokenDatabase::databasePassword;
 std::string TokenDatabase::databasePath;
 
@@ -487,18 +509,6 @@ TokenDatabase::Error TokenDatabase::swapTokens(const OTPToken &token1, const OTP
     return swapTokens(token1.label(), token2.label());
 }
 
-template<typename T, class L = std::vector<T>>
-static bool contains(const L &list, const T &value)
-{
-    return std::find(list.begin(), list.end(), value) != list.end();
-}
-
-template<typename T, class L = std::vector<T>>
-static auto positionOf(const L &list, const T &value)
-{
-    return std::distance(list.begin(), std::find(list.begin(), list.end(), value));
-}
-
 TokenDatabase::Error TokenDatabase::swapTokens(const OTPToken::Label &label1, const OTPToken::Label &label2)
 {
     auto tokenId1 = selectToken(label1).id();
@@ -522,6 +532,7 @@ TokenDatabase::Error TokenDatabase::swapTokens(const OTPToken::Label &label1, co
 
     if (!contains(order, tokenId1) || !contains(order, tokenId2))
     {
+        // TODO: implement resetDisplayOrder() function to restore all ids
         return SqlDisplayOrderIncomplete;
     }
 
@@ -529,6 +540,122 @@ TokenDatabase::Error TokenDatabase::swapTokens(const OTPToken::Label &label1, co
     unsigned long pos2 = static_cast<unsigned long>(positionOf(order, tokenId2));
 
     std::swap(order[pos1], order[pos2]);
+
+    return updateDisplayOrder(order);
+}
+
+TokenDatabase::Error TokenDatabase::moveToken(const OTPToken &token, const std::size_t &newPos)
+{
+    return moveToken(token.label(), newPos);
+}
+
+TokenDatabase::Error TokenDatabase::moveToken(const OTPToken::Label &token, const std::size_t &newPos)
+{
+    auto tokenId = selectToken(token).id();
+    if (tokenId == 0)
+    {
+        return SqlEmptyResults;
+    }
+
+    DisplayOrder order;
+    auto status = getDisplayOrder(order);
+    if (status != Success)
+    {
+        return status;
+    }
+
+    if (!contains(order, tokenId))
+    {
+        // TODO: implement resetDisplayOrder() function to restore all ids
+        return SqlDisplayOrderIncomplete;
+    }
+
+    long oldPos = static_cast<long>(positionOf(order, tokenId));
+
+    // rebuild list, splits up the list and puts it back again in a different order
+    moveRange(static_cast<std::size_t>(std::distance(order.begin(), order.begin() + oldPos)), 1, newPos, order);
+
+    return updateDisplayOrder(order);
+}
+
+TokenDatabase::Error TokenDatabase::moveTokenBelow(const OTPToken &token, const OTPToken &below)
+{
+    return moveTokenBelow(token.label(), below.label());
+}
+
+TokenDatabase::Error TokenDatabase::moveTokenBelow(const OTPToken::Label &token, const OTPToken::Label &below)
+{
+    auto tokenId1 = selectToken(token).id();
+    if (tokenId1 == 0)
+    {
+        return SqlEmptyResults;
+    }
+
+    auto tokenId2 = selectToken(below).id();
+    if (tokenId2 == 0)
+    {
+        return SqlEmptyResults;
+    }
+
+    DisplayOrder order;
+    auto status = getDisplayOrder(order);
+    if (status != Success)
+    {
+        return status;
+    }
+
+    if (!contains(order, tokenId1) || !contains(order, tokenId2))
+    {
+        // TODO: implement resetDisplayOrder() function to restore all ids
+        return SqlDisplayOrderIncomplete;
+    }
+
+    long pos1 = static_cast<long>(positionOf(order, tokenId1));
+    long pos2 = static_cast<long>(positionOf(order, tokenId2));
+
+    // rebuild list, splits up the list and puts it back again in a different order
+    moveRange(std::distance(order.begin(), order.begin() + pos1), 1, std::distance(order.begin(), order.begin() + pos2) + 1, order);
+
+    return updateDisplayOrder(order);
+}
+
+TokenDatabase::Error TokenDatabase::moveTokenAbove(const OTPToken &token, const OTPToken &above)
+{
+    return moveTokenAbove(token.label(), above.label());
+}
+
+TokenDatabase::Error TokenDatabase::moveTokenAbove(const OTPToken::Label &token, const OTPToken::Label &above)
+{
+    auto tokenId1 = selectToken(token).id();
+    if (tokenId1 == 0)
+    {
+        return SqlEmptyResults;
+    }
+
+    auto tokenId2 = selectToken(above).id();
+    if (tokenId2 == 0)
+    {
+        return SqlEmptyResults;
+    }
+
+    DisplayOrder order;
+    auto status = getDisplayOrder(order);
+    if (status != Success)
+    {
+        return status;
+    }
+
+    if (!contains(order, tokenId1) || !contains(order, tokenId2))
+    {
+        // TODO: implement resetDisplayOrder() function to restore all ids
+        return SqlDisplayOrderIncomplete;
+    }
+
+    long pos1 = static_cast<long>(positionOf(order, tokenId1));
+    long pos2 = static_cast<long>(positionOf(order, tokenId2));
+
+    // rebuild list, splits up the list and puts it back again in a different order
+    moveRange(std::distance(order.begin(), order.begin() + pos1), 1, std::distance(order.begin(), order.begin() + pos2), order);
 
     return updateDisplayOrder(order);
 }

@@ -96,6 +96,12 @@ public:
 
     static Error swapTokens(const OTPToken &token1, const OTPToken &token2);
     static Error swapTokens(const OTPToken::Label &label1, const OTPToken::Label &label2);
+    static Error moveToken(const OTPToken &token, const std::size_t &newPos);
+    static Error moveToken(const OTPToken::Label &token, const std::size_t &newPos);
+    static Error moveTokenBelow(const OTPToken &token, const OTPToken &below);
+    static Error moveTokenBelow(const OTPToken::Label &token, const OTPToken::Label &below);
+    static Error moveTokenAbove(const OTPToken &token, const OTPToken &above);
+    static Error moveTokenAbove(const OTPToken::Label &token, const OTPToken::Label &above);
 
     static const std::string selectTokenTypeName(const OTPToken::sqliteTypesID &id);
     static const std::string selectAlgorithmName(const OTPToken::sqliteAlgorithmsID &id);
