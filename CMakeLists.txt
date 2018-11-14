@@ -11,6 +11,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}"
     "${PROJECT_SOURCE_DIR}/CMake/Modules")
 
+# Detect operating system
+include(DetectOS)
+
+# set C++ standard macro
 include(SetCppStandard)
 
 # Folder where generated files go
