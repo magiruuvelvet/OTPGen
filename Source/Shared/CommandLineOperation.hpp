@@ -18,7 +18,7 @@ void exec_commandline_operation(const std::vector<std::string> &args)
                 std::exit(2);
             }
 
-            const auto res = 0; // FIXME: TokenStore::i()->swapTokens(args.at(2), args.at(3));
+            const auto res = TokenDatabase::swapTokens(args.at(2), args.at(3));
             if (res)
             {
                 std::printf("Swapped \"%s\" with \"%s\".\n", args.at(2).c_str(), args.at(3).c_str());
