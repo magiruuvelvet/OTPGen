@@ -4,10 +4,10 @@
 #include <cstdio>
 
 #include <AppConfig.hpp>
+#include <Signals.hpp>
 #include <CommandLineOperation.hpp>
 
 #include <TokenDatabase.hpp>
-//#include <TokenStore.hpp>
 
 #include <StdinEchoMode.hpp>
 
@@ -15,8 +15,38 @@
 
 #include <boost/filesystem.hpp>
 
+// gracefully terminate application
+__attribute__((noreturn))
+static void graceful_terminate(int signal)
+{
+    // close database connection handle and cleanup
+    TokenDatabase::closeDatabase();
+
+    // restore original signal handler
+    std::signal(signal, signals.at(signal));
+
+    // raise original signal
+    std::raise(signal);
+
+    // avoid a warning about __noreturn__
+    // or exit if ever reached here
+    std::exit(128 + signal);
+}
+
 int main(int argc, char **argv)
 {
+#if !defined(OS_WINDOWS)
+    // register signals
+    for (auto&& sig : {SIGINT, SIGTERM, SIGQUIT, SIGHUP,
+                       SIGSEGV, SIGILL, SIGABRT})
+    {
+        // register current signal and store original handler function
+        auto orig_handler = std::signal(sig, &graceful_terminate);
+        // push original handler function into the signal map
+        signals.insert({sig, orig_handler});
+    }
+#endif
+
     std::printf("%s CLI\n\n", cfg::Name.c_str());
 
     const auto config_home = sago::getConfigHome();
@@ -81,8 +111,13 @@ int main(int argc, char **argv)
     }
 
     // run command line operation if any
+    // FIXME: refactor how command line options are parsed and handled
+    //        <remove this function>
     const std::vector<std::string> args(argv, argv + argc);
     exec_commandline_operation(args);
 
+    // TODO: cli application code goes here
+
+    TokenDatabase::closeDatabase();
     return 0;
 }
