@@ -441,6 +441,24 @@ TokenDatabase::Error TokenDatabase::updateToken(const OTPToken::sqliteTokenID &i
     return executeGenericTokenStatement(statement, token);
 }
 
+TokenDatabase::Error TokenDatabase::renameToken(const OTPToken::sqliteTokenID &id, const OTPToken::Label &label)
+{
+    if (!db_status)
+    {
+        return SqlDatabaseNotOpen;
+    }
+
+    auto token = selectToken(id);
+    if (token.id() == 0)
+    {
+        return SqlEmptyResults;
+    }
+
+    token.setLabel(label);
+
+    return updateToken(id, token);
+}
+
 TokenDatabase::Error TokenDatabase::deleteToken(const OTPToken::sqliteTokenID &id)
 {
     if (!db_status)

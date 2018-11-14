@@ -91,6 +91,7 @@ public:
     static const OTPTokenList selectTokens(const OTPToken::Label &label_like);
     static Error insertToken(const OTPToken &token);
     static Error updateToken(const OTPToken::sqliteTokenID &id, const OTPToken &token);
+    static Error renameToken(const OTPToken::sqliteTokenID &id, const OTPToken::Label &label);
     static Error deleteToken(const OTPToken::sqliteTokenID &id);
     static OTPToken::sqliteTokenID tokenCount(const OTPToken::sqliteTypesID &type = OTPToken::None);
 
