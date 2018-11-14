@@ -19,7 +19,7 @@ void exec_commandline_operation(const std::vector<std::string> &args)
             }
 
             const auto res = TokenDatabase::swapTokens(args.at(2), args.at(3));
-            if (res)
+            if (res == TokenDatabase::Success)
             {
                 std::printf("Swapped \"%s\" with \"%s\".\n", args.at(2).c_str(), args.at(3).c_str());
                 TokenDatabase::saveTokens();
@@ -28,6 +28,7 @@ void exec_commandline_operation(const std::vector<std::string> &args)
             else
             {
                 std::fprintf(stderr, "Swapping of \"%s\" and \"%s\" failed.\n", args.at(2).c_str(), args.at(3).c_str());
+                std::fprintf(stderr, "Error: %s\n", TokenDatabase::getErrorMessage(res).c_str());
                 std::exit(3);
             }
         }
@@ -40,7 +41,8 @@ void exec_commandline_operation(const std::vector<std::string> &args)
             }
 
             unsigned long newPos = 0;
-            bool ok = false, res;
+            bool ok = false;
+            TokenDatabase::Error res = TokenDatabase::UnknownFailure;
             try {
                 newPos = std::stoul(args.at(3));
                 ok = true;
@@ -49,14 +51,14 @@ void exec_commandline_operation(const std::vector<std::string> &args)
             }
             if (!ok)
             {
-                res = 0; // FIXME: TokenStore::i()->moveTokenBelow(args.at(2).c_str(), args.at(3).c_str());
+                res = TokenDatabase::UnknownFailure; // FIXME: TokenStore::i()->moveTokenBelow(args.at(2).c_str(), args.at(3).c_str());
             }
             else
             {
-                res = 0; // FIXME: TokenStore::i()->moveToken(args.at(2).c_str(), newPos);
+                res = TokenDatabase::UnknownFailure; // FIXME: TokenStore::i()->moveToken(args.at(2).c_str(), newPos);
             }
 
-            if (res)
+            if (res == TokenDatabase::Success)
             {
                 std::cout << "Move operation successful." << std::endl;
                 TokenDatabase::saveTokens();
@@ -65,6 +67,7 @@ void exec_commandline_operation(const std::vector<std::string> &args)
             else
             {
                 std::cerr << "Move operation failed." << std::endl;
+                std::cerr << "Error: " << TokenDatabase::getErrorMessage(res) << std::endl;
                 std::exit(3);
             }
         }
