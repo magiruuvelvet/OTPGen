@@ -51,11 +51,11 @@ void exec_commandline_operation(const std::vector<std::string> &args)
             }
             if (!ok)
             {
-                res = TokenDatabase::UnknownFailure; // FIXME: TokenStore::i()->moveTokenBelow(args.at(2).c_str(), args.at(3).c_str());
+                res = TokenDatabase::moveTokenBelow(args.at(2).c_str(), args.at(3).c_str());
             }
             else
             {
-                res = TokenDatabase::UnknownFailure; // FIXME: TokenStore::i()->moveToken(args.at(2).c_str(), newPos);
+                res = TokenDatabase::moveToken(args.at(2).c_str(), newPos);
             }
 
             if (res == TokenDatabase::Success)
