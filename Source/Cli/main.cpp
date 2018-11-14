@@ -15,6 +15,7 @@
 
 #include <boost/filesystem.hpp>
 
+#if !defined(OS_WINDOWS)
 // gracefully terminate application
 __attribute__((noreturn))
 static void graceful_terminate(int signal)
@@ -32,6 +33,7 @@ static void graceful_terminate(int signal)
     // or exit if ever reached here
     std::exit(128 + signal);
 }
+#endif
 
 int main(int argc, char **argv)
 {
