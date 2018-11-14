@@ -73,7 +73,6 @@ OTPToken::OTPToken(const OTPToken &other)
     this->_algorithm = other._algorithm;
 
     this->_id = other._id;
-//    this->_position = other._position;
 }
 
 OTPToken::~OTPToken()
@@ -88,7 +87,6 @@ OTPToken::~OTPToken()
     this->_algorithm = Invalid;
 
     this->_id = 0U;
-//    this->_position = 0U;
 }
 
 bool OTPToken::importBase64Secret(const std::string &base64_str)
@@ -314,6 +312,11 @@ OTPToken::CounterType OTPToken::maxCounter(const TokenType &type)
 
 bool OTPToken::isValid() const
 {
+    if (_label.empty())
+    {
+        return false;
+    }
+
     auto error = OTPGenErrorCode::Valid;
     const auto &token = this->generateToken(&error);
     return !(token.empty() || error != OTPGenErrorCode::Valid);

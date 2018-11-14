@@ -230,18 +230,6 @@ public:
     std::uint64_t remainingTokenValidity() const;
 
     /**
-     * position compare operators for sorting
-     */
-//    inline bool operator< (const OTPToken &other) const
-//    { return this->_position < other._position; }
-//    inline bool operator<= (const OTPToken &other) const
-//    { return this->_position <= other._position; }
-//    inline bool operator> (const OTPToken &other) const
-//    { return this->_position > other._position; }
-//    inline bool operator>= (const OTPToken &other) const
-//    { return this->_position >= other._position; }
-
-    /**
      * equality check
      */
     inline bool operator== (const OTPToken &other) const
