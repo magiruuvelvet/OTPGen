@@ -72,6 +72,7 @@ OTPToken::OTPToken(const OTPToken &other)
     this->_counter = other._counter;
     this->_algorithm = other._algorithm;
 
+    this->_id = other._id;
     this->_position = other._position;
 }
 
@@ -86,6 +87,7 @@ OTPToken::~OTPToken()
     this->_counter = 0U;
     this->_algorithm = Invalid;
 
+    this->_id = 0U;
     this->_position = 0U;
 }
 

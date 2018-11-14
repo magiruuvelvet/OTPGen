@@ -1,6 +1,7 @@
 #ifndef OTPTOKEN_HPP
 #define OTPTOKEN_HPP
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <cinttypes>
@@ -167,7 +168,7 @@ public:
     const std::string algorithmName() const;
 
     // ID
-    inline const sqliteTokenID &id()
+    inline const sqliteTokenID &id() const
     { return this->_id; }
 
     /**
@@ -281,5 +282,19 @@ private:
 
     static bool validateSecret(const TokenSecret &secret, OTPGenErrorCode *error);
 };
+
+inline std::ostream &operator<< (std::ostream &out, const OTPToken &token)
+{
+    out << "OTPToken{"
+        << "type=" << token.typeName() << ", "
+        << "label=\"" << token.label() << "\", "
+        << "icon=" << +token.iconBufferSize() << "B, "
+        << "digits=" << +token.digitLength() << ", "
+        << "period=" << +token.period() << ", "
+        << "counter=" << +token.counter() << ", "
+        << "algorithm=" << token.algorithmName()
+        << "}";
+    return out;
+}
 
 #endif // OTPTOKEN_HPP

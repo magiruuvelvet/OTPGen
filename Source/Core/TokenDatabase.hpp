@@ -47,7 +47,8 @@ public:
         SqlConstraintViolation,       // a constraint violation happened
         SqlDisplayOrderStoreFailed,   // failed to store the display order
         SqlDisplayOrderUpdateFailed,  // failed to update the display order
-        SqlDispalyOrderGetFailed,     // failed to receive the display order
+        SqlDisplayOrderGetFailed,     // failed to receive the display order
+        SqlDisplayOrderIncomplete,    // the display order list is incomplete
         SqlEmptyResults,              // got no values back from SELECT statement
         SqlSchemaValidationFailed,    // tables are missing or don't have the correct schema,
                                       // edge-case when the user replaces the file manually
@@ -92,6 +93,9 @@ public:
     static Error updateToken(const OTPToken::sqliteTokenID &id, const OTPToken &token);
     static Error deleteToken(const OTPToken::sqliteTokenID &id);
     static OTPToken::sqliteTokenID tokenCount(const OTPToken::sqliteTypesID &type = OTPToken::None);
+
+    static Error swapTokens(const OTPToken &token1, const OTPToken &token2);
+    static Error swapTokens(const OTPToken::Label &label1, const OTPToken::Label &label2);
 
     static const std::string selectTokenTypeName(const OTPToken::sqliteTypesID &id);
     static const std::string selectAlgorithmName(const OTPToken::sqliteAlgorithmsID &id);

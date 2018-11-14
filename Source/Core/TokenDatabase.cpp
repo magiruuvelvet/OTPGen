@@ -63,7 +63,8 @@ const std::string TokenDatabase::getErrorMessage(const Error &error)
         case SqlConstraintViolation:       return "A SQL constraint violation happened.";
         case SqlDisplayOrderStoreFailed:   return "Failed to store the display order.";
         case SqlDisplayOrderUpdateFailed:  return "Failed to update the display order.";
-        case SqlDispalyOrderGetFailed:     return "Failed to receive the display order.";
+        case SqlDisplayOrderGetFailed:     return "Failed to receive the display order.";
+        case SqlDisplayOrderIncomplete:    return "The display order list is incomplete.";
         case SqlEmptyResults:              return "SQL statement returned nothing.";
         case SqlSchemaValidationFailed:    return "Database schema is invalid / was user-modified.";
 
@@ -99,11 +100,14 @@ TokenDatabase::Error TokenDatabase::initDatabase()
 
 void TokenDatabase::closeDatabase()
 {
-    // force close database
-    (void) sqlite3_close_v2(db->connection().get());
-    db = nullptr;
-    db_status = false;
-    db_data.clear();
+    if (db_status)
+    {
+        // force close database
+        (void) sqlite3_close_v2(db->connection().get());
+        db = nullptr;
+        db_status = false;
+        db_data.clear();
+    }
 }
 
 bool TokenDatabase::setPassword(const std::string &password)
@@ -476,6 +480,57 @@ OTPToken::sqliteTokenID TokenDatabase::tokenCount(const OTPToken::sqliteTypesID 
     }
 
     return count;
+}
+
+TokenDatabase::Error TokenDatabase::swapTokens(const OTPToken &token1, const OTPToken &token2)
+{
+    return swapTokens(token1.label(), token2.label());
+}
+
+template<typename T, class L = std::vector<T>>
+static bool contains(const L &list, const T &value)
+{
+    return std::find(list.begin(), list.end(), value) != list.end();
+}
+
+template<typename T, class L = std::vector<T>>
+static auto positionOf(const L &list, const T &value)
+{
+    return std::distance(list.begin(), std::find(list.begin(), list.end(), value));
+}
+
+TokenDatabase::Error TokenDatabase::swapTokens(const OTPToken::Label &label1, const OTPToken::Label &label2)
+{
+    auto tokenId1 = selectToken(label1).id();
+    if (tokenId1 == 0)
+    {
+        return SqlEmptyResults;
+    }
+
+    auto tokenId2 = selectToken(label2).id();
+    if (tokenId2 == 0)
+    {
+        return SqlEmptyResults;
+    }
+
+    DisplayOrder order;
+    auto status = getDisplayOrder(order);
+    if (status != Success)
+    {
+        return status;
+    }
+
+    if (!contains(order, tokenId1) || !contains(order, tokenId2))
+    {
+        return SqlDisplayOrderIncomplete;
+    }
+
+    unsigned long pos1 = static_cast<unsigned long>(positionOf(order, tokenId1));
+    unsigned long pos2 = static_cast<unsigned long>(positionOf(order, tokenId2));
+
+    std::swap(order[pos1], order[pos2]);
+
+    return updateDisplayOrder(order);
 }
 
 const std::string TokenDatabase::selectTokenTypeName(const OTPToken::sqliteTypesID &id)
@@ -864,7 +919,7 @@ TokenDatabase::Error TokenDatabase::getDisplayOrder(DisplayOrder &order)
     try {
         (*db) << statement >> order;
     } catch (sqlite::sqlite_exception &) {
-        return SqlDispalyOrderGetFailed;
+        return SqlDisplayOrderGetFailed;
     }
 
     return Success;
