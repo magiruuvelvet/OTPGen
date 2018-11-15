@@ -40,6 +40,11 @@ find_package(Qt5Network REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Xml REQUIRED)
 
+#find_package(Qt5Quick REQUIRED)
+#find_package(Qt5QuickWidgets REQUIRED)
+#find_package(Qt5Qml REQUIRED)
+#find_package(Qt5QuickCompiler REQUIRED)
+
 # Qt deprecated warnings
 add_definitions(-DQT_DEPRECATED_WARNINGS)
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)
@@ -48,6 +53,10 @@ add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)
 message(STATUS "Enabling Qt automoc...")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+
+# Qt autouic
+#message(STATUS "Enabling Qt autouic...")
+#set(CMAKE_AUTOUIC ON)
 
 # Handle Qt qrc files automatically
 message(STATUS "Enabling Qt autorcc...")
@@ -102,10 +111,16 @@ else()
     find_package(ZLIB REQUIRED)
 endif()
 
+# Embedded assets
 qt5_add_resources(RCC_SOURCES "${PROJECT_SOURCE_DIR}/GuiAssets/EmbeddedAssets.qrc")
 add_custom_target(GenerateEmbeddedAssets DEPENDS ${RCC_SOURCES})
 
-add_executable("${TARGET_NAME}" ${SourceListGui} ${RCC_SOURCES})
+# QML files (compiled by QuickCompiler to bypass parsing every single time and to improve performance)
+# QML widgets are embedded into the binary and may not be deployed separately
+#qtquick_compiler_add_resources(QML_RESOURCES "${PROJECT_SOURCE_DIR}/Source/Gui/Widgets/Widgets.qrc")
+#add_custom_target(CompileQml DEPENDS ${QML_RESOURCES})
+
+add_executable("${TARGET_NAME}" ${SourceListGui} ${RCC_SOURCES}) # ${QML_RESOURCES}
 SetCppStandard("${TARGET_NAME}" 17)
 target_link_libraries("${TARGET_NAME}"
     "CoreLib" "GuiLibSupport" "SharedLib"
@@ -136,6 +151,7 @@ if (WITH_QR_CODES)
 endif()
 
 add_dependencies("${TARGET_NAME}" GenerateEmbeddedAssets)
+#add_dependencies("${TARGET_NAME}" CompileQml)
 
 target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
 target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile")

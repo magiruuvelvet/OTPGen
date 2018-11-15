@@ -20,10 +20,6 @@ public:
     void setDialogNotice(const QString &notice);
     const QString text() const;
 
-    // blocking execution, application modal
-    // use textEntered() to receive the entered text
-    //void exec();
-
 signals:
     void textEntered(const QString &password);
 

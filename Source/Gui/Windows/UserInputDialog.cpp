@@ -14,8 +14,7 @@ UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
 
     windowControls = GuiHelpers::make_windowControls(this,
         false, [&]{ },
-        false, [&]{ },
-        true, [&]{ GuiHelpers::default_closeCallback(this); }
+        true, [&]{ this->close(); }
     );
 
     titleBar = GuiHelpers::make_titlebar("", buttons, windowControls);
@@ -52,7 +51,7 @@ UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
     {
         buttons.last()->setStyleSheet("background-color: #777");
     }
-    buttons.last()->setText("OK");
+    buttons.last()->setText(QObject::tr("OK"));
     QObject::connect(buttons.last().get(), &QPushButton::clicked, this, &UserInputDialog::sendText);
 
     buttonHBox->addWidget(buttons.last().get());
@@ -82,7 +81,7 @@ void UserInputDialog::setEchoMode(EchoMode mode)
             break;
 
         case Password:
-            textInput->setPlaceholderText("Password");
+            textInput->setPlaceholderText(QObject::tr("Password"));
             textInput->setEchoMode(QLineEdit::Password);
             break;
     }
@@ -97,19 +96,6 @@ const QString UserInputDialog::text() const
 {
     return textInput->text();
 }
-
-//void UserInputDialog::exec()
-//{
-//    this->setWindowModality(Qt::ApplicationModal);
-//    this->show();
-//    this->activateWindow();
-
-//    QEventLoop block;
-//    QObject::connect(this, &UserInputDialog::closed, &block, &QEventLoop::quit);
-//    block.exec();
-
-//    this->setWindowModality(Qt::NonModal);
-//}
 
 void UserInputDialog::sendText()
 {

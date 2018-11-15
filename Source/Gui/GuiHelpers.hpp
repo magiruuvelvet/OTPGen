@@ -17,7 +17,6 @@
 #include <QList>
 
 #include <WidgetHelpers/FramelessContainer.hpp>
-#include <WidgetHelpers/WidgetBase.hpp>
 #include <WidgetHelpers/DialogBase.hpp>
 #include <WidgetHelpers/TitleBar.hpp>
 
@@ -51,7 +50,6 @@ public:
 
     static QList<std::shared_ptr<QPushButton>> make_windowControls(const QWidget *receiver,
                                                                    bool minimize, const std::function<void()> &minimizeCallback,
-                                                                   bool maximizeRestore, const std::function<void()> &maximizeRestoreCallback,
                                                                    bool close, const std::function<void()> &closeCallback);
 
     static QList<std::shared_ptr<QPushButton>> make_tokenControls(const QWidget *receiver,
@@ -61,10 +59,6 @@ public:
     static std::shared_ptr<QAction> make_menuSeparator();
     static std::shared_ptr<QAction> make_menuAction(const QString &name, const QIcon &icon,
                                                     const QObject *receiver, const std::function<void()> &callback);
-
-    static void default_minimizeCallback(QWidget *receiver);
-    static void default_maximizeRestoreCallback(QWidget *receiver);
-    static void default_closeCallback(QWidget *receiver);
 
     static const QPalette make_theme(const QPalette &base);
     static const QPalette make_cb_theme(const QPalette &base);
@@ -111,15 +105,6 @@ private:
     QIcon _copy_content_icon;
     QIcon _edit_icon;
     QIcon _info_icon;
-};
-
-class AppIcon : public QObjectUserData
-{
-public:
-    AppIcon() :
-        icon(GuiHelpers::i()->app_icon())
-    { }
-    QIcon icon;
 };
 
 #endif // GUIHELPERS_HPP

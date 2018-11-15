@@ -132,24 +132,16 @@ std::shared_ptr<TitleBar> GuiHelpers::make_titlebar(const QString &windowTitle,
 
 QList<std::shared_ptr<QPushButton>> GuiHelpers::make_windowControls(const QWidget *receiver,
                                                                     bool minimize, const std::function<void()> &minimizeCallback,
-                                                                    bool maximizeRestore, const std::function<void()> &maximizeRestoreCallback,
                                                                     bool close, const std::function<void()> &closeCallback)
 {
     QList<std::shared_ptr<QPushButton>> windowControls;
     if (minimize)
     {
-        windowControls.append(GuiHelpers::make_toolbtn(i()->_minimize_icon, "Minimize Window", receiver, minimizeCallback));
-    }
-    if (qobject_cast<const WidgetBase*>(receiver) && maximizeRestore)
-    {
-        auto w = qobject_cast<const WidgetBase*>(receiver);
-        windowControls.append(GuiHelpers::make_toolbtn(QIcon(), "Maximize/Restore Window", w, maximizeRestoreCallback));
-        w->setMaxRestoreButton(windowControls.last().get());
-        QObject::connect(w, &WidgetBase::resized, w, &WidgetBase::updateWindowControls);
+        windowControls.append(GuiHelpers::make_toolbtn(i()->_minimize_icon, QObject::tr("Minimize Window"), receiver, minimizeCallback));
     }
     if (close)
     {
-        windowControls.append(GuiHelpers::make_toolbtn(i()->_close_icon, "Close Window", receiver, closeCallback));
+        windowControls.append(GuiHelpers::make_toolbtn(i()->_close_icon, QObject::tr("Close Window"), receiver, closeCallback));
     }
     return windowControls;
 }
@@ -185,36 +177,6 @@ std::shared_ptr<QAction> GuiHelpers::make_menuAction(const QString &name, const 
     action->setIcon(icon);
     QObject::connect(action.get(), &QAction::triggered, receiver, callback);
     return action;
-}
-
-void GuiHelpers::default_minimizeCallback(QWidget *receiver)
-{
-    receiver->showMinimized();
-}
-
-void GuiHelpers::default_maximizeRestoreCallback(QWidget *receiver)
-{
-    auto w = qobject_cast<WidgetBase*>(receiver);
-    if (!w)
-    {
-        return;
-    }
-
-    if (receiver->isMaximized())
-    {
-        w->showNormal();
-        w->maxRestoreButton()->setIcon(i()->_maximize_icon);
-    }
-    else
-    {
-        w->showMaximized();
-        w->maxRestoreButton()->setIcon(i()->_restore_icon);
-    }
-}
-
-void GuiHelpers::default_closeCallback(QWidget *receiver)
-{
-    receiver->close();
 }
 
 const QPalette GuiHelpers::make_theme(const QPalette &base)

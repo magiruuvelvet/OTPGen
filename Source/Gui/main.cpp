@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <Signals.hpp>
+
 #include <AppConfig.hpp>
 #include "GuiConfig.hpp"
 #include <CommandLineOperation.hpp>
@@ -14,7 +16,7 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
-//#include <Windows/MainWindow.hpp>
+#include <Windows/MainWindow.hpp>
 #include <Windows/UserInputDialog.hpp>
 
 #include <qtsingleapplication.h>
@@ -25,12 +27,46 @@
 
 Q_DECLARE_METATYPE(QList<int>)
 
-//std::shared_ptr<MainWindow> mainWindow;
+// it turned out when using a smart pointer here it sometimes
+// causes a SEGFAULT randomly on application quit/clean up
+MainWindow *mainWindow = nullptr;
 
 #ifdef QTKEYCHAIN_SUPPORT
 // QKeychain already handles raw pointers and deletes them
 QKeychain::ReadPasswordJob *receivePassword = nullptr;
 QKeychain::WritePasswordJob *storePassword = nullptr;
+#endif
+
+// name conflict with Qt (macro)
+#undef signals
+
+#if !defined(OS_WINDOWS)
+// gracefully terminate application
+__attribute__((noreturn))
+static void graceful_terminate(int signal)
+{
+    std::cerr << "Terminated by signal: " << signal << std::endl;
+
+    // close database connection handle and cleanup
+    TokenDatabase::closeDatabase();
+
+    // clean up gui, just delete
+    // calling Qt functions here is not supported
+    if (mainWindow)
+    {
+        delete mainWindow;
+    }
+
+    // restore original signal handler
+    std::signal(signal, signals.at(signal));
+
+    // raise original signal
+    std::raise(signal);
+
+    // avoid a warning about __noreturn__
+    // or exit if ever reached here
+    std::exit(128 + signal);
+}
 #endif
 
 const std::vector<std::string> qtargs_to_strvec(const QStringList &args)
@@ -105,6 +141,10 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
 
         TokenDatabase::setPassword("pwd123");
         std::printf("main: loadTokens -> %i\n", TokenDatabase::loadTokens());
+        for (auto&& token : TokenDatabase::selectTokens())
+        {
+            std::cout << token << std::endl;
+        }
 
         //std::printf("%i\n", TokenDatabase::changePassword("pwd123"));
 #endif
@@ -153,15 +193,18 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
     password.clear();
 
     // run command line operation if any
+    // FIXME: change how command line arguments are handled
     const auto args = a->arguments();
     exec_commandline_operation(qtargs_to_strvec(args));
 
-    //mainWindow = std::make_shared<MainWindow>();
+    // create main window
+    mainWindow = new MainWindow();
+    QObject::connect(mainWindow, &MainWindow::closed, a, &QtSingleApplication::quit);
 
     if (!gcfg::startMinimizedToTray())
     {
-        //mainWindow->show();
-        //mainWindow->activateWindow();
+        mainWindow->show();
+        mainWindow->activateWindow();
     }
 
     // process messages sent from additional instances
@@ -169,8 +212,8 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
         if (message.isEmpty() || message.compare("activateWindow", Qt::CaseInsensitive) == 0)
         {
             std::printf("Trying to activate window...\n");
-            //mainWindow->show();
-            //mainWindow->activateWindow();
+            mainWindow->show();
+            mainWindow->activateWindow();
         }
         else if (message.compare("reloadTokens", Qt::CaseInsensitive) == 0)
         {
@@ -192,6 +235,18 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
 
 int main(int argc, char **argv)
 {
+#if !defined(OS_WINDOWS)
+    // register signals
+    for (auto&& sig : {SIGINT, SIGTERM, SIGQUIT, SIGHUP,
+                       SIGSEGV, SIGILL, SIGABRT})
+    {
+        // register current signal and store original handler function
+        auto orig_handler = std::signal(sig, &graceful_terminate);
+        // push original handler function into the signal map
+        signals.insert({sig, orig_handler});
+    }
+#endif
+
     // QApplication::setDesktopSettingsAware(false);
 #ifdef OTPGEN_DEBUG
     QtSingleApplication a(gcfg::q(cfg::Name) + "_DEBUG", argc, argv);
@@ -202,7 +257,6 @@ int main(int argc, char **argv)
     a.setApplicationName(gcfg::q(cfg::Name));
     a.setApplicationDisplayName(gcfg::q(cfg::Name));
     a.setApplicationVersion(gcfg::q(cfg::Version));
-    a.setUserData(0, new AppIcon());
 
     qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
 
@@ -305,5 +359,8 @@ int main(int argc, char **argv)
     }
 #endif
 
-    return a.exec();
+    // clean up
+    auto ret = a.exec();
+    delete mainWindow;
+    return ret;
 }
