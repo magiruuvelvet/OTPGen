@@ -5,6 +5,8 @@
 #include <Tools/zlibTool.hpp>
 #include <Tools/SvgTool.hpp>
 
+#include <QScreen>
+
 GuiHelpers::GuiHelpers()
 {
     _app_icon = QIcon(":/app-icon.svgz");
@@ -217,4 +219,55 @@ const QPalette GuiHelpers::make_cb_theme(const QPalette &base)
         return palette;
     }
     return base;
+}
+
+#ifdef OTPGEN_DEBUG
+#include <QDebug>
+#endif
+
+const QScreen *Scr::currentScreen(const QWidget *target)
+{
+    const QScreen *screen = nullptr;
+
+    const auto i = QApplication::desktop()->screenNumber(target);
+    if (i == -1)
+    {
+        screen = QApplication::primaryScreen();
+    }
+    else
+    {
+        screen = QApplication::screens().at(i);
+    }
+
+#ifdef OTPGEN_DEBUG
+    qDebug() << screen << "dpi =" << screen->logicalDotsPerInch();
+#endif
+
+    return screen;
+}
+
+int Scr::scaled(int base, const QWidget *target)
+{
+#ifdef OTPGEN_DEBUG
+    qDebug() << "scaled():" << base << "->" << static_cast<int>((base * currentScreen(target)->logicalDotsPerInch()) / 96);
+#endif
+    return static_cast<int>((base * currentScreen(target)->logicalDotsPerInch()) / 96);
+}
+
+qreal Scr::scaledF(qreal base, const QWidget *target)
+{
+#ifdef OTPGEN_DEBUG
+    qDebug() << "scaledF():" << base << "->" << (base * currentScreen(target)->logicalDotsPerInch()) / 96;
+#endif
+    return (base * currentScreen(target)->logicalDotsPerInch()) / 96;
+}
+
+const QSize Scr::scaled(const QSize &base, const QWidget *target)
+{
+    auto width = static_cast<int>((base.width() * currentScreen(target)->logicalDotsPerInch()) / 96);
+    auto height = static_cast<int>((base.height() * currentScreen(target)->logicalDotsPerInch()) / 96);
+#ifdef OTPGEN_DEBUG
+    qDebug() << "scaled():" << base << "->" << QSize{width, height};
+#endif
+    return QSize{width, height};
 }

@@ -109,4 +109,18 @@ private:
     QIcon _info_icon;
 };
 
+class Scr final
+{
+    Scr() = delete;
+
+    // DON'T USE FOR FONTS!!!
+    // Fonts are already scaled correctly by Qt
+
+public:
+    static const QScreen *currentScreen(const QWidget *target = nullptr);
+    static int scaled(int base, const QWidget *target = nullptr);
+    static qreal scaledF(qreal base, const QWidget *target = nullptr);
+    static const QSize scaled(const QSize &base, const QWidget *target = nullptr);
+};
+
 #endif // GUIHELPERS_HPP
