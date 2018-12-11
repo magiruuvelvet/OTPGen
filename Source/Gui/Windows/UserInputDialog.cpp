@@ -3,12 +3,10 @@
 #include "GuiConfig.hpp"
 
 UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
-    : DialogBase(parent)
+    : QRootDialog(parent)
 {
-    // initial window size
-    this->resize(400, 160);
-
-    GuiHelpers::centerWindow(this);
+    // initial window state
+    GuiHelpers::resizeAndCenterWindow({400, 160}, this);
 
     buttonHBox = GuiHelpers::make_hbox(0, 4);
 
@@ -17,8 +15,8 @@ UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
         true, [&]{ this->close(); }
     );
 
-    titleBar = GuiHelpers::make_titlebar("", buttons, windowControls);
-    vbox->addWidget(titleBar.get());
+    data.titleBar = GuiHelpers::make_titlebar(this, "", buttons, windowControls);
+    data.vbox->addWidget(data.titleBar.get());
 
     dialogNotice = std::make_shared<QTextEdit>();
     dialogNotice->setFrameRect(QRect());
@@ -34,14 +32,14 @@ UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
                                         gcfg::titleBarForeground()));
     }
     dialogNotice->setWordWrapMode(QTextOption::WordWrap);
-    innerVBox->addWidget(dialogNotice.get());
+    data.innerVBox->addWidget(dialogNotice.get());
 
     textInput = std::make_shared<QLineEdit>();
     textInput->setFrame(false);
     textInput->setAutoFillBackground(true);
     textInput->setContentsMargins(3,0,3,0);
     QObject::connect(textInput.get(), &QLineEdit::returnPressed, this, &UserInputDialog::sendText);
-    innerVBox->addWidget(textInput.get());
+    data.innerVBox->addWidget(textInput.get());
 
     this->setEchoMode(mode);
 
@@ -56,11 +54,11 @@ UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
 
     buttonHBox->addWidget(buttons.last().get());
 
-    innerVBox->addLayout(buttonHBox.get());
+    data.innerVBox->addLayout(buttonHBox.get());
 
-    vbox->addLayout(innerVBox.get());
-    vbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    this->setLayout(vbox.get());
+    data.vbox->addLayout(data.innerVBox.get());
+    data.vbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    this->setLayout(data.vbox.get());
 
     textInput->setFocus();
 }

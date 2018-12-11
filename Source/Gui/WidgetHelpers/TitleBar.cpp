@@ -1,15 +1,12 @@
 #include "TitleBar.hpp"
 #include "GuiHelpers.hpp"
 
-TitleBar::TitleBar(QWidget *parent)
+TitleBar::TitleBar(int minimumHeight, QWidget *parent)
     : QWidget(parent)
 {
-    this->setMinimumHeight(40);
+    this->setMinimumHeight(minimumHeight);
 
-    hbox = std::make_shared<QHBoxLayout>();
-    hbox->setMargin(0);
-    hbox->setContentsMargins(0, 6, 0, 0);
-    hbox->setSpacing(0);
+    hbox = GuiHelpers::make_hbox(0, 0, {0, 6, 0, 0});
 
     hbox->addSpacerItem(new QSpacerItem(5, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
 
@@ -77,6 +74,12 @@ void TitleBar::mousePressEvent(QMouseEvent *event)
 
 void TitleBar::mouseMoveEvent(QMouseEvent *event)
 {
+    // FramelessContainer border
+    if (event->y() <= 5 || event->x() <= 5 || event->x() >= this->width() - 5)
+    {
+        return;
+    }
+
     if (this->parentWidget()->isMaximized())
     {
         return;

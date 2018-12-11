@@ -17,7 +17,7 @@ class TitleBar : public QWidget
     Q_OBJECT
 
 public:
-    explicit TitleBar(QWidget *parent = nullptr);
+    explicit TitleBar(int minimumHeight = 40, QWidget *parent = nullptr);
 
     void setLeftButtons(const QList<std::shared_ptr<QPushButton>> &buttons);
     void setRightButtons(const QList<std::shared_ptr<QPushButton>> &buttons);

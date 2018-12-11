@@ -17,19 +17,21 @@
 #include <QList>
 
 #include <WidgetHelpers/FramelessContainer.hpp>
-#include <WidgetHelpers/DialogBase.hpp>
 #include <WidgetHelpers/TitleBar.hpp>
 
 #include <memory>
 #include <functional>
+
+using QPushButtonList = QList<std::shared_ptr<QPushButton>>;
 
 class GuiHelpers final
 {
 public:
     static GuiHelpers *i();
 
-    static const QPoint centeredWindowCoords(const QWidget *parent);
+    static const QPoint centeredWindowCoords(const QWidget *parent, const QSize &useSize = QSize());
     static void centerWindow(QWidget *parent);
+    static void resizeAndCenterWindow(const QSize &size, QWidget *parent);
 
     static const QString make_windowTitle(const QString &title);
 
@@ -44,9 +46,9 @@ public:
     static std::shared_ptr<QPushButton> make_toolbtn(const QIcon &icon, const QString &tooltip,
                                                      const QObject *receiver = nullptr, const std::function<void()> &callback = []{});
 
-    static std::shared_ptr<TitleBar> make_titlebar(const QString &windowTitle,
-                                                   const QList<std::shared_ptr<QPushButton>> &leftBtns = QList<std::shared_ptr<QPushButton>>(),
-                                                   const QList<std::shared_ptr<QPushButton>> &rightBtns = QList<std::shared_ptr<QPushButton>>());
+    static std::shared_ptr<TitleBar> make_titlebar(QWidget *parent, const QString &windowTitle,
+                                                   const QPushButtonList &leftBtns = QPushButtonList(),
+                                                   const QPushButtonList &rightBtns = QPushButtonList());
 
     static QList<std::shared_ptr<QPushButton>> make_windowControls(const QWidget *receiver,
                                                                    bool minimize, const std::function<void()> &minimizeCallback,

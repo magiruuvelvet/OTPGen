@@ -5,28 +5,16 @@
 #include <TokenDatabase.hpp>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QWidget(parent)
+    : QRootWidget(parent)
 {
-    // window config
-    this->setWindowFlag(Qt::FramelessWindowHint, true);
-    this->setPalette(GuiHelpers::make_theme(this->palette()));
-    this->setWindowTitle(qApp->applicationDisplayName());
-    this->setWindowIcon(GuiHelpers::i()->app_icon());
+    // initial window state
+    GuiHelpers::resizeAndCenterWindow(gcfg::defaultGeometryMainWindow(), this);
 
-    vbox = GuiHelpers::make_vbox();
-    innerVBox = GuiHelpers::make_vbox(0, 2, QMargins(4,1,4,4));
+    data.titleBar = GuiHelpers::make_titlebar(this, "");
 
-    titleBar = GuiHelpers::make_titlebar("");
-    framelessContainer = std::make_shared<FramelessContainer>(this);
-
-    vbox->addWidget(titleBar.get());
-    vbox->addSpacerItem(new QSpacerItem(0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    this->setLayout(vbox.get());
-
-    // initial window size
-    this->resize(gcfg::defaultGeometryMainWindow());
-
-    GuiHelpers::centerWindow(this);
+    data.vbox->addWidget(data.titleBar.get());
+    data.vbox->addSpacerItem(new QSpacerItem(0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    this->setLayout(data.vbox.get());
 
     // create system tray icon
     if (QSystemTrayIcon::isSystemTrayAvailable())

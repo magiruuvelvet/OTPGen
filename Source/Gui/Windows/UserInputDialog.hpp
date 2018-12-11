@@ -3,7 +3,9 @@
 
 #include "GuiHelpers.hpp"
 
-class UserInputDialog : public DialogBase
+#include <WidgetHelpers/QRootWidget.hpp>
+
+class UserInputDialog : public QRootDialog
 {
     Q_OBJECT
 
@@ -14,7 +16,7 @@ public:
     };
 
     explicit UserInputDialog(EchoMode mode = Default, QWidget *parent = nullptr);
-    ~UserInputDialog() override;
+    ~UserInputDialog();
 
     void setEchoMode(EchoMode mode);
     void setDialogNotice(const QString &notice);
@@ -29,8 +31,8 @@ private:
 private:
     std::shared_ptr<QHBoxLayout> buttonHBox;
 
-    QList<std::shared_ptr<QPushButton>> buttons;
-    QList<std::shared_ptr<QPushButton>> windowControls;
+    QPushButtonList buttons;
+    QPushButtonList windowControls;
 
     std::shared_ptr<QTextEdit> dialogNotice;
     std::shared_ptr<QLineEdit> textInput;

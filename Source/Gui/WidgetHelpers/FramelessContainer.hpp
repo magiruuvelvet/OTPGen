@@ -46,10 +46,10 @@ public:
 
     FramelessContainer(QWidget *target);
 
-    void setBorderWidth(int w){
+    inline void setBorderWidth(int w) {
         _borderWidth = w;
     }
-    int borderWidth() const {
+    inline int borderWidth() const {
         return _borderWidth;
     }
 

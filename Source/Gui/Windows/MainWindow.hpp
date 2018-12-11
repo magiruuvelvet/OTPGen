@@ -12,10 +12,9 @@
 #include <QShortcut>
 #include <QClipboard>
 
-#include <WidgetHelpers/FramelessContainer.hpp>
-#include <WidgetHelpers/TitleBar.hpp>
+#include <WidgetHelpers/QRootWidget.hpp>
 
-class MainWindow : public QWidget
+class MainWindow : public QRootWidget
 {
     Q_OBJECT
 
@@ -37,9 +36,6 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
-    std::shared_ptr<QVBoxLayout> vbox;
-    std::shared_ptr<QVBoxLayout> innerVBox;
-
     std::shared_ptr<QTimer> masterTimer;
     QList<std::shared_ptr<QTimer>> timers;
 
@@ -52,9 +48,6 @@ private:
     QList<std::shared_ptr<QAction>> trayTokens;
 
     QClipboard *clipboard = nullptr;
-
-    std::shared_ptr<TitleBar> titleBar;
-    std::shared_ptr<FramelessContainer> framelessContainer;
 };
 
 #endif // MAINWINDOW_HPP

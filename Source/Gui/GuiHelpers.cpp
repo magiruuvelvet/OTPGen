@@ -56,18 +56,28 @@ GuiHelpers *GuiHelpers::i()
     return instance.get();
 }
 
-const QPoint GuiHelpers::centeredWindowCoords(const QWidget *parent)
+const QPoint GuiHelpers::centeredWindowCoords(const QWidget *parent, const QSize &useSize)
 {
+    auto width = useSize.isNull() ? parent->width() : useSize.width();
+    auto height = useSize.isNull() ? parent->height() : useSize.height();
+
     const QRect screenGeometry = QApplication::desktop()->screenGeometry(parent);
-    auto x = (screenGeometry.width() - parent->width()) / 2;
-    auto y = (screenGeometry.height() - parent->height()) / 2;
+    auto x = (screenGeometry.width() - width) / 2;
+    auto y = (screenGeometry.height() - height) / 2;
     return QPoint(x, y);
 }
 
 void GuiHelpers::centerWindow(QWidget *parent)
 {
     const auto&& pos = centeredWindowCoords(parent);
-    parent->move(pos.x(), pos.y());
+    parent->move(pos);
+}
+
+void GuiHelpers::resizeAndCenterWindow(const QSize &size, QWidget *parent)
+{
+    const auto&& pos = centeredWindowCoords(parent, size);
+    parent->resize(size);
+    parent->move(pos);
 }
 
 const QString GuiHelpers::make_windowTitle(const QString &title)
@@ -119,22 +129,22 @@ std::shared_ptr<QPushButton> GuiHelpers::make_toolbtn(const QIcon &icon, const Q
     return btn;
 }
 
-std::shared_ptr<TitleBar> GuiHelpers::make_titlebar(const QString &windowTitle,
-                                                    const QList<std::shared_ptr<QPushButton>> &leftBtns,
-                                                    const QList<std::shared_ptr<QPushButton>> &rightBtns)
+std::shared_ptr<TitleBar> GuiHelpers::make_titlebar(QWidget *parent, const QString &windowTitle,
+                                                    const QPushButtonList &leftBtns,
+                                                    const QPushButtonList &rightBtns)
 {
-    auto titleBar = std::make_shared<TitleBar>();
+    auto titleBar = std::make_shared<TitleBar>(40, parent);
     titleBar->setWindowTitle(windowTitle);
     titleBar->setLeftButtons(leftBtns);
     titleBar->setRightButtons(rightBtns);
     return titleBar;
 }
 
-QList<std::shared_ptr<QPushButton>> GuiHelpers::make_windowControls(const QWidget *receiver,
-                                                                    bool minimize, const std::function<void()> &minimizeCallback,
-                                                                    bool close, const std::function<void()> &closeCallback)
+QPushButtonList GuiHelpers::make_windowControls(const QWidget *receiver,
+                                                bool minimize, const std::function<void()> &minimizeCallback,
+                                                bool close, const std::function<void()> &closeCallback)
 {
-    QList<std::shared_ptr<QPushButton>> windowControls;
+    QPushButtonList windowControls;
     if (minimize)
     {
         windowControls.append(GuiHelpers::make_toolbtn(i()->_minimize_icon, QObject::tr("Minimize Window"), receiver, minimizeCallback));
@@ -146,11 +156,11 @@ QList<std::shared_ptr<QPushButton>> GuiHelpers::make_windowControls(const QWidge
     return windowControls;
 }
 
-QList<std::shared_ptr<QPushButton>> GuiHelpers::make_tokenControls(const QWidget *receiver,
-                                                                   bool add, const QString &tooltip1, const std::function<void()> &addCallback,
-                                                                   bool remove, const QString &tooltip2, const std::function<void()> &removeCallback)
+QPushButtonList GuiHelpers::make_tokenControls(const QWidget *receiver,
+                                               bool add, const QString &tooltip1, const std::function<void()> &addCallback,
+                                               bool remove, const QString &tooltip2, const std::function<void()> &removeCallback)
 {
-    QList<std::shared_ptr<QPushButton>> tokenControls;
+    QPushButtonList tokenControls;
     if (add)
     {
         tokenControls.append(GuiHelpers::make_toolbtn(i()->_add_icon, tooltip1, receiver, addCallback));
