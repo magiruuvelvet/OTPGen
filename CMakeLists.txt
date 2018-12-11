@@ -60,6 +60,12 @@ if (BUILD_ANDROID)
     message(STATUS "NDK root: $ENV{ANDROID_NDK_ROOT}")
 endif()
 
+# WebAssembly build
+if (OS_WASM)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s DEMANGLE_SUPPORT=1 -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 --bind")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s DEMANGLE_SUPPORT=1 -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=1 --bind")
+endif()
+
 # Generic flags
 if (NOT BUILD_ANDROID)
     # Android toolchain doesn't support the native arch flag

@@ -4,7 +4,22 @@
 #include <cstdlib>
 #include <cstdio>
 
+#ifndef OS_WASM
 #include <Signals.hpp>
+#endif
+
+#ifdef OS_WASM
+#include <QtPlugin>
+Q_IMPORT_PLUGIN(QWasmIntegrationPlugin)
+Q_IMPORT_PLUGIN(QGifPlugin)
+Q_IMPORT_PLUGIN(QICNSPlugin)
+Q_IMPORT_PLUGIN(QICOPlugin)
+Q_IMPORT_PLUGIN(QJpegPlugin)
+Q_IMPORT_PLUGIN(QTgaPlugin)
+Q_IMPORT_PLUGIN(QTiffPlugin)
+Q_IMPORT_PLUGIN(QWbmpPlugin)
+Q_IMPORT_PLUGIN(QWebpPlugin)
+#endif
 
 #include <AppConfig.hpp>
 #include "GuiConfig.hpp"
@@ -19,7 +34,17 @@
 #include <Windows/MainWindow.hpp>
 #include <Windows/UserInputDialog.hpp>
 
+#ifdef OS_WASM
+
+#define OTPGenApplication QApplication
+
+#else // else OS_WASM
+
+#define OTPGenApplication QtSingleApplication
+
 #include <qtsingleapplication.h>
+
+#endif // endif OS_WASM
 
 #ifdef QTKEYCHAIN_SUPPORT
 #include <qtkeychain/keychain.h>
@@ -40,6 +65,7 @@ QKeychain::WritePasswordJob *storePassword = nullptr;
 // name conflict with Qt (macro)
 #undef signals
 
+#ifndef OS_WASM
 #if !defined(OS_WINDOWS)
 // gracefully terminate application
 __attribute__((noreturn))
@@ -68,6 +94,7 @@ static void graceful_terminate(int signal)
     std::exit(128 + signal);
 }
 #endif
+#endif
 
 const std::vector<std::string> qtargs_to_strvec(const QStringList &args)
 {
@@ -79,7 +106,7 @@ const std::vector<std::string> qtargs_to_strvec(const QStringList &args)
     return strvec;
 }
 
-int askPass(const QString &dialogNotice, const QString &error, std::string &password, const QApplication *app = nullptr)
+int askPass(const QString &dialogNotice, const QString &error, std::string &password, const OTPGenApplication *app = nullptr)
 {
     auto passwordDialog = std::make_shared<UserInputDialog>(UserInputDialog::Password);
     password.clear();
@@ -102,7 +129,7 @@ int askPass(const QString &dialogNotice, const QString &error, std::string &pass
     return 0;
 }
 
-int start(QtSingleApplication *a, const std::string &keychainPassword, bool create = false)
+int start(OTPGenApplication *a, const std::string &keychainPassword, bool create = false)
 {
     std::string password;
 
@@ -199,7 +226,7 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
 
     // create main window
     mainWindow = new MainWindow();
-    QObject::connect(mainWindow, &MainWindow::closed, a, &QtSingleApplication::quit);
+    QObject::connect(mainWindow, &MainWindow::closed, a, &OTPGenApplication::quit);
 
     if (!gcfg::startMinimizedToTray())
     {
@@ -208,7 +235,8 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
     }
 
     // process messages sent from additional instances
-    QObject::connect(a, &QtSingleApplication::messageReceived, a, [&](const QString &message, QObject *socket){
+#ifndef OS_WASM
+    QObject::connect(a, &OTPGenApplication::messageReceived, a, [&](const QString &message, QObject *socket){
         if (message.isEmpty() || message.compare("activateWindow", Qt::CaseInsensitive) == 0)
         {
             std::printf("Trying to activate window...\n");
@@ -229,12 +257,14 @@ int start(QtSingleApplication *a, const std::string &keychainPassword, bool crea
             }
         }
     });
+#endif
 
     return 0;
 }
 
 int main(int argc, char **argv)
 {
+#ifndef OS_WASM
 #if !defined(OS_WINDOWS)
     // register signals
     for (auto&& sig : {SIGINT, SIGTERM, SIGQUIT, SIGHUP,
@@ -246,12 +276,21 @@ int main(int argc, char **argv)
         signals.insert({sig, orig_handler});
     }
 #endif
+#endif
 
     // QApplication::setDesktopSettingsAware(false);
 #ifdef OTPGEN_DEBUG
-    QtSingleApplication a(gcfg::q(cfg::Name) + "_DEBUG", argc, argv);
+#ifdef OS_WASM
+    OTPGenApplication(argc, argv);
 #else
-    QtSingleApplication a(gcfg::q(cfg::Name), argc, argv);
+    OTPGenApplication a(gcfg::q(cfg::Name) + "_DEBUG", argc, argv);
+#endif
+#else // OTPGEN_RELEASE
+#ifdef OS_WASM
+    OTPGenApplication a(argc, argv);
+#else
+    OTPGenApplication a(gcfg::q(cfg::Name), argc, argv);
+#endif
 #endif
     a.setOrganizationName(gcfg::q(cfg::Developer));
     a.setApplicationName(gcfg::q(cfg::Name));
@@ -261,6 +300,7 @@ int main(int argc, char **argv)
     qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
 
     // don't allow multiple running instances, but send signals to main instance
+#ifndef OS_WASM
     if (a.isRunning())
     {
         if (a.arguments().size() > 1)
@@ -279,6 +319,7 @@ int main(int argc, char **argv)
 
         return 0;
     }
+#endif
 
     // initialize application settings
     std::printf("path: %s\n", gcfg::path().toUtf8().constData());
@@ -360,7 +401,8 @@ int main(int argc, char **argv)
 #endif
 
     // clean up
-    auto ret = a.exec();
+    const auto ret = a.exec();
     delete mainWindow;
+    TokenDatabase::closeDatabase();
     return ret;
 }

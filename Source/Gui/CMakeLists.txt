@@ -5,25 +5,29 @@
 include(SetCppStandard)
 
 # GUI Support Library
-file(GLOB_RECURSE SourceListGuiSupport
-    "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication/*.cpp"
-    "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication/*.h"
+if (NOT OS_WASM)
+    file(GLOB_RECURSE SourceListGuiSupport
+        "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication/*.cpp"
+        "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication/*.h"
 
-    "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.cpp"
-    "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.h"
-)
+        "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.cpp"
+        "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile.h"
+    )
 
-# Platform-specific sources for the GUI
-if (WIN32)
-    file(GLOB_RECURSE SourceListGuiPlatformSupport
-        "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_win.cpp"
-    )
-else()
-    file(GLOB_RECURSE SourceListGuiPlatformSupport
-        "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_unix.cpp"
-    )
+    # Platform-specific sources for the GUI
+    if (WIN32)
+        file(GLOB_RECURSE SourceListGuiPlatformSupport
+            "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_win.cpp"
+        )
+    else()
+        file(GLOB_RECURSE SourceListGuiPlatformSupport
+            "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile/qtlockedfile_unix.cpp"
+        )
+    endif()
+    set(SourceListGuiSupport ${SourceListGuiSupport} ${SourceListGuiPlatformSupport})
+else() # OS_WASM
+    set(SourceListGuiSupport ${})
 endif()
-set(SourceListGuiSupport ${SourceListGuiSupport} ${SourceListGuiPlatformSupport})
 
 # Graphical User Interface - depends on Qt
 file(GLOB_RECURSE SourceListGui
@@ -40,6 +44,7 @@ find_package(Qt5Network REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Xml REQUIRED)
 
+
 #find_package(Qt5Quick REQUIRED)
 #find_package(Qt5QuickWidgets REQUIRED)
 #find_package(Qt5Qml REQUIRED)
@@ -48,6 +53,27 @@ find_package(Qt5Xml REQUIRED)
 # Qt deprecated warnings
 add_definitions(-DQT_DEPRECATED_WARNINGS)
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)
+
+if (OS_WASM)
+    link_libraries(
+        /build/qt5-wasm-emscripten/lib/libQt5FontDatabaseSupport.a
+        /build/qt5-wasm-emscripten/lib/libQt5EventDispatcherSupport.a
+        /build/qt5-wasm-emscripten/plugins/platforms/libqwasm.a
+        /build/qt5-wasm-emscripten/plugins/platforms/libqwebgl.a
+        /build/qt5-wasm-emscripten/plugins/imageformats/libqgif.a
+        /build/qt5-wasm-emscripten/plugins/imageformats/libqico.a
+        /build/qt5-wasm-emscripten/plugins/imageformats/libqtga.a
+        /build/qt5-wasm-emscripten/plugins/imageformats/libqicns.a
+        /build/qt5-wasm-emscripten/plugins/imageformats/libqjpeg.a
+        /build/qt5-wasm-emscripten/plugins/imageformats/libqtiff.a
+        /build/qt5-wasm-emscripten/plugins/imageformats/libqwbmp.a
+        /build/qt5-wasm-emscripten/plugins/imageformats/libqwebp.a
+        /build/qt5-wasm-emscripten/lib/libqtfreetype.a
+        /build/qt5-wasm-emscripten/lib/libqtharfbuzz.a
+        /build/qt5-wasm-emscripten/lib/libqtlibpng.a
+        /build/qt5-wasm-emscripten/lib/libqtpcre2.a
+    )
+endif()
 
 # Qt automoc
 message(STATUS "Enabling Qt automoc...")
@@ -139,6 +165,9 @@ endif()
 if (BUNDLED_ZLIB)
     target_link_libraries("${TARGET_NAME}" zlibstatic)
     target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/zlib")
+    if (OS_WASM)
+        target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+    endif()
 else()
     target_link_libraries("${TARGET_NAME}" ${ZLIB_LIBRARIES})
     target_include_directories("${TARGET_NAME}" PRIVATE "${ZLIB_INCLUDE_DIRS}")
@@ -153,11 +182,14 @@ endif()
 add_dependencies("${TARGET_NAME}" GenerateEmbeddedAssets)
 #add_dependencies("${TARGET_NAME}" CompileQml)
 
-target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
-target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile")
-
 if (NOT DISABLE_QTKEYCHAIN)
     target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtkeychain")
 endif()
-target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Gui/qt5keychain")
-target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
+
+if (NOT OS_WASM)
+    target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
+    target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile")
+
+    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Gui/qt5keychain")
+    target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
+endif()

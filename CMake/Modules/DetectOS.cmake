@@ -14,6 +14,7 @@
 string(REGEX MATCH "Linux" OS_LINUX ${CMAKE_SYSTEM_NAME})
 string(REGEX MATCH "BSD" OS_BSD ${CMAKE_SYSTEM_NAME})
 string(REGEX MATCH "Darwin" OS_MACOS ${CMAKE_SYSTEM_NAME})
+string(REGEX MATCH "Emscripten" OS_WASM ${CMAKE_SYSTEM_NAME})
 
 # Check if it's Windows
 if (WIN32)
@@ -38,6 +39,11 @@ elseif (OS_BSD)
 elseif (OS_MACOS)
     add_definitions(-DOS_MACOS)
     set(OS_MACOS TRUE BOOL INTERNAL)
+
+# WebAssembly / emscripten
+elseif (OS_WASM)
+    add_definitions(-DOS_WASM)
+    set(OS_WASM TRUE BOOL INTERNAL)
 
 # OS not recognized
 else()

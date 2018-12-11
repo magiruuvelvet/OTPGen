@@ -13,7 +13,11 @@ file(GLOB_RECURSE SourceListCore
 )
 
 # CoreLib
-add_library("CoreLib" SHARED ${SourceListCore})
+if (OS_WASM)
+    add_library("CoreLib" STATIC ${SourceListCore})
+else()
+    add_library("CoreLib" SHARED ${SourceListCore})
+endif()
 SetCppStandard("CoreLib" 17)
 set_target_properties("CoreLib" PROPERTIES PREFIX "")
 set_target_properties("CoreLib" PROPERTIES OUTPUT_NAME "libotpgen")
