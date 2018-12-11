@@ -138,7 +138,7 @@ else()
 endif()
 
 # Embedded assets
-qt5_add_resources(RCC_SOURCES "${PROJECT_SOURCE_DIR}/GuiAssets/EmbeddedAssets.qrc")
+qt5_add_resources(RCC_SOURCES "${PROJECT_SOURCE_DIR}/Source/Gui/Assets/EmbeddedAssets.qrc")
 add_custom_target(GenerateEmbeddedAssets DEPENDS ${RCC_SOURCES})
 
 # QML files (compiled by QuickCompiler to bypass parsing every single time and to improve performance)
