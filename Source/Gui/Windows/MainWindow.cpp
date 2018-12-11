@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QRootWidget(parent)
 {
     // initial window state
-    GuiHelpers::resizeAndCenterWindow(gcfg::defaultGeometryMainWindow(), this);
+    GuiHelpers::resizeAndCenterWindow(Scr::scaled(gcfg::defaultGeometryMainWindow(), this), this);
 
     data.titleBar = GuiHelpers::make_titlebar(this, "");
 

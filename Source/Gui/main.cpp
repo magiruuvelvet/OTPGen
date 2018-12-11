@@ -278,7 +278,9 @@ int main(int argc, char **argv)
 #endif
 #endif
 
-    // QApplication::setDesktopSettingsAware(false);
+    // use Qt's built-in style
+    QApplication::setDesktopSettingsAware(false);
+
 #ifdef OTPGEN_DEBUG
 #ifdef OS_WASM
     OTPGenApplication(argc, argv);
@@ -297,6 +299,17 @@ int main(int argc, char **argv)
     a.setApplicationDisplayName(gcfg::q(cfg::Name));
     a.setApplicationVersion(gcfg::q(cfg::Version));
 
+    // set global application attributes
+    for (auto&& attr : {
+         Qt::AA_EnableHighDpiScaling,
+         Qt::AA_DontShowIconsInMenus,
+         Qt::AA_DontUseNativeMenuBar,
+         //Qt::AA_DontUseNativeDialogs,
+    }) {
+        a.setAttribute(attr, true);
+    }
+
+    // register meta types for QSettings
     qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
 
     // don't allow multiple running instances, but send signals to main instance

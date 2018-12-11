@@ -84,6 +84,8 @@ public:
     inline const QIcon &edit_icon() const            { return _edit_icon; }
     inline const QIcon &info_icon() const            { return _info_icon; }
 
+    static const QFont font_titleBar();
+
 private:
     GuiHelpers();
 

@@ -221,6 +221,11 @@ const QPalette GuiHelpers::make_cb_theme(const QPalette &base)
     return base;
 }
 
+const QFont GuiHelpers::font_titleBar()
+{
+    return QFont("Liberation Sans", 11, QFont::Normal);
+}
+
 #ifdef OTPGEN_DEBUG
 #include <QDebug>
 #endif

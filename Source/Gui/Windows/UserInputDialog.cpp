@@ -6,7 +6,7 @@ UserInputDialog::UserInputDialog(EchoMode mode, QWidget *parent)
     : QRootDialog(parent)
 {
     // initial window state
-    GuiHelpers::resizeAndCenterWindow({400, 160}, this);
+    GuiHelpers::resizeAndCenterWindow(Scr::scaled({400, 160}, this), this);
 
     buttonHBox = GuiHelpers::make_hbox(0, 4);
 

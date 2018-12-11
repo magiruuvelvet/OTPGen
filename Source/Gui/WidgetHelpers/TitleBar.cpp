@@ -4,7 +4,7 @@
 TitleBar::TitleBar(int minimumHeight, QWidget *parent)
     : QWidget(parent)
 {
-    this->setMinimumHeight(minimumHeight);
+    this->setMinimumHeight(Scr::scaled(minimumHeight, this));
 
     hbox = GuiHelpers::make_hbox(0, 0, {0, 6, 0, 0});
 
@@ -18,6 +18,7 @@ TitleBar::TitleBar(int minimumHeight, QWidget *parent)
     hbox->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
 
     windowTitle = std::make_shared<QLabel>(qApp->applicationDisplayName());
+    windowTitle->setFont(GuiHelpers::font_titleBar());
     windowTitle->setMargin(10);
     hbox->addWidget(windowTitle.get(), 0, Qt::AlignVCenter | Qt::AlignHCenter);
     hbox->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
