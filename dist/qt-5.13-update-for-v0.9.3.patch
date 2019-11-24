@@ -1,0 +1,122 @@
+diff --git a/Source/Gui/GuiHelpers.cpp b/Source/Gui/GuiHelpers.cpp
+index da204eb..7120793 100644
+--- a/Source/Gui/GuiHelpers.cpp
++++ b/Source/Gui/GuiHelpers.cpp
+@@ -78,7 +78,6 @@ const QString GuiHelpers::make_windowTitle(const QString &title)
+ std::shared_ptr<QVBoxLayout> GuiHelpers::make_vbox(int margin, int spacing, const QMargins &contentMargins)
+ {
+     auto vbox = std::make_shared<QVBoxLayout>();
+-    vbox->setMargin(margin);
+     vbox->setContentsMargins(contentMargins);
+     vbox->setSpacing(spacing);
+     return vbox;
+@@ -87,7 +86,6 @@ std::shared_ptr<QVBoxLayout> GuiHelpers::make_vbox(int margin, int spacing, cons
+ std::shared_ptr<QHBoxLayout> GuiHelpers::make_hbox(int margin, int spacing, const QMargins &contentMargins)
+ {
+     auto hbox = std::make_shared<QHBoxLayout>();
+-    hbox->setMargin(margin);
+     hbox->setContentsMargins(contentMargins);
+     hbox->setSpacing(spacing);
+     return hbox;
+@@ -222,8 +220,8 @@ const QPalette GuiHelpers::make_theme(const QPalette &base)
+     if (gcfg::useTheming())
+     {
+         auto palette = base;
+-        palette.setColor(QPalette::All, QPalette::Background, QColor(gcfg::titleBarBackground()));
+-        palette.setColor(QPalette::All, QPalette::Foreground, QColor(gcfg::titleBarForeground()));
++        palette.setColor(QPalette::All, QPalette::Window, QColor(gcfg::titleBarBackground()));
++        palette.setColor(QPalette::All, QPalette::WindowText, QColor(gcfg::titleBarForeground()));
+         return palette;
+     }
+     return base;
+diff --git a/Source/Gui/WidgetHelpers/TitleBar.cpp b/Source/Gui/WidgetHelpers/TitleBar.cpp
+index 6fc7937..e20577f 100644
+--- a/Source/Gui/WidgetHelpers/TitleBar.cpp
++++ b/Source/Gui/WidgetHelpers/TitleBar.cpp
+@@ -7,26 +7,22 @@ TitleBar::TitleBar(QWidget *parent)
+     this->setMinimumHeight(40);
+ 
+     hbox = std::make_shared<QHBoxLayout>();
+-    hbox->setMargin(0);
+     hbox->setContentsMargins(0, 6, 0, 0);
+     hbox->setSpacing(0);
+ 
+     hbox->addSpacerItem(new QSpacerItem(5, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
+ 
+     hboxLeftBtns = std::make_shared<QHBoxLayout>();
+-    hboxLeftBtns->setMargin(0);
+     hboxLeftBtns->setContentsMargins(0, 0, 0, 0);
+     hboxLeftBtns->setSpacing(0);
+     hbox->addLayout(hboxLeftBtns.get());
+     hbox->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
+ 
+     windowTitle = std::make_shared<QLabel>(qApp->applicationDisplayName());
+-    windowTitle->setMargin(10);
+     hbox->addWidget(windowTitle.get(), 0, Qt::AlignVCenter | Qt::AlignHCenter);
+     hbox->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Fixed, QSizePolicy::Minimum));
+ 
+     hboxRightBtns = std::make_shared<QHBoxLayout>();
+-    hboxRightBtns->setMargin(0);
+     hboxRightBtns->setContentsMargins(0, 0, 0, 0);
+     hboxRightBtns->setSpacing(0);
+     hbox->addLayout(hboxRightBtns.get());
+diff --git a/Source/Gui/Widgets/OTPWidget.cpp b/Source/Gui/Widgets/OTPWidget.cpp
+index 1ab73d2..8a8b503 100644
+--- a/Source/Gui/Widgets/OTPWidget.cpp
++++ b/Source/Gui/Widgets/OTPWidget.cpp
+@@ -154,7 +154,6 @@ QWidget *OTPWidget::make_showToggle(int row, const QObject *receiver,
+     auto w = new QWidget();
+     auto hbox = new QHBoxLayout();
+     hbox->setSpacing(0);
+-    hbox->setMargin(0);
+     hbox->setContentsMargins(6,0,3,0);
+ 
+     auto cb = new QCheckBox();
+@@ -243,7 +242,6 @@ QWidget *OTPWidget::make_buttons(int row, const QObject *receiver, const std::fu
+     auto w = new QWidget();
+     auto box = new QGridLayout();
+     box->setSpacing(1);
+-    box->setMargin(0);
+     box->setContentsMargins(0,0,0,0);
+ 
+     auto btn = new QPushButton();
+@@ -284,7 +282,6 @@ QWidget *OTPWidget::make_labelInput(int row, const QObject *receiver, const std:
+     auto w = new QWidget();
+     auto hbox = new QHBoxLayout();
+     hbox->setSpacing(0);
+-    hbox->setMargin(0);
+     hbox->setContentsMargins(0,0,0,0);
+ 
+     auto btn = new QPushButton();
+@@ -326,7 +323,6 @@ QWidget *OTPWidget::make_steamInput()
+     w->setUserData(0, new TokenSecretInputTypeUserData(TokenSecretInputTypeUserData::Steam));
+     auto hbox = new QHBoxLayout();
+     hbox->setSpacing(0);
+-    hbox->setMargin(0);
+     hbox->setContentsMargins(0,0,0,0);
+ 
+     auto le = new QLineEdit();
+@@ -359,7 +355,6 @@ QWidget *OTPWidget::make_typeDisplay(const OTPToken *token)
+     auto w = new QWidget();
+     auto hbox = new QHBoxLayout();
+     hbox->setSpacing(2);
+-    hbox->setMargin(0);
+     hbox->setContentsMargins(0,0,0,0);
+ 
+     auto icon = new QLabel();
+@@ -392,7 +387,6 @@ QWidget *OTPWidget::make_labelDisplay(const std::string &userIcon, const QString
+     auto w = new QWidget();
+     auto hbox = new QHBoxLayout();
+     hbox->setSpacing(2);
+-    hbox->setMargin(0);
+     hbox->setContentsMargins(0,0,0,0);
+ 
+     auto icon = new QLabel();
+@@ -429,7 +423,6 @@ QWidget *OTPWidget::make_tokenGenDisplay(const unsigned int &to, const OTPToken:
+     auto w = new QWidget();
+     auto vbox = new QVBoxLayout();
+     vbox->setSpacing(0);
+-    vbox->setMargin(0);
+     vbox->setContentsMargins(0,0,0,0);
+ 
+     auto timeout = new QProgressBar();
