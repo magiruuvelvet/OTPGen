@@ -13,7 +13,7 @@
 
 int main(void)
 {
-    TOTPToken token;
+    OTPToken token;
     token.setLabel("test");
     token.setSecret("aabbcc");
 
