@@ -30,7 +30,7 @@ if (BUNDLED_CRYPTOPP)
 else()
     find_package(PkgConfig)
 
-    pkg_check_modules(CRYPTOPP REQUIRED libcrypto++)
+    pkg_check_modules(CRYPTOPP REQUIRED libcryptopp)
     target_include_directories("CoreLib" PRIVATE "${CRYPTOPP_INCLUDEDIR}")
     target_link_libraries("CoreLib" ${CRYPTOPP_LDFLAGS})
 endif()
