@@ -32,6 +32,11 @@ add_executable("${TARGET_NAME}" ${SourceListCli})
 SetCppStandard("${TARGET_NAME}" 17)
 target_link_libraries("${TARGET_NAME}" "CoreLib" "SharedLib" "CliDependencies" "BoostLib")
 
+# pthread is required on Linux
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    target_link_libraries("${TARGET_NAME}" -lpthread)
+endif()
+
 # QR Code Support
 if (WITH_QR_CODES)
     target_link_libraries("${TARGET_NAME}" "QRCodeSupportLib")
