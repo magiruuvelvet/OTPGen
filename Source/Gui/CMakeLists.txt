@@ -148,15 +148,10 @@ if (NOT DISABLE_QTKEYCHAIN)
     target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtkeychain")
 endif()
 
-if (NOT OS_WASM)
-    target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
-    target_include_directories("GuiLibSupport" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtlockedfile")
-
-    if (BUNDLED_QTKEYCHAIN)
-        target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Gui/qt5keychain")
-    else()
-        target_include_directories("${TARGET_NAME}" PRIVATE "${QTKEYCHAIN_INCLUDE_DIRS}")
-    endif()
-
-    target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
+if (BUNDLED_QTKEYCHAIN)
+    target_include_directories("${TARGET_NAME}" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Gui/qt5keychain")
+else()
+    target_include_directories("${TARGET_NAME}" PRIVATE "${QTKEYCHAIN_INCLUDE_DIRS}")
 endif()
+
+target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/qtsingleapplication")
