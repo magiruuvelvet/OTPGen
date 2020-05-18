@@ -21,7 +21,7 @@
 #include <qtsingleapplication.h>
 
 #ifdef QTKEYCHAIN_SUPPORT
-#include <qtkeychain/keychain.h>
+#include <qt5keychain/keychain.h>
 #endif
 
 Q_DECLARE_METATYPE(QList<int>)

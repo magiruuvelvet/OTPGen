@@ -111,6 +111,9 @@ library path. Most IDEs have a CMake run configurations to do that on a per proj
  - `-DBUNDLED_CRYPTOPP=ON` (default *OFF*): use the bundled crypto++ library instead of the system-installed
    one. recommended for portable builds.
 
+ - `-DBUNDLED_QTKEYCHAIN=ON` (default *ON*): use the bundled Qt Keychain library. useful when the system doesn't
+   provide a copy of it
+
 <br>
 
 **Hint**
