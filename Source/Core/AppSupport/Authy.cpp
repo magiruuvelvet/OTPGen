@@ -7,7 +7,7 @@
 #include <cereal/external/rapidjson/document.h>
 #include <cereal/external/rapidjson/memorystream.h>
 
-#include <cereal/external/rapidxml/rapidxml.hpp>
+#include <cereal/archives/xml.hpp>
 
 #include <cryptopp/algparam.h>
 #include <cryptopp/hex.h>
