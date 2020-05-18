@@ -13,7 +13,8 @@
 
 #include <sago/platform_folders.h>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
+#include <system_error>
 
 #if !defined(OS_WINDOWS)
 // gracefully terminate application
@@ -54,15 +55,15 @@ int main(int argc, char **argv)
     const auto config_home = sago::getConfigHome();
     const auto app_cfg = config_home + "/" + cfg::Developer + "/" + cfg::Name;
 
-    boost::system::error_code fs_error;
-    if (!boost::filesystem::exists(app_cfg, fs_error))
+    std::error_code fs_error;
+    if (!std::filesystem::exists(app_cfg, fs_error))
     {
         std::cout << "[info] first start! creating config directory: " << app_cfg << std::endl << std::endl;
 
-        auto fs_res = boost::filesystem::create_directories(app_cfg, fs_error);
+        auto fs_res = std::filesystem::create_directories(app_cfg, fs_error);
         if (!fs_res)
         {
-            std::fprintf(stderr, "Failed to create directory: %s\n boost::filesystem: %s\n", app_cfg.c_str(), fs_error.message().c_str());
+            std::fprintf(stderr, "Failed to create directory: %s\n std::filesystem: %s\n", app_cfg.c_str(), fs_error.message().c_str());
             return 1;
         }
     }
