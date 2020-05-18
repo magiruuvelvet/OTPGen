@@ -14,23 +14,13 @@ file(GLOB_RECURSE SourceListCliDeps
     "${PROJECT_SOURCE_DIR}/Libs/PlatformFolders/sago/*.h"
 )
 
-file(GLOB_RECURSE SourceListBoost
-    "${PROJECT_SOURCE_DIR}/Libs/boost/src/*.cpp"
-    "${PROJECT_SOURCE_DIR}/Libs/boost/src/*.hpp"
-    "${PROJECT_SOURCE_DIR}/Libs/boost/src/*.h"
-)
-
-# define the boost fs no deprecated api macro globally
-add_definitions(-DBOOST_FILESYSTEM_NO_DEPRECATED)
-
 set(TARGET_NAME "${PROJECT_NAME}Cli")
 
 add_library("CliDependencies" STATIC ${SourceListCliDeps})
-add_library("BoostLib" STATIC ${SourceListBoost})
 
 add_executable("${TARGET_NAME}" ${SourceListCli})
 SetCppStandard("${TARGET_NAME}" 17)
-target_link_libraries("${TARGET_NAME}" "CoreLib" "SharedLib" "CliDependencies" "BoostLib")
+target_link_libraries("${TARGET_NAME}" "CoreLib" "SharedLib" "CliDependencies")
 
 # pthread is required on Linux
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
@@ -44,9 +34,4 @@ if (WITH_QR_CODES)
 endif()
 
 target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/PlatformFolders")
-target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Libs/boost")
-
-# add boost headers to global scope to avoid system conflicts
-include_directories("${PROJECT_SOURCE_DIR}/Libs/boost")
-
 target_include_directories("${TARGET_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}/Source/Cli")
